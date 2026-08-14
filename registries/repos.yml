@@ -1,0 +1,40 @@
+# Canonical repo inventory for quasar-disney-mobile (multi-repo projects).
+# The source of truth for which repos exist and what each is — and the index to their docs:
+# each entry's `location` points to a repo whose own README.md (plus an optional
+# ARCHITECTURE.md) is the detailed "about". To orient in a multi-repo project, read this map
+# first, then read the README of each repo you'll touch — the same way you read the
+# architecture docs before a design change. Update this whenever a repo is created. Tooling/CI
+# can read it to stay in sync. See METHOD.md §7.
+#
+# `location:` is where the repo lives — by default a `Code/*` sibling under the workspace root,
+# written workspace-root-relative (e.g. Code/quasar-disney-mobile-api/). It MAY instead point OUTSIDE the
+# `Code/*` shell — an absolute path or any other arbitrary path — for a repo referenced in place
+# where it lives, rather than created as a sibling. setup-workspace.sh uses `location`
+# verbatim (clones from `remote` into it, or references it in place when there's no remote), so
+# keep `location` and `remote` distinct: a clone URL goes in `remote`, never folded into `location`.
+#
+# Mono-repo-for-now: the entries below are folders inside the single repo, not separate repos
+# yet — this inventory describes the post-split (multi-repo) target.
+#
+# Teams: give each repo a `remote:` field (any cloneable git URL). scripts/setup-workspace.sh clones from
+# it, and the STEP-number reservation in runbooks/collaboration.md relies on a shared remote
+# for prompts/ + this docs hub. Solo with no remotes, it's optional.
+
+repos:
+  - name: "quasar-disney-mobile-docs"
+    location: "Code/quasar-disney-mobile-docs/"
+    type: docs            # docs | service | library | app | infra | tests
+    description: "Documentation hub: architecture, ADRs, standards, registries."
+
+  - name: "prompts"
+    location: "prompts/"
+    type: docs
+    description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
+
+  # Service / app / library repos get added here as the architecture names them and they
+  # are stamped from templates/repo-readme-template.md. Example:
+  # - name: "quasar-disney-mobile-api"
+  #   location: "Code/quasar-disney-mobile-api/"
+  #   type: service
+  #   remote: "git@example.com:TEAM/quasar-disney-mobile-api.git"   # team mode: setup-workspace.sh clones this
+  #   description: "..."

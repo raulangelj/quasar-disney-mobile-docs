@@ -1,0 +1,127 @@
+# quasar-disney-mobile — Test Strategy (Session 1.12)
+
+> **How to run:** Tell your agent *"STEP-1.12"* or *"session 1.12"*; a leading *"Run"* and
+> `: Test Strategy` are optional (but the label helps chat titles). It interviews you one decision at a
+> time, then writes the Test Strategy architecture doc and updates `prompts/STEP-index.md`.
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
+> the Data Model architecture doc (`architecture/*-data-model.md`), the Environments architecture doc
+> (`architecture/*-environments.md`), and the Interface Contracts architecture doc
+> (`architecture/*-interface-contracts.md`) first — plus any conditional-session
+> doc that adds test surface (e.g. identity-auth for authn/authz flows, privacy-compliance for
+> data-handling/retention, native-app for device/platform testing, or one added later), if it's
+> been written.
+> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1-2 (no/basic coding background) explain each question's *what* and *why* in plain language - leading with a recommended default - before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default level of detail; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify - in any words, not just those - as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
+
+## About quasar-disney-mobile
+A mobile app using react native to replicate a streaming applicacion just like Disney+
+
+## What this session does
+With the components, data, environment decisions, and interface contracts set, we'll decide what kinds
+of tests you'll write and what has to pass before code merges, so you can change things later
+without fear.
+
+Terminology: **Test Strategy** is the Session 1.12 process name;
+`architecture/*-test-strategy.md` is the **Test Strategy architecture doc** it produces (the
+exact output file is named in the Output section below); **test artifacts** are concrete files
+or configured checks governed by that doc, such as test suites, CI workflows/gates, coverage
+reports, and the coding standards files reconciled during this session.
+
+## Why this session matters
+Tests are what let you (and your AI agent) change code later without fear. The common
+failure modes: no tests, only happy-path tests, or a slow flaky suite no one trusts.
+Deciding the **test tiers, what each covers, and what gates a merge** now means quality is
+built in rather than bolted on — and it's especially important in a multi-repo project
+where the pieces have to work *together*.
+
+## How this session works
+- One decision at a time; **wait** for answers.
+- Recommend a pragmatic default (a healthy **test pyramid**: many fast unit tests, fewer
+  integration, a thin layer of end-to-end) and flag where this system needs more.
+- Tie back to the components, data, environment decisions, and interface contracts.
+
+## Decisions to make (in order)
+1. **Test tiers.** Define unit / integration / end-to-end for this project: what each
+   covers and roughly the balance between them.
+2. **What must be covered.** The critical paths and risky areas that must have tests (not a
+   vanity coverage percentage). What's explicitly *not* worth testing heavily. As a rough guide you
+   can *aim* for ~80% unit-test coverage — a suggestion to steer by, not a gate; don't chase
+   the number at the expense of testing what matters.
+3. **Test data & isolation.** How tests get data (fixtures/factories) and stay isolated
+   (e.g. a fresh DB/schema per test run) so they don't interfere.
+4. **Mocking strategy.** What to mock (external/third-party dependencies) vs. exercise for
+   real (your own components, a real local DB).
+5. **System / end-to-end tests.** How the whole system is tested together — important for
+   multi-repo. Where do cross-repo e2e tests live (often a dedicated tests repo)?
+6. **CI gates.** What must pass before code merges and before it deploys (tests, linters,
+   type checks, build). Keep the gate fast enough that people don't route around it. A starter
+   wiring this up ships in `templates/ci/` (a method-integrity workflow that runs
+   `scripts/check.sh`, plus a per-repo test workflow to fill in) — see `templates/ci/README.md`.
+   Include the contract-validation gates chosen in the Interface Contracts architecture doc where they apply.
+7. **Coverage tooling and reporting.** For each real implementation language, choose the
+   coverage tool and where its report appears. Default durable coverage/test summaries to
+   `reports/test-results/` in the docs hub for meaningful runs such as check-ins, releases,
+   incidents, security reviews, major quality-gate changes, or when requested by a user. Keep
+   generated multi-file HTML trees as CI artifacts, coverage-service output, or ignored local output by default; only define
+   a docs-retained artifact convention when the project has a real release, audit, or compliance
+   reason. Treat coverage as a visibility/trend signal, not proof of quality; decide whether
+   there is a minimum threshold, changed-lines threshold, or no numeric gate. Good defaults:
+   Python `coverage.py` via `pytest-cov`; Java JaCoCo via Maven/Gradle; TypeScript/JavaScript
+   Vitest/Jest coverage with V8 or Istanbul/nyc; Go `go test -coverprofile=coverage.out ./...`;
+   Rust `cargo llvm-cov` (or `grcov`/`tarpaulin` when it fits better); Dart/Flutter
+   `dart test --coverage` / `flutter test --coverage` with LCOV output; C#/.NET Coverlet or
+   `dotnet test --collect:"XPlat Code Coverage"`. For substantial shell scripts, consider
+   `kcov`; for SQL, prefer migration/query tests or DB-specific tools such as pgTAP/tSQLt
+   rather than pretending there is universal line coverage; for APIs, track contract/e2e
+   coverage with OpenAPI/GraphQL/protobuf validation and tools such as Schemathesis, Dredd, or
+   Newman-style checks.
+8. **Performance / load testing.** Whether and when load tests run (ties to the performance
+   targets in the Scaling & Performance architecture doc).
+9. **Coding standards per language.** Confirm the implementation language(s) from the
+   high-level stack (the Architecture Overview architecture doc's stack decision). Then reconcile `coding-standards/` to that list, **one
+   language at a time**:
+   - **If a `coding-standards/<lang>.md` already ships** (e.g. `python.md`, `typescript.md`,
+     `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`): tell the user it exists as a *default starting point*,
+     and ask them to review it and flag anything they want changed for this project. Apply
+     their edits.
+   - **If there's no file for that language:** create one by copying the structure of an
+     existing standard (e.g. `coding-standards/python.md`) — same sections (naming, layout,
+     error handling, logging, testing) — and fill it in with the user.
+   - **Prune** the default standards for languages this project won't use.
+   - **`sql.md`, `shell.md`, and `api.md` are cross-cutting**, not 1.3 implementation languages:
+     keep `sql.md` if the project uses a relational database, `shell.md` if it ships shell scripts
+     (CI glue, dev scripts, entrypoints), and `api.md` if any boundary from the Architecture Overview architecture doc is an HTTP/REST API
+     it exposes or consumes — regardless of the language list; prune any that don't apply.
+     `sql.md`'s rules are secondary to the language docs where they conflict; `api.md` is the house
+     style that complements the HTTP/REST interface contract artifacts and policy from the Interface Contracts architecture doc.
+
+## Output
+Write `architecture/12-test-strategy.md` — the Test Strategy architecture doc (use
+`templates/architecture-doc-template.md`). Body:
+- **Test tiers** — tier | scope | tools | where it runs
+- **Coverage priorities** — must-cover paths
+- **Coverage tooling and reporting** — language/surface | tool | durable summary location
+  (default: `reports/test-results/`) | generated artifact location | threshold/gate
+- **Test data & isolation**, **mocking strategy**
+- **System/e2e testing** (and its home in a multi-repo setup)
+- **CI gates** — what blocks merge / deploy
+- **Coding standards** — link the per-language file(s) in `coding-standards/` that apply
+
+When durable Markdown summaries are written, start them from
+`templates/reports/test-results/test-results-summary-template.md`.
+
+Also reconcile the `coding-standards/` directory itself (decision 9): keep and user-review
+the standards for the chosen languages, add any missing ones from the existing pattern, and
+delete the rest. Update the file table in `coding-standards/README.md`.
+
+Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Update
+`prompts/STEP-index.md`: mark 1.12 done.
+
+## Next
+Once 1.12 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
+the user to **start a fresh chat** and run that substep with a descriptive first message. For
+a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for example,
+`Run STEP-1.13: Glossary`). For a lettered conditional session, use
+`Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
+conditional's template. See the next-action resolver in `METHOD.md` §10.
+
+**Begin now — in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user — in the one or two sentences from **What this session does** above — what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply — nothing more.

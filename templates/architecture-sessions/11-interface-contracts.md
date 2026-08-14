@@ -1,0 +1,113 @@
+# quasar-disney-mobile - Interface Contracts (Session 1.11)
+
+> **How to run:** Tell your agent *"STEP-1.11"* or *"session 1.11"*; a leading *"Run"* and
+> `: Interface Contracts` are optional (but the label helps chat titles). It interviews you one decision at a
+> time, then writes the Interface Contracts architecture doc and updates `prompts/STEP-index.md`.
+> Reads `overview.md`, the Architecture Overview architecture doc (`architecture/*-architecture-overview.md`),
+> the Data Model architecture doc (`architecture/*-data-model.md`), the Security & Threat Model architecture doc
+> (`architecture/*-security-threat-model.md`), the Environments architecture doc
+> (`architecture/*-environments.md`), and the Observability architecture doc
+> (`architecture/*-observability.md`) first - plus any conditional-session docs already written
+> that affect boundaries, identity/auth, privacy, native clients, or data sent to third parties.
+> **Calibrate to the local user profile.** Check the **Experience level** in root `.throughstone/local-user.md`: at Level 1-2 (no/basic coding background) explain each question's *what* and *why* in plain language - leading with a recommended default - before asking, and skip bare jargon. If the file is missing, ask the two local-profile questions from `BOOTSTRAP-PROMPT.md` Stage 0, create it, then continue. Also check **Communication style** there and use it as the default level of detail; an explicit style request in chat overrides it for this session only. At any level, treat any confusion or request to clarify - in any words, not just those - as a cue to explain plainly, and tell the user up front they can ask. (See `METHOD.md` §4, "Calibrating to the user's experience level".)
+
+## About quasar-disney-mobile
+A mobile app using react native to replicate a streaming applicacion just like Disney+
+
+## What this session does
+With the components, data, security, environment decisions, and choices from the Observability
+architecture doc in place, we'll decide how system boundaries are specified and kept in sync so
+consumers build against a clear contract instead of guessing from prose or code.
+
+Terminology: **Interface Contracts** is the Session 1.11 process name;
+`architecture/*-interface-contracts.md` is the **Interface Contracts architecture doc** it
+produces (the exact output file is named in the Output section below); an **interface contract artifact**
+is a boundary-specific spec or schema named by
+that doc, such as OpenAPI, GraphQL, protobuf, AsyncAPI, JSON Schema, or a public package
+interface.
+
+## Why this session matters
+Interfaces are where separately-built pieces most often drift apart: an endpoint changes shape,
+an event drops a field, or a generated client no longer matches the service. The Architecture
+Overview architecture doc names the boundaries; this session turns the boundary policy into something concrete enough for
+implementation STEPs, repo READMEs, check-ins, and CI gates to enforce.
+
+## How this session works
+- One decision at a time; **wait** for answers.
+- Start from the boundaries named in the Architecture Overview architecture doc, then pull in decisions from data, security/privacy,
+  the Environments architecture doc, the Observability architecture doc, and conditionals.
+- Keep the right weight for the project: formal contracts for public or cross-component
+  boundaries; lightweight or explicitly informal contracts for simple internal seams.
+
+## Decisions to make (in order)
+1. **Boundary inventory.** List every boundary that may need a contract: frontend <-> backend,
+   mobile/desktop <-> backend, service <-> service, worker/job <-> queue/event bus, public API
+   consumers, webhooks, CLI interfaces, library/package public APIs, and data import/export
+   formats. Separate **owned interfaces** from third-party APIs this project only consumes.
+2. **Contract level per boundary.** For each owned boundary, decide whether it needs a formal
+   interface contract artifact, a lightweight Markdown/interface note, or an explicit "informal for now"
+   decision. Tiny single-component projects can record that no formal contract is needed yet.
+3. **Contract style per boundary.** Choose the style that fits each formal boundary: REST +
+   OpenAPI, GraphQL schema, gRPC/protobuf, AsyncAPI/event schema, JSON Schema, typed package
+   interfaces, or another established format.
+4. **Authoring source vs. consumer contract of record.** Decide how each contract is produced:
+   design-first/manual artifact, code-first/generated from annotations or types, hybrid with
+   generated output checked in, or explicitly deferred. Name both the **authoring source of
+   truth** and the **consumer-facing contract of record**.
+5. **Artifact locations.** Decide where interface contract artifacts or planned artifacts live: owning
+   repo, docs hub, shared contracts package/repo, per-service `contracts/`, generated docs, or
+   a placeholder to create during repo scaffolding when the code repo does not exist yet.
+6. **Versioning and compatibility.** Decide URL/path/header versioning, schema/event versioning,
+   backward-compatibility rules, deprecation process, consumer migration expectations, and when
+   breaking changes are allowed.
+7. **Request / message conventions.** For HTTP APIs: path/resource naming, field casing,
+   timestamps, IDs, pagination, filtering/sorting, partial updates, idempotency keys, and content
+   types. For non-HTTP: message/event naming, envelopes, correlation IDs, retry/idempotency
+   semantics, and schema evolution rules.
+8. **Error model.** Decide error format, status/code taxonomy, validation error shape,
+   auth/permission error posture, and what information must not leak. For HTTP APIs, decide
+   whether to use RFC 9457 problem details.
+9. **Auth, authorization, and privacy.** Pull from security, identity/auth, and privacy docs:
+   auth mechanism, required scopes/roles/permissions, tenant boundaries, personal data in
+   payloads, deletion/export endpoints if relevant, and audit-sensitive operations.
+10. **Observability hooks.** Pull from the Observability architecture doc: request IDs/correlation
+    IDs, trace headers, event IDs, and error logging expectations at boundaries.
+11. **Contract testing and CI gates.** Define the contract validation expectations that the Test
+    Strategy session will fold into the Test Strategy architecture doc: schema validation, generated client/server tests,
+    consumer-driven contract tests if needed, OpenAPI/GraphQL/protobuf linting, backward
+    compatibility checks, and what must pass before merge.
+12. **Ownership and update rule.** Decide which component/team owns each contract, who reviews
+    breaking changes, and the rule for implementation STEPs: any API/interface-changing substep
+    updates the interface contract artifact, contract tests, and related README links before it is done.
+
+## Output
+Write `architecture/11-interface-contracts.md` — the Interface Contracts architecture doc
+(use `templates/architecture-doc-template.md`). Body:
+- **Boundary contract inventory** - boundary | owner | contract level | style | status
+- **Authoring source and contract of record** - per formal boundary
+- **Artifact locations** - including repo-scaffolding placeholders where repos do not exist yet
+- **Versioning & compatibility**
+- **Request / message conventions**
+- **Error model**
+- **Auth, authorization & privacy**
+- **Observability hooks**
+- **Contract testing & CI inputs**
+- **Ownership & review**
+- **Deferred / informal interfaces**
+
+Write an ADR if the project chooses a significant contract strategy with real tradeoffs
+(for example, OpenAPI design-first vs. code-generated, GraphQL vs. REST, or a shared contracts
+repo vs. repo-local contracts).
+
+Fill the **Decision Summary**, record **Open Questions**, start the **Version Log**. Update
+`prompts/STEP-index.md`: mark 1.11 done.
+
+## Next
+Once 1.11 is marked done, the next action is the lowest open STEP-1 substep in the index. Tell
+the user to **start a fresh chat** and run that substep with a descriptive first message. For
+a numbered core session, use `Run STEP-1.N: <Session label from the index>` (for example,
+`Run STEP-1.12: Test Strategy`). For a lettered conditional session, use
+`Run STEP-1.Xa: <Conditional session label>` and the invocation by name from that
+conditional's template. See the next-action resolver in `METHOD.md` section 10.
+
+**Begin now - in this same reply.** "STEP-1.N" or "session N.M", with or without a leading "Run" and with or without the session label, is your go-ahead, not a request for acknowledgement: don't say "ready when you are", don't recap this file, don't ask whether to start. Read root `.throughstone/local-user.md`, `overview.md` (plus anything relevant in `inputs/` and any earlier architecture docs) silently. Then, in this one reply: **(1)** tell the user - in the one or two sentences from **What this session does** above - what you're about to cover (plain language); then **(2)** immediately **ask decision 1**, calibrated to the profile's experience level. That orientation plus the first question is your entire first reply - nothing more.

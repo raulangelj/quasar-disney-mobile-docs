@@ -1,0 +1,15 @@
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# Per-machine agent config (not shared)
+.claude/settings.local.json
+
+# Personal local Throughstone profile (not shared)
+/.throughstone/local-user.md
+
+# Local dev secrets — NEVER commit. Commit only .env.example (the documented key list).
+.env
+.env.*
+!.env.example
+.secrets/
