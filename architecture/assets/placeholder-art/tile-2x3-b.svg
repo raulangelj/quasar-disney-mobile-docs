@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600" role="img" aria-label="Placeholder key art">
+  <defs>
+    <linearGradient id="p23bBg" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0" stop-color="#04333C"/><stop offset="1" stop-color="#010F14"/>
+    </linearGradient>
+    <radialGradient id="p23bGlow" cx="0.3" cy="0.72" r="0.66">
+      <stop offset="0" stop-color="#22D3EE" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#22D3EE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="p23bScrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.72"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#p23bBg)"/>
+  <rect width="400" height="600" fill="url(#p23bGlow)"/>
+  <g stroke="#9EF6FF" stroke-opacity="0.2" stroke-width="2">
+    <path d="M-20 200 L420 92"/><path d="M-20 260 L420 152"/><path d="M-20 320 L420 212"/>
+    <path d="M-20 380 L420 272"/><path d="M-20 440 L420 332"/>
+  </g>
+  <circle cx="128" cy="418" r="86" fill="#0AA8C4" fill-opacity="0.45"/>
+  <circle cx="128" cy="418" r="86" fill="none" stroke="#C9FBFF" stroke-opacity="0.5" stroke-width="3"/>
+  <rect y="360" width="400" height="240" fill="url(#p23bScrim)"/>
+</svg>

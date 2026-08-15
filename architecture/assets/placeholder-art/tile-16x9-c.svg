@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Placeholder key art">
+  <defs>
+    <linearGradient id="p169cBg" x1="0" y1="0" x2="1" y2="0.8">
+      <stop offset="0" stop-color="#4A0F22"/><stop offset="1" stop-color="#14040A"/>
+    </linearGradient>
+    <radialGradient id="p169cGlow" cx="0.5" cy="0.42" r="0.66">
+      <stop offset="0" stop-color="#E0322E" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#E0322E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="p169cScrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.72"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#p169cBg)"/>
+  <rect width="640" height="360" fill="url(#p169cGlow)"/>
+  <g stroke="#FFC9C7" stroke-opacity="0.24" stroke-width="2" fill="none">
+    <path d="M-10 300 C 120 180, 240 180, 330 240 C 430 306, 530 268, 650 150"/>
+    <path d="M-10 330 C 120 210, 240 210, 330 270 C 430 336, 530 298, 650 180"/>
+    <path d="M-10 270 C 120 150, 240 150, 330 210 C 430 276, 530 238, 650 120"/>
+  </g>
+  <rect y="180" width="640" height="180" fill="url(#p169cScrim)"/>
+</svg>
