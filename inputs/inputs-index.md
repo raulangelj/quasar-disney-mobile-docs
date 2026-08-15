@@ -48,10 +48,15 @@
 
 | Input | Part | Status | Covered by / note |
 |-------|------|--------|-------------------|
+| `ui/disney-plus-reference-screens.md` | Screen inventory & flow order | Live | UI reference transcription (STEP-1.2); feeds 1.3 nav, 1.7 design system |
+| `ui/disney-plus-reference-screens.md` | §1–4 Auth screens (welcome, email, password, error) | Live | expands doc 01's single "login screen" scope item |
+| `ui/disney-plus-reference-screens.md` | §5–6 Home screens (hero + row stack) | Live | source for the carousel-variant set |
+| `ui/disney-plus-reference-screens.md` | Patterns to extract | Live | atoms/molecules + two-theme finding for 1.7 |
+| `ui/disney-plus-reference-screens.md` | Trademark & asset substitution | Live | Phase-1 constraint; carry into 02-phasing-roadmap |
+| `ui/*.png` (screenshots) | (whole) | Live | **binaries not yet in repo** — user to drop in; password already redacted in the error capture, email still visible |
+
 <!-- Example rows — replace with your own once you add inputs:
 | payments-protocol-v2.pdf | §3 Wire format         | Superseded | architecture/11-interface-contracts |
 | payments-protocol-v2.pdf | §5 Retry / idempotency | Live       | external spec — authoritative until the protocol revises |
 | brand-moodboard.png      | (whole)                | Live       | design reference; not decomposable |
 -->
-
-_No inputs indexed yet._
