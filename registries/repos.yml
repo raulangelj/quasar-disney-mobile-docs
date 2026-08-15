@@ -24,11 +24,13 @@ repos:
   - name: "quasar-disney-mobile-docs"
     location: "Code/quasar-disney-mobile-docs/"
     type: docs            # docs | service | library | app | infra | tests
+    remote: "git@github.com:raulangelj/quasar-disney-mobile-docs.git"
     description: "Documentation hub: architecture, ADRs, standards, registries."
 
   - name: "prompts"
     location: "prompts/"
     type: docs
+    remote: "git@github.com:raulangelj/quasar-disney-mobile-prompts.git"
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
   # Service / app / library repos get added here as the architecture names them and they
@@ -36,5 +38,5 @@ repos:
   # - name: "quasar-disney-mobile-api"
   #   location: "Code/quasar-disney-mobile-api/"
   #   type: service
-  #   remote: "git@example.com:TEAM/quasar-disney-mobile-api.git"   # team mode: setup-workspace.sh clones this
+  #   remote: "git@github.com:raulangelj/quasar-disney-mobile-api.git"   # team mode: setup-workspace.sh clones this
   #   description: "..."
