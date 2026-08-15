@@ -10,20 +10,20 @@
 
 ## Table of Contents
 
-1. [Phase 1 — functional POC with visual fidelity](#1-phase-1--functional-poc-with-visual-fidelity)
-2. [Phase 1a — the 2026-08-18 demo cut](#2-phase-1a--the-2026-08-18-demo-cut)
-3. [Phase 1b — completing Phase 1](#3-phase-1b--completing-phase-1)
+1. [Phase 1 as a functional POC with visual fidelity](#1-phase-1-as-a-functional-poc-with-visual-fidelity)
+2. [Phase 1a, the 2026-08-18 demo cut](#2-phase-1a-the-2026-08-18-demo-cut)
+3. [Phase 1b, completing Phase 1](#3-phase-1b-completing-phase-1)
 4. [Launch criteria](#4-launch-criteria)
 5. [Later phases](#5-later-phases)
 6. [Don't-foreclose list](#6-dont-foreclose-list)
-7. [Phase dependencies & critical path](#7-phase-dependencies--critical-path)
-8. [Schedule & schedule risk](#8-schedule--schedule-risk)
+7. [Phase dependencies and critical path](#7-phase-dependencies-and-critical-path)
+8. [Schedule and schedule risk](#8-schedule-and-schedule-risk)
 9. [Two-developer split](#9-two-developer-split)
 10. [Placeholder brand](#10-placeholder-brand)
 
 ---
 
-## 1. Phase 1 — functional POC with visual fidelity
+## 1. Phase 1 as a functional POC with visual fidelity
 
 **Milestone type:** POC / stakeholder demo — *not* an MVP. No end user derives value from it; its
 job is to prove the architecture and the visual result to an internal audience.
@@ -55,7 +55,7 @@ full Phase 1 with tests. Rather than deliver everything half-finished — the wo
 demo whose subject *is* craft — Phase 1 splits into **1a** (demo-gated, hard date) and **1b** (the
 remainder, no external date).
 
-## 2. Phase 1a — the 2026-08-18 demo cut
+## 2. Phase 1a, the 2026-08-18 demo cut
 
 ### In scope
 
@@ -109,7 +109,7 @@ remainder, no external date).
 | UI/component tests | 1b | Highest cost-to-signal ratio under the deadline; logic tests carry the testability argument |
 | Formal QA smoke checklist | 1b | QA has no installable build until CI exists |
 
-## 3. Phase 1b — completing Phase 1
+## 3. Phase 1b, completing Phase 1
 
 No external date. Delivers: two-step email → password auth with its own navigation state; the live
 (`VIVO` badge, red progress bar) and landscape carousel variants; UI/component rendering tests; the
@@ -197,7 +197,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 | DF9 | **Analytics** | The hook ships with its final signature behind `console.log` stubs |
 | DF10 | **Trademark substitution** | No Disney/Marvel/Star Wars/hulu/ESPN marks or real key art in the codebase or assets, at any phase |
 
-## 7. Phase dependencies & critical path
+## 7. Phase dependencies and critical path
 
 **Within Phase 1a the order is not free:**
 
@@ -226,7 +226,7 @@ Infrastructure, **1.9** Environments, and **1.10** Observability are **Deferred*
 1a decision. **1.6** Security (no real PII), **1.13** Glossary, and **1.14** Cross-Cutting Review run
 abbreviated.
 
-## 8. Schedule & schedule risk
+## 8. Schedule and schedule risk
 
 | When | Work |
 |------|------|

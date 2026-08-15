@@ -50,7 +50,7 @@ risks:
     mitigation: "Logic layers fully tested; manual smoke on both platforms before the 2026-08-18 sign-off."
     revisit_trigger: "Start of Phase 1b, or the first visual regression reported after sign-off."
     refs:
-      - "architecture/02-phasing-roadmap.md#2-phase-1a--the-2026-08-18-demo-cut"
+      - "architecture/02-phasing-roadmap.md#2-phase-1a-the-2026-08-18-demo-cut"
       - "architecture/02-phasing-roadmap.md#4-launch-criteria"
     closed:
       date:
@@ -69,7 +69,7 @@ risks:
     mitigation: "Each deferred session carries a revisit trigger in prompts/STEP-index.md; none informs a Phase-1a decision."
     revisit_trigger: "Per-session triggers in prompts/STEP-index.md, or the next periodic check-in — whichever comes first."
     refs:
-      - "architecture/02-phasing-roadmap.md#7-phase-dependencies--critical-path"
+      - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
       - "../../prompts/STEP-index.md"
     closed:
       date:
@@ -88,7 +88,7 @@ risks:
     mitigation: "Pre-agreed fallback: if no app runs on both platforms by Saturday midday, drop Android for Saturday, pursue iOS only, bring Android up Monday."
     revisit_trigger: "Saturday 2026-08-15 midday checkpoint."
     refs:
-      - "architecture/02-phasing-roadmap.md#8-schedule--schedule-risk"
+      - "architecture/02-phasing-roadmap.md#8-schedule-and-schedule-risk"
     closed:
       date:
       reason:
@@ -125,7 +125,7 @@ risks:
     mitigation: "Convert text to outlines (~30 min in Figma/Inkscape) or ship @1x/@2x/@3x PNGs. Geometry is already platform-independent."
     revisit_trigger: "Before the 2026-08-18 sign-off (open question OQ-13)."
     refs:
-      - "architecture/assets/README.md#known-limitation--text-is-not-outlined"
+      - "architecture/assets/README.md#known-limitation-text-is-not-outlined"
       - "architecture/02-phasing-roadmap.md#10-placeholder-brand"
     closed:
       date:

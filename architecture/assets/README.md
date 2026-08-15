@@ -25,7 +25,7 @@ lookalike, and that was an explicit project decision.
 > `../../registries/risks.yml`). **Rename before any public release, app store submission, public
 > site, or marketing material.**
 
-### Known limitation — text is not outlined
+### Known limitation: text is not outlined
 
 The wordmarks and strip use SVG `<text>` with a font stack (`Avenir Next` → `Futura` →
 `Trebuchet MS` → `Verdana` → `sans-serif`). Avenir Next resolves on iOS; **Android will fall back**,
