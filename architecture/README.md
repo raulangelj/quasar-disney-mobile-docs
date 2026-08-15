@@ -23,4 +23,5 @@ Most of these are produced by the **architecture sessions** during STEP-1
 
 | # | Doc | Version | Status |
 |---|-----|---------|--------|
-| _(filled in by the Cross-Cutting Review)_ | | | |
+| 01 | [System Overview, Requirements & Non-Goals](01-system-overview.md) | v0.1.0 | Draft |
+| _(remaining rows filled in by the Cross-Cutting Review)_ | | | |
