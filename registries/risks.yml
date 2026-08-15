@@ -36,7 +36,119 @@
 # - medium: meaningful but bounded blast radius.
 # - low: local nuisance, cleanup, or small maintainability drag.
 
-risks: []
+risks:
+  - id: RISK-0001
+    status: open
+    title: "UI/component rendering tests deferred out of Phase 1a"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Phase 1a tests every reducer, middleware, hook, and the API layer, but ships no rendering tests."
+    impact: "No regression safety net on the screens whose visual fidelity is itself a sign-off criterion."
+    mitigation: "Logic layers fully tested; manual smoke on both platforms before the 2026-08-18 sign-off."
+    revisit_trigger: "Start of Phase 1b, or the first visual regression reported after sign-off."
+    refs:
+      - "architecture/02-phasing-roadmap.md#2-phase-1a--the-2026-08-18-demo-cut"
+      - "architecture/02-phasing-roadmap.md#4-launch-criteria"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0002
+    status: open
+    title: "Five architecture sessions deferred to fit the fixed sign-off date"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Sessions 1.5 Scaling, 1.6a Identity & Auth, 1.8 Infrastructure, 1.9 Environments, and 1.10 Observability are deferred; 1.6, 1.13, and 1.14 run abbreviated."
+    impact: "Design posture in those areas is undecided; a later phase may find Phase-1a choices constrain it."
+    mitigation: "Each deferred session carries a revisit trigger in prompts/STEP-index.md; none informs a Phase-1a decision."
+    revisit_trigger: "Per-session triggers in prompts/STEP-index.md, or the next periodic check-in — whichever comes first."
+    refs:
+      - "architecture/02-phasing-roadmap.md#7-phase-dependencies--critical-path"
+      - "../../prompts/STEP-index.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0003
+    status: open
+    title: "Bare React Native scaffold on two platforms is the critical-path schedule risk"
+    category: reliability
+    severity: high
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Pods, signing, emulators, and Xcode version drift can consume half a day of a ~3.5-day window with no warning."
+    impact: "If the scaffold slips, the Sunday auth-flow plan no longer closes before the immovable 2026-08-18 sign-off."
+    mitigation: "Pre-agreed fallback: if no app runs on both platforms by Saturday midday, drop Android for Saturday, pursue iOS only, bring Android up Monday."
+    revisit_trigger: "Saturday 2026-08-15 midday checkpoint."
+    refs:
+      - "architecture/02-phasing-roadmap.md#8-schedule--schedule-risk"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0005
+    status: open
+    title: "Placeholder brand \"Dinsey-\" is confusingly similar to Disney"
+    category: compliance
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "The POC's fictional brand is one letter from Disney; confusing similarity is the core trademark-infringement test."
+    impact: "Low while the app is internal and unpublished; a trademark complaint becomes plausible the moment it is shown publicly or submitted to a store."
+    mitigation: "Internal, unpublished POC only. Sub-brands in the strip are deliberately NOT lookalikes of the real studios."
+    revisit_trigger: "Any public release, app store submission, public website, or marketing use — rename before, not after."
+    refs:
+      - "architecture/02-phasing-roadmap.md#10-placeholder-brand"
+      - "architecture/assets/README.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0006
+    status: open
+    title: "Brand wordmark text is not outlined — renders differently on iOS and Android"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/assets/README.md"
+    description: "Wordmark SVGs use <text> with a font stack; Avenir Next resolves on iOS, Android falls back to a different face."
+    impact: "The brand looks different per platform in a demo whose explicit sign-off criterion is visual fidelity."
+    mitigation: "Convert text to outlines (~30 min in Figma/Inkscape) or ship @1x/@2x/@3x PNGs. Geometry is already platform-independent."
+    revisit_trigger: "Before the 2026-08-18 sign-off (open question OQ-13)."
+    refs:
+      - "architecture/assets/README.md#known-limitation--text-is-not-outlined"
+      - "architecture/02-phasing-roadmap.md#10-placeholder-brand"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0004
+    status: open
+    title: "Backend team inherits an API contract they did not draft"
+    category: other
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Phase 1a authors the contract that defines the mock shapes; the backend team implements against it later without having participated."
+    impact: "If they reject or materially change it, Phase 3 becomes a rewrite rather than a base-URL swap — the exact outcome the contract exists to prevent."
+    mitigation: "Deliver the contract document as a Phase-1a artifact and seek review before Phase 3 starts."
+    revisit_trigger: "First contact with the backend team about the contract (open question OQ-10)."
+    refs:
+      - "architecture/02-phasing-roadmap.md#5-later-phases"
+      - "architecture/02-phasing-roadmap.md#open-questions"
+    closed:
+      date:
+      reason:
 
 # Example:
 # risks:

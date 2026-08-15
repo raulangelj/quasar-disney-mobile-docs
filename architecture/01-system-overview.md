@@ -1,8 +1,8 @@
 # Doc 01 — System Overview, Requirements & Non-Goals
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
-**Last updated:** 2026-08-14 (STEP-1.1)
+**Last updated:** 2026-08-14 (STEP-1.2)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > What quasar-disney-mobile is building in v1, who it serves, how success is measured, and what is deliberately out of scope.
@@ -55,7 +55,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 
 | Category | Constraint |
 |----------|------------|
-| **Timeline** | **3–4 days** for v1 (login + storefront) |
+| **Timeline** | ~~**3–4 days** for v1 (login + storefront)~~ — **superseded by doc 02 §8.** Stakeholder sign-off is fixed at **2026-08-18**; Phase 1 is split into 1a (demo-gated) and 1b. The 3–4 day figure assumed a single login screen, before the reference screenshots expanded the auth flow to three screens plus an error state. |
 | **Team** | **1 senior dev** (owner); **+1 senior** if needed; later **1–2 senior or mid-level** devs |
 | **Budget** | **TBD** — not a blocker; management decides while dev proceeds |
 | **Tech stack** | Bare **React Native** (no Expo), iOS + Android, **TypeScript**, **Redux + middleware**, **Styled Components**, **atomic design**, **custom hooks** |
@@ -68,7 +68,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | **Release target** | Internal stakeholder demo — simulators/devices, **not** public app store |
 | **Design** | UI driven by stakeholder reference images (login, storefront); assets TBD in `inputs/` |
 | **CI / QA** | Bitrise builds for iOS/Android expected later; not a v1 blocker but QA is a stakeholder |
-| **Work split (rough)** | ~1 day login + theme/scaffold; ~2–3 days storefront (8 carousel variants + mocks), assuming one config-driven carousel component |
+| **Work split (rough)** | ~~~1 day login + theme/scaffold; ~2–3 days storefront (8 carousel variants + mocks)~~ — **superseded by doc 02 §8.** Config-driven carousel still holds; variant count settled at **5** (2 in Phase 1a). |
 
 ## 6. Assumptions
 
@@ -129,3 +129,4 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-14 | STEP-1.1 | Initial draft from architecture session |
+| v0.1.1 | 2026-08-14 | STEP-1.2 | §5 timeline and work-split constraints superseded by doc 02 (fixed 2026-08-18 sign-off; Phase 1 split into 1a/1b). OQ-01 resolved by `inputs/ui/disney-plus-reference-screens.md`. |
