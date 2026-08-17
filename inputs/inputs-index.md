@@ -53,7 +53,9 @@
 | `ui/disney-plus-reference-screens.md` | §5–6 Home screens (hero + row stack) | Live | source for the carousel-variant set |
 | `ui/disney-plus-reference-screens.md` | Patterns to extract | Live | atoms/molecules + two-theme finding for 1.7 |
 | `ui/disney-plus-reference-screens.md` | Trademark & asset substitution | Live | Phase-1 constraint; carry into 02-phasing-roadmap |
-| `ui/*.png` (screenshots) | (whole) | Live | **binaries not yet in repo** — user to drop in; password already redacted in the error capture, email still visible |
+| `ui/disney-plus-reference-screens.md` | §7 No-internet gate — behavior (overlay, auto-reload, Retry, restore by auth) | Superseded | `architecture/15-native-app-architecture.md`; ADR-0004 |
+| `ui/disney-plus-reference-screens.md` | §7 No-internet gate — visual (copy, dark surface, white pill) | Live | still feeds 1.7 design system |
+| `ui/*.png` (screenshots) | (whole) | Live | Most binaries not yet in repo; `07-no-internet.png` landed 2026-08-16. Password already redacted in the error capture; email still visible |
 
 <!-- Example rows — replace with your own once you add inputs:
 | payments-protocol-v2.pdf | §3 Wire format         | Superseded | architecture/11-interface-contracts |

@@ -29,8 +29,9 @@ de las pantallas a recrear."* — visual fidelity to these screens is a goal, no
 | 4 | `04-login-email.png` | MyDisney email entry | Auth step 2 |
 | 5 | `05-welcome-landing.png` | Disney+ welcome / landing | Auth step 1 (app entry) |
 | 6 | `06-home-logged-in.png` | Home "Para ti" — continue-watching + rows | Post-login |
+| 7 | `07-no-internet.png` | No-internet full-screen gate | Overlay on any flow |
 
-**Implied navigation order:** 5 → 4 → 3 → (2 on failure) → 6 / 1.
+**Implied navigation order:** 5 → 4 → 3 → (2 on failure) → 6 / 1. Connectivity loss at any point → 7; reconnect restores auth or storefront from session state.
 
 ---
 
@@ -168,6 +169,18 @@ palette.
 
 **Auth flow is 3 screens + states, not 1:** welcome → email → password → error. Doc 01 §4 lists
 "Login screen (email/password)" as a single item; these references expand it.
+
+## 7. No internet (`07`) — captured STEP-1.3a (2026-08-16)
+
+Full-screen **dark** gate (near-black, same family as the app theme — not the light auth sheet).
+Centered copy + pill CTA; no header, tabs, or logo.
+
+- Body (white, centered): `Es necesario revisar tu conexión a internet. Volveremos a cargar automáticamente la pantalla una vez que se establezca la conexión.`
+- CTA: full-width **white pill**, black uppercase `REINTENTAR`.
+- Behavior implied by copy: auto-reload when connectivity returns; Retry is the manual path.
+- On restore, the app resumes **auth or storefront according to session state** — this is a shell-level overlay, not a feature screen.
+
+Substitute branding N/A (no marks). Copy goes through i18n (DF8); Spanish is the reference locale.
 
 ## Trademark & asset substitution
 

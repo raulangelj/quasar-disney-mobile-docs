@@ -150,6 +150,25 @@ risks:
       date:
       reason:
 
+  - id: RISK-0007
+    status: open
+    title: "Device security controls deferred (pinning, jailbreak/root detection)"
+    category: security
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-16"
+    source: "architecture/15-native-app-architecture.md"
+    description: "Phase 1 ships tokens in Keychain/EncryptedSharedPreferences but no certificate pinning and no jailbreak/root detection."
+    impact: "No MITM defense and no compromised-device lockout. Bounded while I/O is in-process mocks and the app is an internal local demo."
+    mitigation: "Pinning as an axios interceptor when a real host exists (Phase 3). Root detection only if a store-bound release needs it."
+    revisit_trigger: "Phase 3 backend integration (pinning), or any store/TestFlight submission (compromised-device policy)."
+    refs:
+      - "architecture/15-native-app-architecture.md#6-device-security"
+      - "adr/ADR-0004-online-only-connectivity-gate.md"
+    closed:
+      date:
+      reason:
+
 # Example:
 # risks:
 #   - id: RISK-0001

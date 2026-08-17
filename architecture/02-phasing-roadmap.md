@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.2.1
+**Version:** v0.3.0
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.3)
+**Last updated:** 2026-08-16 (STEP-1.3a)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -82,8 +82,8 @@ remainder, no external date).
   - *Continue watching* — 16:9 tiles, play button, cyan progress bar, time-remaining, `⋮` menu,
     title + rating chip + episode line.
   - *Standard portrait* — 2:3 tiles, art only.
-- Mock content rendered from the API layer; **tap any card → alert with the title**, behind the
-  same handler that will later navigate.
+- Mock content rendered from the API layer as **paginated pages**; **tap any card → alert with the title**, behind the
+  same handler that will later navigate. Storefront hooks own `loadMore` / `hasMore` (DF12).
 
 **Data & contracts**
 - **API contract authored by us** — TypeScript interfaces, enums, response envelope, and error
@@ -188,7 +188,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 |---|------------|------------------------------|
 | DF1 | **Backend swap** | No component or hook calls `fetch` or `axios`. All I/O goes through the API client and middleware (single axios instance inside the API module). Mocks carry the *exact* shape expected of the real backend — field names, enums, response envelope, error shape |
 | DF2 | **Simulated fetches, not local data** | The mock layer returns Promises with artificial latency and can fail on demand, so loading and error states are real code paths |
-| DF3 | **JWT** | The auth slice holds an opaque token from day one, even though it's fake. Persist that slice only, into Keychain/Keystore from day one (not AsyncStorage). Refresh still plugs in without touching screens |
+| DF3 | **JWT** | The auth slice holds an opaque token from day one, even though it's fake. Persist that slice only, into **`react-native-encrypted-storage`** (Keychain / EncryptedSharedPreferences) from day one (not AsyncStorage). Refresh still plugs in without touching screens |
 | DF4 | **Re-skin by tokens** | Two surface modes live in the theme structure itself, not as per-screen exceptions |
 | DF5 | **Feature extraction to repos** | No feature imports from another feature — only from `shared/`. The app shell is the composition root and may import features |
 | DF6 | **Carousel variants** | The carousel is config-driven from the first commit. Adding hero, live, and landscape must be adding configuration, not components — even though 1a ships only 2 of 5 |
@@ -196,6 +196,8 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 | DF8 | **i18n** | No loose hardcoded strings, even with no multi-language support in 1a. The reference material is Spanish |
 | DF9 | **Analytics** | The hook ships with its final signature behind `console.log` stubs |
 | DF10 | **Trademark substitution** | No Disney/Marvel/Star Wars/hulu/ESPN marks or real key art in the codebase or assets, at any phase |
+| DF11 | **Connectivity gate** | No-network is a **shell overlay** (NetInfo + reference no-internet screen), not a feature fetch error and not an offline cache. Restore by auth state. See doc 15 / ADR-0004 |
+| DF12 | **Storefront pagination** | Home rows and carousel tiles **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. Wire format in 1.4/1.11 (OQ-19). See ADR-0005 |
 
 ## 7. Phase dependencies and critical path
 
@@ -351,6 +353,8 @@ Two things carried forward:
 | 14 | Parallelization seam | Four disjoint STEPs: foundation / contract+mocks / auth / storefront | DF5 (no cross-feature imports) already makes auth and storefront disjoint; the contract layer has no RN dependency so it parallelizes the scaffold window | Two hard sync points (Sat EOD, Tue AM); shared atoms need an owner rule |
 | 15 | Scope recovered with the second dev | Two-step auth split and the live carousel variant return to 1a; **UI tests stay in 1b** | Both are cheap on a dedicated owner; UI tests remain the lowest signal per hour | Reverts to 1b first if the Sat midday checkpoint fails |
 | 16 | Placeholder brand | Fictional **"Dinsey-"** brand + abstract placeholder key art, authored in-repo | Unblocks the build without Disney assets; resolves OQ-08 and OQ-09 | Name is confusingly similar to Disney — internal use only (RISK-0005) |
+| 17 | Connectivity | Online-only + shell NetInfo gate (doc 15) | Matches the no-internet reference; no offline cache in a mock demo | Offline browse; per-feature offline screens |
+| 18 | Storefront pagination | Feature hooks + paginated mocks from day one | Organized loadMore; contract can page later | One-shot full-catalog fixture |
 
 ## Open Questions
 
@@ -363,11 +367,13 @@ Two things carried forward:
 | OQ-11 | Who attends the 18 Aug sign-off, and what constitutes "passed"? | Stakeholders | P1 launch criterion |
 | OQ-12 | Which dev is A and which is B? §9 assigns roles, not names | Eng leadership | Planning session (Sat AM) |
 | OQ-13 | Who outlines the wordmark text before 18 Aug? (~30 min; see §10) | Mobile dev | Phase 1a assets |
+| OQ-19 | Pagination wire format (cursor vs offset) and first-page sizes | Mobile | 1.4 Data Model; 1.11 Interface Contracts |
 
 Carried forward from doc 01 and still open: OQ-02 (card metadata schema → 1.4), OQ-03 (JWT claims →
 Phase 3), OQ-05 (Bitrise setup → Phase 2), OQ-06 (budget). **OQ-01** (final login/storefront UI) is
 now **resolved** by `inputs/ui/disney-plus-reference-screens.md`. **OQ-04** (real streaming app
-migration timeline) is unchanged and unblocking.
+migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is **resolved** by
+1.3a: `react-native-encrypted-storage`.
 
 ## Version Log
 
@@ -376,3 +382,4 @@ migration timeline) is unchanged and unblocking.
 | v0.1.0 | 2026-08-14 | STEP-1.2 | Initial draft from architecture session |
 | v0.2.0 | 2026-08-14 | STEP-1.2 | Second senior dev confirmed → added §9 two-developer split (four disjoint STEPs, two sync points, collision mitigations) and recovered two 1b items into 1a. Added §10 placeholder brand ("Dinsey-" + placeholder art). Closed OQ-07/08/09; opened OQ-12/13. Schedule table updated for parallel work. |
 | v0.2.1 | 2026-08-16 | STEP-1.3 | DF1: axios (not fetch) inside the API module only. DF3: Keychain/Keystore persist of the auth slice from day one. DF5: shell is the composition root. |
+| v0.3.0 | 2026-08-16 | STEP-1.3a | DF3 names `react-native-encrypted-storage`. Added DF11 (connectivity gate) and DF12 (storefront pagination). |

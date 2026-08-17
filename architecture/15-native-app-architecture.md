@@ -1,0 +1,183 @@
+# Doc 15 — Native App Architecture
+
+**Version:** v0.1.0
+**Status:** Draft
+**Last updated:** 2026-08-16 (STEP-1.3a)
+**Audience:** Mobile developers, QA
+
+> Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
+
+## Table of Contents
+
+1. [Platform strategy](#1-platform-strategy)
+2. [Offline, sync, and the connectivity gate](#2-offline-sync-and-the-connectivity-gate)
+3. [On-device storage & state](#3-on-device-storage--state)
+4. [Push notifications](#4-push-notifications)
+5. [Device permissions & capabilities](#5-device-permissions--capabilities)
+6. [Device security](#6-device-security)
+7. [Distribution & release](#7-distribution--release)
+8. [Device performance & storefront pagination](#8-device-performance--storefront-pagination)
+
+---
+
+## 1. Platform strategy
+
+**Bare React Native, iOS + Android, no Expo.** One TypeScript codebase, two native binaries. No web, desktop, PWA, Flutter, or Swift/Kotlin dual-native track.
+
+This is the same surface locked in docs 01 and 03. This session confirms it rather than reopening it.
+
+**Forecloses:** Expo (EAS, OTA, managed workflow), Electron/Tauri, a second native codebase.
+
+Keychain / Keystore access is **only** through existing npm packages — no custom native modules for secure storage.
+
+## 2. Offline, sync, and the connectivity gate
+
+**Online-only.** No offline content cache, no download-and-watch, no write-sync, no conflict rules. Downloads remain Phase 4+. The content slice is not persisted (doc 03).
+
+Session restore from secure storage is **not** offline mode: it is a local auth token, not a content store.
+
+### Connectivity gate
+
+When the device has no usable network, the **app shell** shows a full-screen overlay matching `inputs/ui/07-no-internet.png` (transcribed in `inputs/ui/disney-plus-reference-screens.md` §7):
+
+- Dark near-black surface (app-theme family, not the light auth sheet).
+- Centered copy: *Es necesario revisar tu conexión a internet. Volveremos a cargar automáticamente la pantalla una vez que se establezca la conexión.*
+- White pill CTA, black uppercase `REINTENTAR`.
+- Copy goes through i18n (DF8); Spanish is the reference locale.
+
+**Behavior**
+
+1. `@react-native-community/netinfo` is the reachability source.
+2. Overlay is **shell-owned**. Auth and Storefront do not implement their own offline screens.
+3. Overlay sits **on top of** the current navigator; it does not unmount auth/storefront.
+4. **Auto-restore:** when NetInfo reports connectivity, hide the overlay and resume from **auth state** — storefront if a session exists, auth flow if not. Refetch the active surface (storefront home if authenticated).
+5. **`REINTENTAR`:** the same restore path, invoked manually (in case NetInfo is stale).
+6. Cold start while offline: rehydrate the auth slice as usual, keep the overlay up until online, then choose auth vs storefront from the rehydrated session.
+
+Mocks still simulate fetch failure (DF2). **No network** is a shell concern; **request failed** is a feature concern (inline error on credentials, storefront error/empty). Do not conflate them.
+
+**Forecloses:** offline browse, last-known-home cache, sync engines in Phase 1.
+
+## 3. On-device storage & state
+
+| What | Where | Engine |
+|------|-------|--------|
+| Auth slice (opaque token / `isAuthenticated`) | Keychain (iOS) / EncryptedSharedPreferences (Android) | **redux-persist** + **`react-native-encrypted-storage`** |
+| Content / storefront slice | Memory only | RTK |
+| UI flags, errors, pagination cursors | Memory only | RTK / hook state |
+| Analytics | `console.log` stubs | none |
+
+Screens never call the secure-store API. They read the auth slice after the shell finishes rehydrate (ADR-0003).
+
+OQ-16 is **closed:** `react-native-encrypted-storage`, not a `react-native-keychain` adapter. It already exposes `getItem` / `setItem` for redux-persist on both platforms.
+
+**Forecloses:** AsyncStorage for tokens, SQLite/MMKV in Phase 1, persisting the content slice, a custom Keychain native module.
+
+## 4. Push notifications
+
+**None in Phase 1.** No APNs, FCM, OneSignal, device-token plumbing, or notification permission prompt.
+
+Revisit when a later phase actually sends notifications. Do not add Firebase “just in case.”
+
+**Forecloses:** reminder / new-content pushes on the 18 Aug demo.
+
+## 5. Device permissions & capabilities
+
+**Internet only.**
+
+| Platform | Allowed |
+|----------|---------|
+| Android | `INTERNET`, `ACCESS_NETWORK_STATE` (manifest, not runtime) |
+| iOS | No usage-description strings for camera, location, contacts, mic, photos, Face ID, local network, or photo library |
+
+Cast and downloads chrome stays inert (doc 02). Biometrics wait for real JWT (1.6a / Phase 3). Denied-permission degradation is N/A until a later phase adds a capability.
+
+**Forecloses:** Face ID, AirPlay/cast, downloads, camera, location in Phase 1.
+
+## 6. Device security
+
+Demo-grade. No real PII, no TLS host (I/O is in-process mocks).
+
+| Control | Phase 1 | Later |
+|---------|---------|-------|
+| Token at rest | Keychain / EncryptedSharedPreferences via encrypted-storage | same engine; JWT is a payload change |
+| Certificate pinning | **None** | API-module interceptor when a real host exists (Phase 3) |
+| Jailbreak / root detection | **None** (false-positives on simulators and debug builds) | store-bound release |
+| Transport | N/A (mocks) | HTTPS only, ATS on, no cleartext exception |
+| Logging | Tokens never logged | same |
+| Extra encrypted DB | None | only if a later phase stores more than the auth slice |
+
+See RISK-0007. Security session 1.6 still runs abbreviated; it does not redo token storage.
+
+**Forecloses:** MITM defenses and compromised-device lockout on 18 Aug.
+
+## 7. Distribution & release
+
+**Local installs only.** Xcode / Android Studio → simulator or USB device. No App Store, Play Store, TestFlight, Play internal track, or OTA (no Expo; CodePush is dead).
+
+Stamp `CFBundleShortVersionString` / `versionName` so a later min-version / forced-upgrade check can live in the shell without a native rewrite. No forced-upgrade gate and no phased rollout until there is a fleet.
+
+Phase 2 still owns Bitrise + installable QA builds. **RISK-0005:** do not submit “Dinsey-” to any store.
+
+**Forecloses:** OTA JS patches and remotely killing old binaries on 18 Aug.
+
+## 8. Device performance & storefront pagination
+
+**No numeric SLOs** (binary size, cold start, battery, FPS, memory). Doc 01 already dropped performance from v1 success criteria. If a device stutters at sign-off, use a **release** build rather than opening a performance program.
+
+### Guardrails
+
+- **Hermes** on.
+- **Virtualized lists** for carousels — recycled rows, not a wall of `Image`s.
+- Placeholder art only at the target aspect ratios (`architecture/assets/placeholder-art/`).
+- No background fetch, no video SDK, no push/Firebase native blobs.
+
+What would blow it: unbounded image decode, persisting the content slice, shipping the debug bundle to the sign-off device.
+
+### Storefront pagination
+
+The storefront **paginates**. Screens do not fetch; a **storefront-owned hook** (or a small pair of hooks) is the organized API for page state.
+
+| Surface | What pages | Owner |
+|---------|------------|--------|
+| Home feed (vertical) | Next page of **rows / carousel configs** | Storefront hook, e.g. `useHomeFeed` |
+| Carousel (horizontal) | Next page of **tiles** in that row | Storefront hook, e.g. `useCarouselPage` |
+
+Each hook exposes at least `{ items, loadMore, hasMore, isLoading, error }`. `loadMore` dispatches → **middleware** → **API module**. Mocks return paginated pages with artificial latency and can fail (DF2). Pagination cursors live in memory with the content slice — not in Keychain.
+
+Virtualized lists call `loadMore` on end-reached. Do not load every tile in every row on first paint.
+
+**Wire format** (cursor vs offset, envelope fields) is **not** locked here — sessions **1.4** and **1.11** own it. This session only requires that the contract and mocks **are** paginated from day one, and that the hook — not a screen — owns the page state.
+
+**Forecloses:** treating FPS/size as an 18 Aug gate; dumping the full catalog into one mock payload.
+
+## Decision Summary
+
+| # | Decision | Choice | Rationale | Forecloses / tradeoff |
+|---|----------|--------|-----------|-----------------------|
+| 1 | Platform | Bare RN, iOS + Android, no Expo | Already locked in 01/03; one codebase for the two-platform demo | Dual native, Flutter, Expo/OTA, web/desktop |
+| 2 | Offline | Online-only; no content cache | Downloads are Phase 4+; mocks are the network | Offline browse / last-known-home |
+| 3 | Connectivity UX | Shell overlay + NetInfo; auto-restore by auth state; `REINTENTAR` | Matches the Disney+ reference; one gate, not per-feature screens | Per-screen offline UIs; treating “no network” as a fetch error |
+| 4 | Secure storage | `react-native-encrypted-storage` + redux-persist, auth slice only | npm Keychain/Keystore wrapper; persist API already matches | AsyncStorage; custom native module; `react-native-keychain` adapter |
+| 5 | Push | None in Phase 1 | No backend, no vendor | Demo pushes |
+| 6 | Permissions | `INTERNET` + `ACCESS_NETWORK_STATE` only | Nothing else is exercised | Biometrics, cast, downloads, camera, location |
+| 7 | Device security | Demo-grade: no pinning, no root detection | Mocks never leave the process; simulators false-positive | MITM / compromised-device controls until Phase 3 / store |
+| 8 | Distribution | Local Xcode / Android Studio only | Internal demo; no fleet | TestFlight / Play / OTA / forced upgrade in Phase 1 |
+| 9 | Performance | No numeric SLOs; virtualized lists; Hermes | POC on a handful of devices | FPS/size as a sign-off criterion |
+| 10 | Storefront pagination | Feature hooks + paginated mocks; cursor/offset in 1.4/1.11 | Keeps load organized; avoids a one-shot catalog | Loading the full feed on first paint |
+
+## Open Questions
+
+| ID | Question | Owner | Feeds into |
+|----|----------|-------|------------|
+| OQ-19 | Pagination wire format: cursor vs offset, envelope fields (`nextCursor` / `page` / `hasMore`) | Mobile | 1.4 Data Model; 1.11 Interface Contracts |
+| OQ-20 | Home first-page size and per-carousel page size (how many rows / tiles per request) | Mobile | 1.4; storefront STEP |
+| OQ-21 | NetInfo “usable network”: treat cellular+wifi as enough, or also require internet reachability (vs captive portal)? | Mobile | Foundation / shell STEP |
+
+Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-storage).
+
+## Version Log
+
+| Version | Date | STEP | Change |
+|---------|------|------|--------|
+| v0.1.0 | 2026-08-16 | STEP-1.3a | Initial draft from the native-app session |

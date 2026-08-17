@@ -6,7 +6,7 @@
 ## Related documents
 - `architecture/03-architecture-overview.md`
 - `architecture/02-phasing-roadmap.md` (DF3)
-- `architecture/15-native-app-architecture.md` (1.3a, not yet written)
+- `architecture/15-native-app-architecture.md`
 
 ## Context
 
@@ -41,3 +41,9 @@ AsyncStorage and must migrate tokens later.
 - Native-app / Security sessions still own pinning, jailbreak, and refresh; they do not
   redo token storage.
 - Exact library (`react-native-encrypted-storage` vs Keychain adapter) is OQ-16.
+
+## Amendment (2026-08-16 — STEP-1.3a)
+
+OQ-16 is **closed**. The persist storage engine is **`react-native-encrypted-storage`**
+(Keychain on iOS, EncryptedSharedPreferences on Android). A `react-native-keychain`
+adapter was the rejected alternative. Decision items 1–4 above are unchanged.

@@ -23,7 +23,8 @@ Most of these are produced by the **architecture sessions** during STEP-1
 
 | # | Doc | Version | Status |
 |---|-----|---------|--------|
-| 01 | [System Overview, Requirements & Non-Goals](01-system-overview.md) | v0.1.1 | Draft |
-| 02 | [Phasing & Roadmap](02-phasing-roadmap.md) | v0.2.1 | Draft |
-| 03 | [Architecture Overview & Component Boundaries](03-architecture-overview.md) | v0.1.0 | Draft |
-| _(remaining rows filled in by the Cross-Cutting Review)_ | | | |
+| 01 | [System Overview, Requirements & Non-Goals](01-system-overview.md) | v0.1.2 | Draft |
+| 02 | [Phasing & Roadmap](02-phasing-roadmap.md) | v0.3.0 | Draft |
+| 03 | [Architecture Overview & Component Boundaries](03-architecture-overview.md) | v0.2.0 | Draft |
+| 15 | [Native App Architecture](15-native-app-architecture.md) | v0.1.0 | Draft |
+| _(remaining core-block rows filled in by later sessions / the Cross-Cutting Review)_ | | | |

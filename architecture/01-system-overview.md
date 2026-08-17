@@ -1,8 +1,8 @@
 # Doc 01 — System Overview, Requirements & Non-Goals
 
-**Version:** v0.1.1
+**Version:** v0.1.2
 **Status:** Draft
-**Last updated:** 2026-08-14 (STEP-1.2)
+**Last updated:** 2026-08-16 (STEP-1.3a)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > What quasar-disney-mobile is building in v1, who it serves, how success is measured, and what is deliberately out of scope.
@@ -38,7 +38,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | Core (in) | Not now (deferred) | Not ever |
 |-----------|-------------------|----------|
 | Login screen (email/password; UI from reference designs when available) | Video player / playback | *(none — long-term goal is full streaming-app feature parity)* |
-| Storefront / home with **up to 8 carousel variants** (aspect-ratio-driven tile sizes) | **Content details screen** (metadata, description, cast, "similar to this" row) | |
+| Storefront / home with **up to 8 carousel variants** (aspect-ratio-driven tile sizes); **paginated** rows and tiles via storefront hooks | **Content details screen** (metadata, description, cast, "similar to this" row) | |
 | **Tap behavior v1:** Alert showing content title on card tap | Settings screen | |
 | Central **theme** (tokens consumed by Styled Components; no hardcoded colors) | Search | |
 | Atomic-design UI (atoms → molecules → organisms) | Multi-user profiles (household) | |
@@ -130,3 +130,4 @@ The team needs a credible, functional reference app that shows stakeholders how 
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-14 | STEP-1.1 | Initial draft from architecture session |
 | v0.1.1 | 2026-08-14 | STEP-1.2 | §5 timeline and work-split constraints superseded by doc 02 (fixed 2026-08-18 sign-off; Phase 1 split into 1a/1b). OQ-01 resolved by `inputs/ui/disney-plus-reference-screens.md`. |
+| v0.1.2 | 2026-08-16 | STEP-1.3a | Storefront scope: paginated feed/carousels via feature hooks (doc 15 / ADR-0005). |
