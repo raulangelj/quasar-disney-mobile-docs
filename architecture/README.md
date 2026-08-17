@@ -34,6 +34,8 @@ Most of these are produced by the **architecture sessions** during STEP-1
 | 09 | [Environments](09-environments.md) | v0.1.0 | Draft |
 | 10 | [Observability](10-observability.md) | v0.1.1 | Draft |
 | 11 | [Interface Contracts](11-interface-contracts.md) | v0.1.0 | Draft |
+| 12 | [Test Strategy](12-test-strategy.md) | v0.1.0 | Draft |
+| 13 | [Glossary](13-glossary.md) | v0.1.0 | Draft |
 | 15 | [Native App Architecture](15-native-app-architecture.md) | v0.2.5 | Draft |
 | 16 | [Identity & Auth](16-identity-auth.md) | v0.1.1 | Draft |
 | _(remaining core-block rows filled in by later sessions / the Cross-Cutting Review)_ | | | |
