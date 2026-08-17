@@ -1,10 +1,10 @@
 # Doc 09 — Environments
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
 **Coverage:** full for Phase 1. A `staging` tier and CI-as-environment are consciously deferred
 with named triggers (§2.1, §8) rather than left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.9)
+**Last updated:** 2026-08-17 (STEP-1.12)
 **Audience:** Mobile developers, QA, eng leadership
 
 > What "environment" means in a project that deploys nothing, how config and secrets reach the
@@ -221,7 +221,7 @@ size or IP pressure on an internal POC that would justify carrying it.
 | | What it is | Where it exists |
 |---|-----------|-----------------|
 | **Deterministic failure** | Wrong credentials are rejected by the mock adapter | **In `release`, always.** Doc 02 criterion **F2** requires the inline error state on stage |
-| **Injectable failure** | Forcing HomeFeed or Continue Watching to fail, to exercise the storefront error state | **Test-time only.** Consumed by the unit tests session 1.12 specifies |
+| **Injectable failure** | Forcing HomeFeed or Continue Watching to fail, to exercise the storefront error state | **Test-time only.** Consumed by the tests specified in `architecture/12-test-strategy.md` §3.3 |
 
 Doc 03 §7 gives the mock adapter "latency and injectable failure" and doc 05 §47 sets the
 artificial latency at **400–600 ms** so loading and error paths are real (doc 02 DF2). Both
@@ -229,6 +229,13 @@ stand. What this session adds is the boundary: **injection is a test seam, not a
 — there is no debug menu, shake gesture, or hidden control in the release binary.** Without
 that line written down, someone reasonably concludes the demo build needs a way to trigger the
 error state, and ships a debug affordance into the artifact stakeholders hold.
+
+**Extended in 1.12.** The adapter has **three** such seams, all constructor parameters and none a
+runtime toggle: failure injection, **latency** (defaulting to the 400–600 ms above; zero in tests so
+the suite stays fast), and the **clock** (defaulting to `Date.now`; frozen in tests so `exp` cases are
+deterministic). Doc 12 §4.4 owns the detail, and doc 12 §3.3 adds a test asserting the *default*
+latency is nonzero and inside this band — because the likeliest way DF2 quietly dies is someone
+zeroing the default after seeing it zeroed in tests.
 
 ## 7. Promotion flow
 
@@ -345,3 +352,4 @@ are unchanged.
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.9 | Initial draft from the environments session. Two build configurations named; sandbox and `staging` declined with triggers; config mechanism closed via ADR-0015; clean-state pre-flight and `.env` completeness check added (doc 08 §5–6 and `runbooks/release-deploy.md` updated); release-build parity cadence and the deterministic-vs-injectable failure boundary set. Opened OQ-31, OQ-32. |
+| v0.1.1 | 2026-08-17 | STEP-1.12 | §6.2 extended: the adapter carries **three** test seams — failure injection, latency, and the clock — all constructor parameters, none a runtime toggle (doc 12 §4.4). Also recorded there: **tests never read the real `.env`**, resolving `@env` to a committed stub instead, which is what makes §7's CI tier possible on a runner that can never have a gitignored file (ADR-0018). No change to the two configurations, the `.env` key set, or the promotion flow. |

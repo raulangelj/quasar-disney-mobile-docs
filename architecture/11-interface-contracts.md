@@ -1,10 +1,10 @@
 # Doc 11 — Interface Contracts
 
-**Version:** v0.1.0
+**Version:** v0.2.0
 **Status:** Draft
 **Coverage:** full for Phase 1. The promotion to a machine-readable artifact (OpenAPI) is
 consciously deferred with a named trigger (§2.3, ADR-0016) rather than left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.11)
+**Last updated:** 2026-08-17 (STEP-1.12)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > The one boundary in this system that will ever cross a network — five operations, their
@@ -114,7 +114,7 @@ argument against that call.
 | TS wire types (`Card`, `Container`, envelopes, `ApiError`, login / `/me` DTOs) | Do not exist — §7 states them as normative tables | **`src/api/types/`** — the authoring source. This doc gains a pointer |
 | Mock fixtures | Do not exist | `src/api/mocks/` — colocated with the API module (doc 04 §3) |
 | axios instance + interceptors | Do not exist | `src/api/client/` |
-| Contract tests | Do not exist | App repo, per session 1.12's call (§11) |
+| Contract tests | Do not exist | App repo, colocated `*.test.ts` beside the source (doc 12 §10.1). Test factories live in `src/api/mocks/` alongside the demo fixtures (doc 12 §4.1) |
 | OpenAPI document | Does not exist by decision (ADR-0016) | `contracts/openapi.yaml` in the app repo, **at OQ-10 only** |
 
 ### 3.1 Scaffold STEP obligation
@@ -402,16 +402,26 @@ rejection** — which is precisely what makes the Phase-3 swap invisible above t
 
 ### 8.4 The 401 collision — a trap worth naming
 
-A login failure and an expired token are both `401`. The interceptor's "clear session → Welcome"
-reaction must fire only on the second.
+A login failure and an expired token are both `401`. The "clear session → Welcome" reaction must
+fire only on the second.
 
-> **The interceptor's session-clearing 401 handler is scoped to authenticated operations and
-> explicitly excludes `/auth/login`.**
+> **The session-clearing 401 policy is transport-agnostic and lives *above* the transport** — in the
+> middleware / API-module error handling that consumes the normalized `ApiError` (§8.3). It switches
+> on **`code`**: `UNAUTHORIZED` clears the session, `INVALID_CREDENTIALS` does not. It never compares
+> paths.
 
 If it fires on a login failure, a wrong password bounces the user out of the credentials screen
 and **F2 — the inline error state, half of what Phase 1a exists to demonstrate — never renders**.
 Distinct codes (`INVALID_CREDENTIALS` vs `UNAUTHORIZED`) make the distinction mechanical rather
 than a path comparison.
+
+**Why not the axios interceptor** (**ADR-0017**, added in 1.12). Phase 1's transport is the mock
+adapter, not axios (§6.5, OQ-17), so a rule living in the interceptor would sit in a code path Phase 1
+**never executes** — first running in Phase 3 against a real backend. That is the same failure mode
+§9.2 rejected for token validation. Putting the policy above the transport, where §8.3 has already
+normalized both into one `ApiError`, makes it exercised by the mock path and therefore testable in 1a
+(doc 12 §3.1). The interceptor's job is narrower: attach the `Authorization` header, and map HTTP
+status → `code` when a real transport exists.
 
 ### 8.5 No user enumeration
 
@@ -496,7 +506,9 @@ describe an intent nothing checks. This is the highest-leverage line in the sect
 ### 11.3 Behavioral tests 1.12 should specify
 
 All unit-level, against the mock adapter and the middleware — which doc 02 already requires
-("tests for every reducer/middleware/hook"):
+("tests for every reducer/middleware/hook"). **1.12 is done:** every row below is on the must-cover
+list in `architecture/12-test-strategy.md` §3, mapped to its tier (the 401-scoping and cursor rows
+are integration-tier, since they need a real store plus middleware plus adapter wired together):
 
 | Test | Guards |
 |------|--------|
@@ -509,10 +521,24 @@ All unit-level, against the mock adapter and the middleware — which doc 02 alr
 
 ### 11.4 CI gates
 
-**None until Bitrise** (Phase 2, OQ-05). Pre-merge locally it is `tsc --noEmit` plus the test
-suite; when Bitrise lands it runs the same two commands. **No OpenAPI/GraphQL/protobuf linting** —
-there is no such artifact by decision (ADR-0016), and adding a linter for a file that does not
-exist would be theatre.
+**Amended in 1.12 — see ADR-0018.** This section previously read "none until Bitrise" (Phase 2,
+OQ-05). That conflated two blockers: Bitrise is blocked on **accounts and signing** because it builds
+native binaries, but `tsc --noEmit` and the Jest suite are plain Node and need no simulator, no
+certificate, and — because tests resolve `@env` to a committed stub (doc 12 §4.3) — no secrets.
+
+**CI is therefore two tiers:**
+
+| Tier | Runner | What | Phase |
+|------|--------|------|-------|
+| **A — JS gate** | GitHub Actions, `ubuntu-latest`, every push + PR | `tsc --noEmit` · `jest` · `eslint` · `prettier --check` | **1a** |
+| **B — Native build** | Bitrise | Native build, installable artifacts, release smoke | **Phase 2** (OQ-05) |
+
+The commands are unchanged; what changed is that a machine runs them at the merge. Doc 12 §7.1 is the
+authoritative gate list, and it adds lint rules that make DF1, DF5/A5, and A2 mechanical.
+
+**Still no OpenAPI/GraphQL/protobuf linting** — there is no such artifact by decision (ADR-0016), and
+adding a linter for a file that does not exist would be theatre. This tiering **adds no environment**:
+doc 09 decision 3 holds, CI is a runner.
 
 ## 12. Ownership & review
 
@@ -586,13 +612,13 @@ exercise.
 | 16 | `Card.title` | **`title`**, not `name`. Closes **OQ-22** | Domain term; `Container.name` / `Card.title` makes payloads self-describing | Doc 04 v0.2.0's symmetry, and a generic `.name` reader |
 | 17 | Card fields | Doc 04 §1.2's working set locked; §1.3 progress fields optional and `progress`-only. Closes **OQ-26** | The UI working set is already known from 1.7 | Speculative production fields |
 | 18 | Error model | **Not RFC 9457.** `{ error: { code, message } }`; `code` is switched on, `message` is never rendered | 9457's `type` needs a host we do not have, and its prose fields fight i18n | A standard shape the backend team may prefer (§14 item 4) |
-| 19 | 401 scoping | Session-clearing interceptor **excludes `/auth/login`** | Otherwise a wrong password destroys the F2 inline-error demo | — |
+| 19 | 401 scoping | Session-clearing reaction **excludes `/auth/login`** — and (1.12, **ADR-0017**) lives **above the transport**, switching on `code`, not in the axios interceptor | Otherwise a wrong password destroys the F2 inline-error demo — and in the interceptor the rule would sit in a path Phase 1 never runs, untested until Phase 3 | Following the common "handle 401 in the interceptor" idiom |
 | 20 | User enumeration | One `INVALID_CREDENTIALS` for both failure modes | Moot today; this is a migration template | — |
 | 21 | `ApiError` | Both transports normalize to one type; features never see an axios error | What makes the Phase-3 swap invisible above the boundary | — |
 | 22 | Mock token validation | The adapter **validates presence + `exp`**, not just presence | Otherwise the expiry and `/me` 401 paths are untested until Phase 3 | A trivially permissive mock |
 | 23 | Observability at the boundary | No correlation ID and **no reserved header name** | It is a joint decision with whoever echoes it (doc 10 §2.4) | Retrofit cost at Phase 3, knowingly accepted |
 | 24 | Contract testing | **`tsc` is the contract test** — conditional on fixtures being typed, never `any` | Untyped fixtures make type-as-contract decorative | Runtime schema validation (Zod et al.) |
-| 25 | CI gates | None until Bitrise; then `tsc --noEmit` + tests. No schema linting | No CI exists; no schema artifact exists | — |
+| 25 | CI gates | **Amended (1.12, ADR-0018): two tiers** — a JS gate (`tsc --noEmit` · `jest` · `eslint` · format) on GitHub Actions in 1a; Bitrise owns the native build in Phase 2. No schema linting | The JS suite needs no simulator, certificate, or secret (doc 12 §4.3); only the *native* build is blocked on signing | Adds a blocking gate during doc 02 §9's parallel window (**OQ-36**) |
 | 26 | Update rule | Doc + types + mocks + tests + README **in the same PR** | Third use of this discipline in the project; named once here | — |
 | 27 | Phase-3 checklist | **§14** collects eight deferrals parked on OQ-10 | One page to walk beats archaeology across six docs | Must be kept current as more items park there |
 
@@ -619,3 +645,4 @@ mocked), **OQ-22** (JSON names and paths — §5, §7), **OQ-23** (page sizes �
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.11 | Initial draft from the interface-contracts session. Six boundaries inventoried, one formal. Five operations named (horizontal `resources` paging was previously undocumented). Envelope, two-axis cursors, conventions, payload shapes, and error model locked. ADR-0016. Closed OQ-17, OQ-22, OQ-23, OQ-26; opened OQ-34. Doc 03 §8 gains the source-layout table; doc 04 §1.2 renames `name` → `title`. |
+| v0.2.0 | 2026-08-17 | STEP-1.12 | **§8.4 amended (ADR-0017):** the session-clearing 401 policy lives **above the transport** and switches on `code` — in the interceptor it would sit in a path Phase 1 never executes. **§11.4 amended (ADR-0018):** CI is two tiers, a JS gate in 1a plus Bitrise's native build in Phase 2, replacing "none until Bitrise". §3 contract-test row and §11.3 point at doc 12. Decision Summary rows 19 and 25 updated. No wire-shape change: no field, name, enum, envelope, or error code differs. |

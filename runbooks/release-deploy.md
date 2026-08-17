@@ -99,6 +99,12 @@ laptop hosting it are out of the demo's critical path.
         not an alert, not a crash.
       - **F3** — home renders both carousel variants from mock data; tapping a card alerts with
         the title.
+- [ ] **Verify criterion A1 — the theme swap.** Switch to the second (test) theme and confirm
+      **both** surface modes re-skin: the light auth flow *and* the dark storefront, with no
+      component edited. Doc 02 §8 places theme-swap verification at the Tue-AM sync point but
+      nothing enumerated it, so it was previously an eyeball check with no step of its own
+      (doc 12 §6.2). The structural half — that both modes define the same token keys — is
+      covered by a unit test (doc 12 §3.4); this step is the visual half.
 - [ ] **A11y spot-check** — the ~10-minute VoiceOver + TalkBack pass (doc 07 §8, RISK-0011).
       The live-region auth error is the one that fails silently.
 - [ ] **Record what shipped:** tag, platform, device, date, who built it.

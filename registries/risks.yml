@@ -45,13 +45,14 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Phase 1a tests every reducer, middleware, hook, and the API layer, but ships no rendering tests."
+    description: "Phase 1a tests every reducer, middleware, hook, and the API layer, but ships no rendering tests. Session 1.12 confirmed this as tier T3, deferred to 1b."
     impact: "No regression safety net on the screens whose visual fidelity is itself a sign-off criterion."
-    mitigation: "Logic layers fully tested; manual smoke on both platforms before the 2026-08-18 sign-off."
+    mitigation: "Logic layers fully tested per doc 12 §3's must-cover list; the theme token-parity test (doc 12 §3.4) covers criterion A1's structural half without a renderer; manual smoke on both platforms before the 2026-08-18 sign-off."
     revisit_trigger: "Start of Phase 1b, or the first visual regression reported after sign-off."
     refs:
       - "architecture/02-phasing-roadmap.md#2-phase-1a-the-2026-08-18-demo-cut"
       - "architecture/02-phasing-roadmap.md#4-launch-criteria"
+      - "architecture/12-test-strategy.md#2-test-tiers"
     closed:
       date:
       reason:
@@ -64,9 +65,9 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Sessions 1.11 Interface Contracts, 1.12 Test Strategy, and 1.13 Glossary remain in the STEP-1 queue. 1.6, 1.13, and 1.14 run abbreviated. Session 1.10 Observability has now run (doc 10)."
+    description: "Only 1.13 Glossary and 1.14 Cross-Cutting Review remain in the STEP-1 queue; both run abbreviated. 1.11 Interface Contracts (doc 11) and 1.12 Test Strategy (doc 12) have now run."
     impact: "Design posture in those remaining areas is undecided; a later phase may find Phase-1a choices constrain it."
-    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, 1.8, 1.9, and 1.10 are Done (docs 05, 16, 08, 09, and 10)."
+    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, 1.8, 1.9, 1.10, 1.11, and 1.12 are Done (docs 05, 16, 08, 09, 10, 11, and 12)."
     revisit_trigger: "After 1.14 Cross-Cutting Review runs, or the next periodic check-in — whichever comes first."
     refs:
       - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
@@ -307,6 +308,65 @@ risks:
       - "architecture/10-observability.md#2-logging"
       - "architecture/10-observability.md#5-error-tracking--one-boundary-no-vendor"
       - "architecture/09-environments.md#6-parity--the-release-only-failure-class"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0015
+    status: open
+    title: "No automated end-to-end or device-level test; system verification is a manual smoke"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/12-test-strategy.md"
+    description: "Session 1.12 declined tier T4 (Detox/Maestro) for Phase 1: it needs a stable build and a runner, and no CI can build native artifacts until Bitrise (OQ-05). The only whole-system verification is the manual release smoke in runbooks/release-deploy.md Part 3."
+    impact: "Nothing automatically proves that welcome -> credentials -> home works end to end on a device. A regression in the assembled app that unit and integration tests both miss is caught only if a human runs the smoke sequence."
+    mitigation: "The smoke sequence is written down, traces criteria F1/F2/F3 + A1 + a11y, and doc 09 §6.1 requires it at every sync point rather than once. The T2 integration tier exercises store + middleware + adapter together, so the assembled data path is covered below the UI."
+    revisit_trigger: "Bitrise landing in Phase 2 (OQ-05) — a runner plus installable builds is what makes an e2e tier affordable."
+    refs:
+      - "architecture/12-test-strategy.md#2-test-tiers"
+      - "architecture/12-test-strategy.md#6-system--end-to-end-testing"
+      - "runbooks/release-deploy.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0016
+    status: open
+    title: "Coverage is reported but not gated in Phase 1a"
+    category: tech-debt
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/12-test-strategy.md"
+    description: "Jest coverage runs on every CI job and its summary is visible on every PR, but there is no numeric threshold, no changed-lines gate, and no coverage service. Per-path thresholds (src/api/**, src/features/*/state/** at ~80%) are deferred to Phase 1b."
+    impact: "Coverage can regress without failing a build. Bounded because doc 12 §3's named must-cover list is enforced by review and by the specific tests it requires, which a percentage would not guarantee."
+    mitigation: "A global threshold was rejected on purpose: UI tests are deferred by decision (RISK-0001), so any aggregate number is either meaningless or punishes a deliberate architectural choice. Coverage is treated as a trend signal; the must-cover list is the real gate."
+    revisit_trigger: "Phase 1b, once UI/component tests exist and make an aggregate figure honest — introduce per-path thresholds then."
+    refs:
+      - "architecture/12-test-strategy.md#81-no-numeric-threshold-in-phase-1a"
+      - "architecture/12-test-strategy.md#3-coverage-priorities"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0017
+    status: open
+    title: "Criterion A2 is enforced by a pattern-matching lint rule that cannot catch computed values"
+    category: tech-debt
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/12-test-strategy.md"
+    description: "Launch criterion A2 (zero hardcoded colors, typography, or spacing outside the theme) is gated by an ESLint no-restricted-syntax rule matching hex/rgb() literals and raw px values outside src/shared/theme/. It catches literals; it cannot catch a color or dimension computed at runtime."
+    impact: "A hardcoded design value can reach the demo through a computed expression while CI shows green, weakening the theme-swap argument (criterion A1) that the POC exists to demonstrate."
+    mitigation: "The 90% rule ships rather than relying on review alone, and doc 12 §7.1 states its reach explicitly instead of implying A2 is fully automated. The theme token-parity test (doc 12 §3.4) and the A1 smoke step (runbooks/release-deploy.md Part 3) catch the visible consequences."
+    revisit_trigger: "Phase 1b UI tests — a rendered-output assertion can catch what static analysis cannot; or the first time a hardcoded value is found in review despite a green gate."
+    refs:
+      - "architecture/12-test-strategy.md#71-what-blocks-merge"
+      - "architecture/02-phasing-roadmap.md#4-launch-criteria"
+      - "adr/ADR-0018-two-tier-ci-js-gate-before-bitrise.md"
     closed:
       date:
       reason:
