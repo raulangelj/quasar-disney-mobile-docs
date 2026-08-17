@@ -1,8 +1,8 @@
 # Doc 06 — Security & Threat Model
 
-**Version:** v0.1.1
+**Version:** v0.1.2
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6a)
+**Last updated:** 2026-08-17 (STEP-1.8)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > What this React Native demo must protect, where trust is crossed, which threats we mitigate in Phase 1, and which we accept until a real host, real accounts, or Bitrise exists.
@@ -95,7 +95,7 @@ STRIDE-lite. Privilege escalation is **out** until there are roles. Insider misu
 | Stolen JWT on the wire, MITM, injection, replay vs a server, backend DoS | B4 | **Defer.** No host exists. | Radius: none until a real host. Trigger: **Phase 3**. **RISK-0009**. Pinning already **RISK-0007**. |
 | Disclosure — screenshots, debug builds, USB device theft | B5 | **Accept.** Secure-text on the password field is the now-control. No pinning / root detection (doc 15). | Radius: whoever holds the demo phone. Trigger: store-bound or real PII. |
 | Disclosure — demo password in git | B6 | Demo pair lives in gitignored `.env`. Repo commits `.env.example` placeholders only. Mock adapter reads env. | — |
-| Tampering — dependency supply chain | B6 | Commit the lockfile. Vet before add (`runbooks/dependency-supply-chain.md`). `npm audit` on the check-in cadence. | **`npm audit` in CI deferred** until Bitrise (1.8 / Phase 2). **RISK-0010**, OQ-27. |
+| Tampering — dependency supply chain | B6 | Commit the lockfile. Vet before add (`runbooks/dependency-supply-chain.md`). `npm audit` on the check-in cadence. | **`npm audit` in CI still deferred** — 1.8 left the gate undecided until Bitrise exists. **RISK-0010**. |
 | Rate limiting / brute force of the demo login | B4 (future) | **Defer.** No public endpoint; brute force ≡ reading `.env.example`. | Radius: none. Trigger: **Phase 3 backend**. **RISK-0009**. |
 
 XSS, CSRF, clickjacking, CORS: **N/A** (native client, JWT on an axios header when B4 exists, no cookies, no WebView).
@@ -160,7 +160,7 @@ High-level stance. Deep design is **`architecture/16-identity-auth.md`** (1.6a *
 | **Rate limiting / brute force** | **Defer** to Phase 3 backend. | **RISK-0009** |
 | **Logging / PII leak** | Never log password, JWT, or full `/me`. Analytics stubs: no PII. | API interceptor + analytics stub |
 | **Dependencies** | Lockfile committed. Vet before `npm install`. `npm audit` on the check-in cadence; deferrals go in `risks.yml`. Security patches promptly; majors deliberately. Hard deps already locked (doc 03). Do not add Firebase/Sentry “for security.” | Every STEP that adds a package |
-| **`npm audit` in CI** | **Defer** until Bitrise exists. Review the exact gate (fail vs warn, lockfile check) in session **1.8**. | **RISK-0010**, OQ-27 |
+| **`npm audit` in CI** | **Still deferred.** Session 1.8 reviewed it and **consciously did not decide** the gate: a fail-vs-warn threshold is meaningless with no CI to enforce it. Revisit at **Bitrise implementation** (doc 08 §5). | **RISK-0010** (OQ-27 closed) |
 
 Operational runbooks: `runbooks/secrets-rotation.md`, `runbooks/dependency-supply-chain.md`.
 
@@ -183,7 +183,7 @@ Operational runbooks: `runbooks/secrets-rotation.md`, `runbooks/dependency-suppl
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| OQ-27 | Exact dependency-audit gates once Bitrise exists (`npm audit` fail vs warn, lockfile check, cadence) | Mobile | 1.8 Infrastructure & Deployment; Phase 2 CI |
+| ~~OQ-27~~ | ~~Exact dependency-audit gates once Bitrise exists (`npm audit` fail vs warn, lockfile check, cadence)~~ **Closed (1.8) as deliberately deferred:** undecidable without a CI system; RISK-0010's revisit trigger moves to Bitrise implementation | — | closed |
 | ~~OQ-25~~ | ~~Exact mock `/me` payload beyond `id` + `userName` (claims vs body)~~ **Resolved (1.6a):** mock JWT = `sub` + `exp` + `iat`; `/me` = `{ id, userName }`. JSON names → OQ-22 | — | closed |
 | OQ-03 | Production backend contract and JWT claims shape | Backend team | 1.11 Interface Contracts; Phase 3 |
 
@@ -195,3 +195,4 @@ Carried: privacy session remains Deferred (doc 04). Pinning / root detection rem
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.6 | Initial abbreviated threat model. ADR-0008. RISK-0008–0010. |
 | v0.1.1 | 2026-08-17 | STEP-1.6a | Identity deep-design Done (doc 16). Closed OQ-25. OQ-03 now 1.11 / Phase 3. |
+| v0.1.2 | 2026-08-17 | STEP-1.8 | §6 CI audit gate reviewed and consciously left undecided; closed OQ-27, RISK-0010 revisit moves to Bitrise implementation. Secrets posture unchanged; doc 08 §5 adds the `.env`-on-build-machine pre-flight check. |

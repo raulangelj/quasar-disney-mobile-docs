@@ -1,8 +1,8 @@
 # Doc 15 — Native App Architecture
 
-**Version:** v0.2.3
+**Version:** v0.2.4
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6a)
+**Last updated:** 2026-08-17 (STEP-1.8)
 **Audience:** Mobile developers, QA
 
 > Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
@@ -47,7 +47,13 @@ When the device has no usable network, the **app shell** shows a full-screen ove
 
 **Behavior**
 
-1. `@react-native-community/netinfo` is the reachability source.
+1. `@react-native-community/netinfo` is the connectivity source. **"Usable network" means the
+   interface is up** — plain `isConnected`, with **no internet-reachability probe** and no
+   captive-portal detection (**ADR-0014**, resolving OQ-21). Phase 1 data is all in-process
+   mocks, so the overlay guards no request; keying on reachability would let a captive-portal
+   venue wifi block a fully working app at the 18 Aug sign-off. The accepted tradeoff —
+   connected-but-not-reachable reports online — is harmless until a real host exists (OQ-29,
+   Phase 3).
 2. Overlay is **shell-owned**. Auth and Storefront do not implement their own offline screens.
 3. Overlay sits **on top of** the current navigator; it does not unmount auth/storefront.
 4. **Auto-restore:** when NetInfo reports connectivity, hide the overlay and resume from **auth state** — storefront if a session exists, auth flow if not. Refetch the active surface (storefront home if authenticated).
@@ -116,6 +122,8 @@ See RISK-0007. Security session 1.6 is **Done** (abbreviated) in `architecture/0
 
 **Local installs only.** Xcode / Android Studio → simulator or USB device. No App Store, Play Store, TestFlight, Play internal track, or OTA (no Expo; CodePush is dead).
 
+**The sign-off artifact is a release build on a device** — declared, not contingent (doc 08 §2). Debug builds are the development loop; the demo runs an embedded JS bundle with no Metro attached. Procedure: `runbooks/release-deploy.md`.
+
 Stamp `CFBundleShortVersionString` / `versionName` so a later min-version / forced-upgrade check can live in the shell without a native rewrite. No forced-upgrade gate and no phased rollout until there is a fleet.
 
 Phase 2 still owns Bitrise + installable QA builds. **RISK-0005:** do not submit “Dinsey-” to any store.
@@ -124,7 +132,7 @@ Phase 2 still owns Bitrise + installable QA builds. **RISK-0005:** do not submit
 
 ## 8. Device performance & storefront pagination
 
-**No numeric SLOs** (binary size, cold start, battery, FPS, memory). Doc 01 already dropped performance from v1 success criteria. If a device stutters at sign-off, use a **release** build rather than opening a performance program.
+**No numeric SLOs** (binary size, cold start, battery, FPS, memory). Doc 01 already dropped performance from v1 success criteria. If a device stutters, that is craft to polish, not a performance program to open — and the sign-off already runs a **release** build by decision (§7, doc 08 §2), so it is not a remedy held in reserve.
 
 ### Guardrails
 
@@ -158,7 +166,7 @@ Virtualized lists call `loadMore` on end-reached. Do not load every tile in ever
 |---|----------|--------|-----------|-----------------------|
 | 1 | Platform | Bare RN, iOS + Android, no Expo | Already locked in 01/03; one codebase for the two-platform demo | Dual native, Flutter, Expo/OTA, web/desktop |
 | 2 | Offline | Online-only; no content cache | Downloads are Phase 4+; mocks are the network | Offline browse / last-known-home |
-| 3 | Connectivity UX | Shell overlay + NetInfo; auto-restore by auth state; `REINTENTAR` | Matches the Disney+ reference; one gate, not per-feature screens | Per-screen offline UIs; treating “no network” as a fetch error |
+| 3 | Connectivity UX | Shell overlay + NetInfo (**interface up = online**, ADR-0014); auto-restore by auth state; `REINTENTAR` | Matches the Disney+ reference; one gate, not per-feature screens; a captive portal cannot block a mocks-only demo | Per-screen offline UIs; treating “no network” as a fetch error; detecting captive portals in Phase 1 |
 | 4 | Secure storage | `react-native-encrypted-storage` + redux-persist, auth slice only | npm Keychain/Keystore wrapper; persist API already matches | AsyncStorage; custom native module; `react-native-keychain` adapter |
 | 5 | Push | None in Phase 1 | No backend, no vendor | Demo pushes |
 | 6 | Permissions | `INTERNET` + `ACCESS_NETWORK_STATE` only | Nothing else is exercised | Biometrics, cast, downloads, camera, location |
@@ -173,7 +181,8 @@ Virtualized lists call `loadMore` on end-reached. Do not load every tile in ever
 |----|----------|-------|------------|
 | ~~OQ-19~~ | ~~Pagination wire format: cursor vs offset~~ **Resolved (1.4):** opaque `nextCursor`. JSON names → 1.11 (OQ-22) | — | closed |
 | ~~OQ-20~~ | ~~Home first-page size and per-carousel page size~~ **Resolved in part (1.4):** HomeFeed first page = hero + 15; CW separate. Tiles per row → OQ-23 | — | closed (partial) |
-| OQ-21 | NetInfo “usable network”: treat cellular+wifi as enough, or also require internet reachability (vs captive portal)? | Mobile | Foundation / shell STEP |
+| ~~OQ-21~~ | ~~NetInfo “usable network”: treat cellular+wifi as enough, or also require internet reachability (vs captive portal)?~~ **Resolved (1.8):** interface up is enough; no reachability probe (ADR-0014) | — | closed |
+| OQ-29 | Does “connected but not reachable” need a reachability probe once a real host exists? | Mobile | Phase 3 backend integration (doc 08 §6.1) |
 
 Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-storage).
 
@@ -186,3 +195,4 @@ Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-
 | v0.2.1 | 2026-08-17 | STEP-1.5 | Feeds are `Container[]` / `resources: Card[]`; CW `progress` variant. |
 | v0.2.2 | 2026-08-17 | STEP-1.6 | Device-security deferrals indexed from doc 06 (ADR-0008); token storage unchanged. |
 | v0.2.3 | 2026-08-17 | STEP-1.6a | Biometrics stay Phase 3 (doc 16); no Face ID in Phase 1. |
+| v0.2.4 | 2026-08-17 | STEP-1.8 | §2 connectivity gate keys on interface state, not reachability (ADR-0014). Closed OQ-21; opened OQ-29. §7 distribution: the release build is now the declared sign-off artifact (doc 08 §2). |

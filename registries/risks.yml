@@ -64,10 +64,10 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Sessions 1.8 Infrastructure, 1.9 Environments, and 1.10 Observability remain in the STEP-1 queue after 1.5 and 1.6a ran. 1.6, 1.13, and 1.14 run abbreviated."
+    description: "Sessions 1.9 Environments and 1.10 Observability remain in the STEP-1 queue after 1.5, 1.6a, and 1.8 ran. 1.6, 1.13, and 1.14 run abbreviated."
     impact: "Design posture in those remaining areas is undecided; a later phase may find Phase-1a choices constrain it."
-    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5 and 1.6a are Done (docs 05 and 16)."
-    revisit_trigger: "After 1.8–1.10 run, or the next periodic check-in — whichever comes first."
+    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, and 1.8 are Done (docs 05, 16, and 08)."
+    revisit_trigger: "After 1.9–1.10 run, or the next periodic check-in — whichever comes first."
     refs:
       - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
       - "../../prompts/STEP-index.md"
@@ -83,12 +83,13 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Pods, signing, emulators, and Xcode version drift can consume half a day of a ~3.5-day window with no warning."
+    description: "Pods, signing, emulators, and Xcode version drift can consume half a day of a ~3.5-day window with no warning. Session 1.8 chose lockfiles-only reproducibility (no authored pin files, no toolchain table), so Xcode version drift between the two laptops stays explicitly unmitigated inside this risk."
     impact: "If the scaffold slips, the Sunday auth-flow plan no longer closes before the immovable 2026-08-18 sign-off."
-    mitigation: "Pre-agreed fallback: if no app runs on both platforms by Saturday midday, drop Android for Saturday, pursue iOS only, bring Android up Monday."
+    mitigation: "Pre-agreed fallback: if no app runs on both platforms by Saturday midday, drop Android for Saturday, pursue iOS only, bring Android up Monday. Commit every lockfile the RN scaffold generates."
     revisit_trigger: "Saturday 2026-08-15 midday checkpoint."
     refs:
       - "architecture/02-phasing-roadmap.md#8-schedule-and-schedule-risk"
+      - "architecture/08-infrastructure-deployment.md#4-infrastructure-as-code--lockfiles-only"
     closed:
       date:
       reason:
@@ -218,12 +219,13 @@ risks:
     owner: "TBD"
     opened: "2026-08-17"
     source: "architecture/06-security-threat-model.md"
-    description: "Lockfile + vet-before-add + check-in-cadence npm audit apply; there is no Bitrise job that fails a build on audit findings."
+    description: "Lockfile + vet-before-add + check-in-cadence npm audit apply; there is no Bitrise job that fails a build on audit findings. Session 1.8 reviewed the gate and consciously left it undecided — fail vs warn is meaningless with no CI to enforce it (OQ-27 closed as deferred)."
     impact: "An unpatched advisory can sit until someone runs audit locally or at a check-in."
     mitigation: "Commit the lockfile; runbooks/dependency-supply-chain.md on add and at check-in."
-    revisit_trigger: "Bitrise implementation (session 1.8 / Phase 2) — decide fail vs warn (OQ-27)."
+    revisit_trigger: "Bitrise implementation (Phase 2) — decide fail vs warn then, in the STEP that builds the pipeline."
     refs:
       - "architecture/06-security-threat-model.md#6-web--client-risk-posture"
+      - "architecture/08-infrastructure-deployment.md#5-networking-tls-secrets"
       - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
     closed:
       date:
@@ -263,6 +265,26 @@ risks:
     refs:
       - "adr/ADR-0013-svg-rendering-dependency.md"
       - "architecture/03-architecture-overview.md#7-build-vs-buy"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0013
+    status: open
+    title: "Deployment and recovery posture is a manual procedure, a spare binary, and a git push"
+    category: operations
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/08-infrastructure-deployment.md"
+    description: "Session 1.8 deliberately scoped to a showcase with no QA or deployment tier: no CI, no IaC beyond committed lockfiles, no secret manager, no environments, no availability target. Recovery is reinstalling the previous known-good .ipa/.apk (RTO ~1 min, RPO = last git push)."
+    impact: "Correct for an internal POC and negligent for a product with users. The gap surfaces the moment anyone other than the two devs depends on a build, or real data exists."
+    mitigation: "The manual procedure is written down and repeatable (runbooks/release-deploy.md); build on two machines and install on two devices; keep the previous binary."
+    revisit_trigger: "Bitrise implementation (Phase 2), session 1.9 Environments, or any real users / real data / store submission — whichever comes first."
+    refs:
+      - "architecture/08-infrastructure-deployment.md#3-deploy-pipeline--build--install--roll-back"
+      - "architecture/08-infrastructure-deployment.md#7-backups--dr--artifact-and-code-survival"
+      - "runbooks/release-deploy.md"
     closed:
       date:
       reason:

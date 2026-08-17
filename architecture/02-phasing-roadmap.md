@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.4
+**Version:** v0.3.5
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.7)
+**Last updated:** 2026-08-17 (STEP-1.8)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -197,7 +197,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 | DF8 | **i18n** | No loose hardcoded strings, even with no multi-language support in 1a. The reference material is Spanish |
 | DF9 | **Analytics** | The hook ships with its final signature behind `console.log` stubs |
 | DF10 | **Trademark substitution** | No Disney/Marvel/Star Wars/hulu/ESPN marks or real key art in the codebase or assets, at any phase |
-| DF11 | **Connectivity gate** | No-network is a **shell overlay** (NetInfo + reference no-internet screen), not a feature fetch error and not an offline cache. Restore by auth state. See doc 15 / ADR-0004 |
+| DF11 | **Connectivity gate** | No-network is a **shell overlay** (NetInfo + reference no-internet screen), not a feature fetch error and not an offline cache. Restore by auth state. **Online = interface up**, no reachability probe (ADR-0014). See doc 15 / ADR-0004 |
 | DF12 | **Storefront pagination** | Home rows and cards **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. **Opaque `nextCursor`** (doc 04). Two **`Container[]`** endpoints; cards in **`resources`** (ADR-0006 / ADR-0007). Card page size still 1.11 (OQ-23). |
 
 ## 7. Phase dependencies and critical path
@@ -229,9 +229,15 @@ Infrastructure, **1.9** Environments, and **1.10** Observability were originally
 informs a 1a decision. **1.6** Security (no real PII), **1.13** Glossary, and **1.14** Cross-Cutting
 Review run abbreviated.
 
-*Amendment (2026-08-17):* **1.5** and **1.6a** subsequently ran (`architecture/05-scaling-performance.md`,
-`architecture/16-identity-auth.md`). Remaining originally-deferred sessions still in the STEP-1
-queue: **1.8**, **1.9**, **1.10**. RISK-0002 tracks that list.
+*Amendment (2026-08-17):* **1.5**, **1.6a**, and **1.8** subsequently ran
+(`architecture/05-scaling-performance.md`, `architecture/16-identity-auth.md`,
+`architecture/08-infrastructure-deployment.md`). Remaining originally-deferred sessions still in
+the STEP-1 queue: **1.9**, **1.10**. RISK-0002 tracks that list.
+
+1.8 scoped itself to the mobile build-and-distribute path (no server exists to host) and made
+one change that touches this document's schedule: **the release build is the declared sign-off
+artifact, not a fallback** — its ~30-minute first-time setup belongs at the **Tue 18 AM sync
+point** in §8, alongside integration and smoke. Procedure: `runbooks/release-deploy.md`.
 
 ## 8. Schedule and schedule risk
 
@@ -243,7 +249,7 @@ queue: **1.8**, **1.9**, **1.10**. RISK-0002 tracks that list.
 | Sat 15 midday | **Checkpoint** — scaffold running on both platforms? (RISK-0003) |
 | Sat 15 EOD | **Sync point 1** — foundation and contract merge |
 | Sun 16 – Mon 17 | **Dev A:** auth feature *(parallel, no coordination)* · **Dev B:** storefront feature |
-| Tue 18 AM | **Sync point 2** — integration, theme-swap verification, polish, smoke on both platforms |
+| Tue 18 AM | **Sync point 2** — integration, theme-swap verification, polish, smoke on both platforms, **plus the release build + install on two devices** (`runbooks/release-deploy.md`; ~30 min first time) |
 | **Tue 18** | **Stakeholder sign-off — immovable** |
 
 See §9 for the two-developer split this table assumes.
@@ -392,3 +398,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.2 | 2026-08-17 | STEP-1.5 | DF6/DF12: Container variants include `progress`; both feeds are `Container[]` + `resources` (ADR-0007). |
 | v0.3.3 | 2026-08-17 | STEP-1.6a | §7 amendment: 1.5 and 1.6a ran. Phase 3 JWT/refresh per doc 16. OQ-03 → 1.11 / Phase 3. |
 | v0.3.4 | 2026-08-17 | STEP-1.7 | §2 "inert" tabs defined as tappable `ComingSoon` placeholders (doc 07 §4). Design system delivered; DF4/DF6/DF8 now have concrete token, component, and i18n specs. |
+| v0.3.5 | 2026-08-17 | STEP-1.8 | §7 amendment: 1.8 ran (doc 08); 1.9 and 1.10 remain. §8 Tue-AM sync point now includes the release build + two-device install. DF11 notes ADR-0014 (interface-up connectivity). |

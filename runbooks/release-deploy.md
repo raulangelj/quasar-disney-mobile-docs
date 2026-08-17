@@ -1,87 +1,133 @@
 # Runbook — Release, Deploy & Rollback
 
-> **How to run:** This is an **operational procedure, not a STEP** (unlike the check-in). Run
-> it whenever you ship a version to an environment — tell your agent *"run the release"* (or
-> *"deploy the release"* / *"roll back the last release"*) and it follows this file.
+> **How to run:** This is an **operational procedure, not a STEP**. Run it whenever you produce
+> a build that someone other than you will see — tell your agent *"run the release"* (or
+> *"roll back the last release"*) and it follows this file.
 >
-> **Optional and yours to customize.** The method deliberately leaves CI/CD and release
-> versioning to your team's existing tooling (see `collaboration.md`, *"Standard practice, not
-> the method's job"*). This runbook is a **default checklist** for when you don't have a
-> release process yet — and a home to write yours down when you do. Fill in your project's
-> actual commands and environments; the *discipline* below — a rollback plan **before** you
-> deploy, reversible migrations, a watch window — is the part worth keeping whatever your
-> pipeline. The mechanism it executes was designed in the Infrastructure & Deployment
-> architecture doc (`architecture/*-infrastructure-deployment.md`, deploy pipeline + rollback)
-> and
-> the Environments architecture doc (`architecture/*-environments.md`); point at those for the
-> specifics.
+> **Project-specific.** This file was rewritten from the method's generic template in
+> **STEP-1.8** to match what quasar-disney-mobile actually does. The mechanism it executes is
+> designed in `architecture/08-infrastructure-deployment.md` (§2 sign-off artifact, §3 deploy
+> pipeline, §6 SPOFs). Environments are session 1.9 — until then there is exactly one
+> destination: **a physical demo device over USB**.
+
+## What a "release" means here
+
+There is **no server, no environment tier, and no store** (doc 08 §1, doc 15 §7). A release is:
+
+> a **release-configuration build**, installed over USB onto the device that stakeholders will
+> hold.
+
+The primary use is the **2026-08-18 stakeholder sign-off** (doc 02 §4). Do this at the
+**Tuesday-AM sync point**, not on the morning of the demo — first-time release signing setup
+takes about 30 minutes and you do not want to discover that with an audience waiting.
 
 ## Why this runbook exists
-A deploy is the riskiest routine thing a project does — it's where a green test suite still
-meets production reality. The failure mode usually isn't the deploy itself; it's having **no
-planned way back** when something goes wrong, so a five-minute blip becomes an outage while
-someone improvises a fix under pressure. This runbook makes a release boring: decide how you'd
-undo it *before* you do it, ship to a safe place first, watch, and have one clear lever to pull
-if it goes bad.
 
-## Part 1 — Before you deploy (pre-flight)
-- [ ] **The change is merged and reviewed**, and the **full test suite is green** — not just the
-      area you touched.
-- [ ] **Version stamped.** Tag / bump the version per your scheme so what's running is identifiable.
-- [ ] **Release notes drafted.** At a milestone or any release the method asks you whether to
-      write them (`METHOD.md` §5, *Milestone doc review*) — if yes, draft them from
-      `templates/release-notes-template.md` while the changes are fresh.
-- [ ] **Migrations are safe to undo.** If this release changes the database schema, confirm the
-      migration is **reversible or forward-compatible** (prefer expand/contract: add the new
-      shape, deploy, backfill, switch, drop the old in a *later* release). A deploy you can roll
-      back sitting on a schema you can't is a trap — write down the down-path explicitly.
-- [ ] **Config & secrets for the target environment are in place** — from the secrets manager,
-      not a checked-in file (see the Security & Threat Model architecture doc,
-      `architecture/*-security-threat-model.md`, and the Infrastructure & Deployment architecture doc,
-      `architecture/*-infrastructure-deployment.md`). Rotating a
-      credential rather than just consuming one? That's its own procedure —
-      `runbooks/secrets-rotation.md`.
-- [ ] **Rollback plan confirmed.** Write down, now, exactly how you'd undo this release (Part 4)
-      and what would make you do it. If you can't state it, you're not ready to deploy.
+The failure mode is not the build. It is having **no planned way back** when the thing on the
+device misbehaves in front of the people whose sign-off the project exists to get. Decide the
+undo before you build, keep the artifact you are replacing, and the worst case is a
+sixty-second reinstall instead of improvised debugging on stage.
 
-## Part 2 — Deploy
-- [ ] **Ship to staging / pre-prod first** (per `architecture/*-environments.md`) and **smoke-test**
-      the critical paths there before production. Skip only if the project has no such
-      environment — and say so.
-- [ ] **Deploy to production** via the deploy pipeline from the Infrastructure & Deployment
-      architecture doc (`architecture/*-infrastructure-deployment.md`). Where the runtime
-      infrastructure supports it, prefer a strategy that makes rollback cheap (blue-green /
-      rolling / canary / feature-flagged).
-- [ ] **Record it** — what version went out, to which environment, when, and by whom. It's the
-      start of an audit trail the next check-in and any incident review will want.
+---
 
-## Part 3 — Verify (don't walk away)
-- [ ] **Smoke-test the critical user paths** in production.
-- [ ] **Watch production signals** from the Observability architecture doc
-      (`architecture/*-observability.md`) for a defined window — error rates, latency, and the
-      alerts you set up — before calling it done. A deploy isn't "done" at deploy; it's done
-      once it's stayed healthy for a bit.
-- [ ] **Health / uptime checks green.**
+## Part 1 — Pre-flight
 
-## Part 4 — Rollback (when verify fails)
-- **Trigger.** Roll back when a pre-defined criterion hits — a failed smoke test, an error/latency
-  spike, a breached SLO. Decide *fast*: rolling back and investigating later beats debugging in
-  production while users are affected.
-- **Mechanism.** Execute the down-path you wrote in Part 1 — redeploy the previous version,
-  switch the blue-green pointer, turn the feature flag off, or revert and redeploy.
-- **The migration caveat (the dangerous case).** If the release ran an *irreversible* schema or
-  data migration, rolling back the code isn't enough and may corrupt data. Here a **forward fix**
-  (roll forward with a patch) is often safer than a rollback — decide deliberately. This is
-  exactly why Part 1 insists migrations be reversible or forward-compatible.
-- **After a rollback.** A rollback means something broke in production — that's an **incident**.
-  Capture what happened — symptom, trigger, what you did — and hand off to
-  `runbooks/incident-postmortem.md`, which turns it into a tracked STEP (RCA → find similar →
-  fix) with a durable postmortem report under `reports/incidents/`, so the real fix can't
-  evaporate once service is restored.
+- [ ] **Work is merged and the test suite is green** — every reducer, middleware, hook, and the
+      API/mock layer (doc 02 criterion A6), not just the area you touched.
+- [ ] **`.env` exists on this machine**, with `API_BASE_URL`, `DEMO_EMAIL`, `DEMO_PASSWORD`
+      (doc 06 §5). **Check this explicitly.** The mock adapter reads the demo pair from env, so
+      a missing `.env` produces a login that fails on stage looking exactly like an auth bug.
+      `.env` is gitignored — a fresh clone does **not** have it.
+- [ ] **Version stamped** — bump `CFBundleShortVersionString` (iOS) and `versionName` (Android),
+      per doc 15 §7.
+- [ ] **Git tag the commit** you are about to build, so the binary on the device is traceable to
+      source. Push the tag.
+- [ ] **Push to the remote.** This is the project's entire backup posture — RPO is "last push"
+      (doc 08 §7).
+- [ ] **The previous known-good `.ipa` / `.apk` is on disk and you know where.** This is the
+      rollback (Part 4). If there isn't one yet, this is the build that becomes it.
+- [ ] **Rollback plan confirmed:** reinstall the previous binary. If you cannot point at that
+      file right now, you are not ready to build.
+
+*No migration checks — there is no database. No secrets-manager step — there is no production
+tier (doc 08 §5).*
+
+## Part 2 — Build
+
+Build **release configuration** on both platforms. Debug builds are the development loop and are
+**not** what gets demoed (doc 08 §2): the release build embeds the JS bundle, so Metro and the
+laptop hosting it are out of the demo's critical path.
+
+- [ ] **Clean** first — stale native artifacts are the classic source of a build that works only
+      on the machine that has been building all week.
+- [ ] **iOS:** `Release` scheme. Debug/local signing is fine — this is a USB install, not a
+      distribution build. No distribution certificate or provisioning profile is required.
+- [ ] **Android:** `assembleRelease` (or `bundleRelease`), debug-signed. First time on a fresh
+      checkout, this needs release signing configured in Gradle — budget ~30 minutes.
+- [ ] **Confirm the JS bundle is embedded** and **Metro is not running / not attached**. If the
+      app only works while Metro is up, you built debug.
+- [ ] **Keep both artifacts.** Copy the `.ipa` and `.apk` somewhere durable alongside the tag
+      name. These become the next release's rollback target.
+
+## Part 3 — Install & verify
+
+- [ ] **Install over USB onto the demo device.**
+- [ ] **Install onto a second device too.** The demo device is a single point of failure
+      (doc 08 §6); a second installed device is the cheapest possible redundancy.
+- [ ] **Confirm the demo device has a live network connection.** The shell's connectivity
+      overlay keys on interface state (ADR-0014), so an associated wifi or cellular interface is
+      enough — a captive portal will not trip it. Check anyway; the overlay is full-screen and
+      blocking if it does appear.
+- [ ] **Smoke the launch criteria** (doc 02 §4) on the demo device, on **both platforms**:
+      - **F1** — welcome → credentials → home completes end to end.
+      - **F2** — wrong credentials produce the **inline error state** (red underline + message),
+        not an alert, not a crash.
+      - **F3** — home renders both carousel variants from mock data; tapping a card alerts with
+        the title.
+- [ ] **A11y spot-check** — the ~10-minute VoiceOver + TalkBack pass (doc 07 §8, RISK-0011).
+      The live-region auth error is the one that fails silently.
+- [ ] **Record what shipped:** tag, platform, device, date, who built it.
+
+*No production signals to watch, no health checks, no error-rate window — there is no service
+(doc 08 §1). Verification is the smoke test on the device in your hand.*
+
+## Part 4 — Rollback
+
+**Trigger.** Any smoke-test failure in Part 3, or any defect found on the demo device that you
+cannot explain in a couple of minutes. Decide fast — roll back and investigate afterwards.
+
+**Mechanism — reinstall, do not rebuild.**
+
+1. Install the **previous known-good `.ipa` / `.apk`** from disk over USB.
+2. Re-run the Part 3 smoke checks on it.
+3. Note which tag you reverted to.
+
+A rebuild-to-roll-back takes ten minutes or more and can fail for a **new** reason under exactly
+the pressure you can least afford it. Reinstalling a file that already ran takes about a minute
+(doc 08 §3).
+
+**If the previous binary also fails:** run the demo from the **second device** (Part 3) and stop
+touching the primary until after the session.
+
+**After a rollback.** Something broke that the test suite did not catch. Capture symptom,
+trigger, and what you did, then hand off to `runbooks/incident-postmortem.md` so the real fix
+does not evaporate once the demo is over.
 
 ## After the release
-- Confirm the released version is **tagged / recorded**.
-- **Prompt the user about release notes and user-facing docs** if not already done. If the user
-  wants release notes, use `templates/release-notes-template.md`; neither release notes nor user-facing
-  docs are produced by normal STEP work (`METHOD.md` §5, *Milestone doc review*).
-- Note anything that should feed the next **check-in** (`runbooks/check-in.md`).
+
+- [ ] Confirm the shipped version is **tagged and recorded**.
+- [ ] **Phase milestone?** If this build is the 1a sign-off, the method asks about **release
+      notes** and user-facing docs (`METHOD.md` §5). For an internal POC the honest answer is
+      usually "no" — but answer it deliberately rather than skipping it.
+- [ ] Note anything for the next **check-in** (`runbooks/check-in.md`) — especially build steps
+      that were more painful than this runbook implies, so the next person gets the corrected
+      version.
+
+---
+
+## When this runbook changes
+
+**Phase 2 (Bitrise)** replaces Parts 2 and 3 with a pipeline and installable QA builds — rewrite
+those parts then, and design the CI gates (including the deferred `npm audit` gate, RISK-0010)
+in that STEP. **Session 1.9** introduces environments, which is when "which destination" becomes
+a real question. Until either happens, this file is the whole deployment story.
