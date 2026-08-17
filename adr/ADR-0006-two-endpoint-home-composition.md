@@ -6,8 +6,10 @@
 ## Related documents
 - `architecture/04-data-model.md`
 - `architecture/03-architecture-overview.md`
+- `architecture/05-scaling-performance.md`
 - ADR-0002 (API module + middleware is the only I/O path)
 - ADR-0005 (pagination hooks; each endpoint still pages)
+- ADR-0007 (shared Container / Card types)
 
 ## Context
 
@@ -56,3 +58,20 @@ single fixture list and Phase 3 has to split it.
   hero from Phase 1.
 - Shell owns the boot loader; Storefront owns silent CW reload. Neither is the no-internet
   overlay (ADR-0004).
+
+## Amendment (2026-08-17 — STEP-1.5)
+
+Decision **1–5 still hold** (two JWT GETs, client composition under hero, boot loader, silent
+CW reload, paging). The **envelope** changes:
+
+- HomeFeed is a **`Container[]`**, not `{ hero, carousels }`. Hero is a container with
+  `variant: "hero"`.
+- Continue Watching is a **`Container[]`** (typically one container),
+  `variant: "progress"`. It remains a **separate API** — still **not** a member of the
+  HomeFeed *response*.
+- Composed list:
+  `[ HomeFeed hero container ] + [ CW progress container ] + [ remaining HomeFeed containers ]`.
+- Cards live in **`resources`**, not `items`. Shared types: **ADR-0007**.
+
+The sentence in decision 2, *“Continue watching is not a HomeFeed variant,”* is amended to:
+not a HomeFeed **payload** member. It **is** a Container variant (`progress`) for UI reuse.

@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.1
+**Version:** v0.3.2
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.4)
+**Last updated:** 2026-08-17 (STEP-1.5)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -192,13 +192,13 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 | DF3 | **JWT** | The auth slice holds an opaque token from day one, even though it's fake. Persist that slice only, into **`react-native-encrypted-storage`** (Keychain / EncryptedSharedPreferences) from day one (not AsyncStorage). Refresh still plugs in without touching screens |
 | DF4 | **Re-skin by tokens** | Two surface modes live in the theme structure itself, not as per-screen exceptions |
 | DF5 | **Feature extraction to repos** | No feature imports from another feature — only from `shared/`. The app shell is the composition root and may import features |
-| DF6 | **Carousel variants** | The carousel is config-driven from the first commit. Adding hero, live, and landscape must be adding configuration, not components — even though 1a ships only 2 of 5 |
+| DF6 | **Carousel variants** | The carousel is config-driven from the first commit. Adding hero, **progress**, live, and landscape must be adding configuration, not components — even though 1a ships only a subset. Hero and progress are **Container variants** (ADR-0007) |
 | DF7 | **Details navigation** | The alert lives behind the same handler that will later navigate; the swap must not touch the tile components |
 | DF8 | **i18n** | No loose hardcoded strings, even with no multi-language support in 1a. The reference material is Spanish |
 | DF9 | **Analytics** | The hook ships with its final signature behind `console.log` stubs |
 | DF10 | **Trademark substitution** | No Disney/Marvel/Star Wars/hulu/ESPN marks or real key art in the codebase or assets, at any phase |
 | DF11 | **Connectivity gate** | No-network is a **shell overlay** (NetInfo + reference no-internet screen), not a feature fetch error and not an offline cache. Restore by auth state. See doc 15 / ADR-0004 |
-| DF12 | **Storefront pagination** | Home rows and carousel tiles **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. **Opaque `nextCursor`** (doc 04). Two feed endpoints (ADR-0006). Tile page size still 1.11 (OQ-23). |
+| DF12 | **Storefront pagination** | Home rows and cards **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. **Opaque `nextCursor`** (doc 04). Two **`Container[]`** endpoints; cards in **`resources`** (ADR-0006 / ADR-0007). Card page size still 1.11 (OQ-23). |
 
 ## 7. Phase dependencies and critical path
 
@@ -385,3 +385,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.2.1 | 2026-08-16 | STEP-1.3 | DF1: axios (not fetch) inside the API module only. DF3: Keychain/Keystore persist of the auth slice from day one. DF5: shell is the composition root. |
 | v0.3.0 | 2026-08-16 | STEP-1.3a | DF3 names `react-native-encrypted-storage`. Added DF11 (connectivity gate) and DF12 (storefront pagination). |
 | v0.3.1 | 2026-08-16 | STEP-1.4 | DF12: opaque `nextCursor` (doc 04). Hero is in the Phase-1 feed contract/composition (ADR-0006); full chrome still OQ-24. Closed OQ-19. |
+| v0.3.2 | 2026-08-17 | STEP-1.5 | DF6/DF12: Container variants include `progress`; both feeds are `Container[]` + `resources` (ADR-0007). |

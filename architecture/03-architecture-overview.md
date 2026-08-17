@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.3.0
+**Version:** v0.3.1
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.4)
+**Last updated:** 2026-08-17 (STEP-1.5)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -78,7 +78,7 @@ A future HTTP backend is **not a component of this system**. It is a Phase-3 swa
 |------|----------------|------|
 | **App shell** | Boots the RN host on iOS/Android: navigation, store/middleware registration, theme provider, persist rehydrate, **cold-start loading** until `/me` + HomeFeed + ContinueWatching complete, **NetInfo connectivity overlay** | Bare RN, TypeScript, React Navigation, Redux Toolkit store composition, `@react-native-community/netinfo` |
 | **Auth feature** | Welcome → email → password → session. Owns the **auth slice** (JWT) and the **user slice** (`userName` from `/me`). Imports `shared/` only | RTK slices, custom hooks, Styled Components |
-| **Storefront feature** | Home/browse and config-driven carousels. Owns the content slice (not persisted), **pagination hooks**, **client merge** of hero + continue watching + other rows, **silent CW reload**. Imports `shared/` only | RTK slice, custom hooks, Styled Components |
+| **Storefront feature** | Home/browse and config-driven carousels. Owns the content slice (not persisted), **pagination hooks**, **client merge** of hero + `progress` (CW) + other containers, **silent CW reload**. Imports `shared/` only | RTK slice, custom hooks, Styled Components |
 | **Shared kernel** | Theme (both surface modes), atomic UI, i18n string tables, analytics hook stub | Styled Components + tokens; folders `theme/`, `ui/`, `i18n/`, `analytics/` |
 | **API module** | Client + mock adapter. The only I/O boundary. Single **axios** instance (base URL, auth-header interceptor, error mapping). Mocks return Promises with latency and injectable failure | TypeScript types, axios, mock adapter |
 
@@ -91,7 +91,7 @@ Most handoffs are **in-process imports**, not network APIs. The only contract wo
 | Shell → Auth, Storefront, Shared, API | Screen / reducer / middleware registration | Sync | Shell owns composition | None (in-process public exports) | Do not OpenAPI the shell |
 | Auth → Shared · Storefront → Shared | Atoms, tokens, i18n, analytics stub | Sync | Shared kernel | None | Public component/token API only |
 | Auth ↛ Storefront | Nothing | — | — | — | Shell reads auth selectors to switch navigators |
-| Auth / Storefront → API module (via middleware only) | Login, **`/me`**, **paginated HomeFeed** (hero + 15), **paginated ContinueWatching** | Async (Promises; mock latency/failure) | API module owns wire shapes; features own slice state | **Yes** — TS interfaces, enums, envelope, error shape, **`nextCursor`** | Transport is **axios**, not `fetch`. Screens/hooks never import `axios`. JSON names in 1.11 (OQ-22). JWT on `/me` and both feeds |
+| Auth / Storefront → API module (via middleware only) | Login, **`/me`**, **paginated HomeFeed** (`Container[]`, hero + 15), **paginated ContinueWatching** (`Container[]`, `variant: "progress"`) | Async (Promises; mock latency/failure) | API module owns wire shapes; features own slice state | **Yes** — TS interfaces, enums, envelope, error shape, **`nextCursor`**, **`resources: Card[]`** | Transport is **axios**, not `fetch`. Screens/hooks never import `axios`. JSON names in 1.11 (OQ-22). JWT on `/me` and both feeds |
 | API module → future HTTP backend | Same payloads over the network | Async | Backend team later (not built here) | Same shapes; transport TBD in 1.11 | Not a component we build; do not invent a mock server just to have HTTP |
 
 ## 6. Key flows
@@ -110,8 +110,8 @@ Most handoffs are **in-process imports**, not network APIs. The only contract wo
 ### Flow 2 — Storefront load and card tap
 
 1. Shell mounts Storefront as the home tab after the boot gate (other tabs inert).
-2. Storefront **composes** `[hero] + [continue watching] + [15 carousels]` from the two feed responses (ADR-0006). Pagination hooks dispatch `loadMore` → middleware → API module. End-reached calls `loadMore`.
-3. When the storefront screen is shown again, Storefront **silently refetches ContinueWatching** and replaces that row only.
+2. Storefront **composes** `[hero container] + [progress container] + [other HomeFeed containers]` from the two feed responses (ADR-0006 / ADR-0007). Pagination hooks dispatch `loadMore` → middleware → API module. End-reached calls `loadMore`.
+3. When the storefront screen is shown again, Storefront **silently refetches ContinueWatching** and replaces that **`progress` container** only.
 4. Card tap goes through the **same handler** that will later navigate → Alert with the title (Phase 1). Tile components do not know about navigation.
 
 ## 7. Build vs. buy
@@ -160,7 +160,7 @@ Redux: **Redux Toolkit** for slices plus **explicit async middleware** so the AP
 | 10 | Connectivity | Shell-owned NetInfo overlay | One gate matching the reference; restore by auth state | Per-feature offline screens; last-known-home cache |
 | 11 | Storefront paging | Feature hooks + paginated mocks | Organized loadMore; contract can page in Phase 3 | One-shot full-catalog payload |
 | 12 | User profile | Memory-only user slice; `/me` with JWT on every cold start | Matches production; persist stays auth-only (ADR-0003) | Persisting `userName`; profile inside the auth slice |
-| 13 | Home composition | Two GETs; CW inserted under hero (ADR-0006) | Silent CW reload; real API split | Single home payload |
+| 13 | Home composition | Two GETs of **`Container[]`**; CW `progress` inserted under hero (ADR-0006 / ADR-0007) | Silent CW reload; real API split; one Container/Card component | Single home payload; distinct CW types |
 
 ## Open Questions
 
@@ -180,3 +180,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who 
 | v0.1.0 | 2026-08-16 | STEP-1.3 | Initial draft from architecture session |
 | v0.2.0 | 2026-08-16 | STEP-1.3a | Shell owns NetInfo connectivity overlay; storefront pagination hooks; persist engine locked to `react-native-encrypted-storage`. Closed OQ-16; opened OQ-19. |
 | v0.3.0 | 2026-08-16 | STEP-1.4 | User slice + `/me`; two feed endpoints + boot loader; closed OQ-19. |
+| v0.3.1 | 2026-08-17 | STEP-1.5 | HomeFeed/CW are `Container[]` + `resources: Card[]`; CW variant `progress` (ADR-0007). |

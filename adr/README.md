@@ -45,6 +45,7 @@ e.g. "tech lead", "consensus of maintainers", "ADR review on PR". -->
 | ADR-0004 | Online-only client with a shell-level connectivity gate | Accepted | 2026-08-16 |
 | ADR-0005 | Storefront pagination owned by feature hooks | Accepted | 2026-08-16 |
 | ADR-0006 | Two authenticated storefront GETs composed on the client | Accepted | 2026-08-16 |
+| ADR-0007 | Shared Container and Card types on both storefront GETs | Accepted | 2026-08-17 |
 
 <!-- Example row shape (indented so it isn't picked up by the scan / `max + 1`; a real row
      starts at the line's left margin with no leading spaces):

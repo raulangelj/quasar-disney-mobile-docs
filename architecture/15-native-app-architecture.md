@@ -1,8 +1,8 @@
 # Doc 15 — Native App Architecture
 
-**Version:** v0.2.0
+**Version:** v0.2.1
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.4)
+**Last updated:** 2026-08-17 (STEP-1.5)
 **Audience:** Mobile developers, QA
 
 > Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
@@ -148,7 +148,7 @@ Each hook exposes at least `{ items, loadMore, hasMore, isLoading, error }`. `lo
 
 Virtualized lists call `loadMore` on end-reached. Do not load every tile in every row on first paint.
 
-**Wire format** is locked as opaque **`nextCursor`** (doc 04). Envelope JSON names are session **1.11**. HomeFeed first page is **hero + 15 carousels**; ContinueWatching is a **second endpoint** (ADR-0006). Horizontal tile page size is OQ-23.
+**Wire format** is locked as opaque **`nextCursor`** (doc 04). Envelope JSON names are session **1.11**. HomeFeed first page is **`Container[]`** (hero + 15); ContinueWatching is a **second** `Container[]` with `variant: "progress"` (ADR-0006 / ADR-0007). Horizontal card page size is OQ-23.
 
 **Forecloses:** treating FPS/size as an 18 Aug gate; dumping the full catalog into one mock payload.
 
@@ -165,7 +165,7 @@ Virtualized lists call `loadMore` on end-reached. Do not load every tile in ever
 | 7 | Device security | Demo-grade: no pinning, no root detection | Mocks never leave the process; simulators false-positive | MITM / compromised-device controls until Phase 3 / store |
 | 8 | Distribution | Local Xcode / Android Studio only | Internal demo; no fleet | TestFlight / Play / OTA / forced upgrade in Phase 1 |
 | 9 | Performance | No numeric SLOs; virtualized lists; Hermes | POC on a handful of devices | FPS/size as a sign-off criterion |
-| 10 | Storefront pagination | Feature hooks + paginated mocks; opaque `nextCursor` (doc 04); two feed endpoints (ADR-0006) | Keeps load organized; silent CW reload | Loading the full feed on first paint |
+| 10 | Storefront pagination | Feature hooks + paginated mocks; opaque `nextCursor` (doc 04); two `Container[]` endpoints (ADR-0006 / ADR-0007) | Keeps load organized; silent CW reload | Loading the full feed on first paint |
 
 ## Open Questions
 
@@ -183,3 +183,4 @@ Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-16 | STEP-1.3a | Initial draft from the native-app session |
 | v0.2.0 | 2026-08-16 | STEP-1.4 | User slice memory-only; `nextCursor`; two feed endpoints. Closed OQ-19 / OQ-20 (partial). |
+| v0.2.1 | 2026-08-17 | STEP-1.5 | Feeds are `Container[]` / `resources: Card[]`; CW `progress` variant. |

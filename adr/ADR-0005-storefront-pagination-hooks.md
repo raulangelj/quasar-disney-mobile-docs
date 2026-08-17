@@ -57,3 +57,10 @@ OQ-19’s *kind* is **closed**: pages use an opaque **`nextCursor`** (nullable).
 names remain for 1.11. HomeFeed and ContinueWatching are **two** paginated endpoints
 (ADR-0006); first HomeFeed page is hero + 15 carousels. Decision items 1–4 above are
 unchanged.
+
+## Amendment (2026-08-17 — STEP-1.5)
+
+Hook `items` in decision 2 means the hook’s **page of rows or cards**, not the wire field.
+The wire field on a Container is **`resources: Card[]`**. HomeFeed and Continue Watching
+both page `Container[]` (ADR-0007). First HomeFeed page is still one hero + 15 other
+containers.
