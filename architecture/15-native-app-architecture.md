@@ -1,8 +1,8 @@
 # Doc 15 — Native App Architecture
 
-**Version:** v0.1.0
+**Version:** v0.2.0
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.3a)
+**Last updated:** 2026-08-16 (STEP-1.4)
 **Audience:** Mobile developers, QA
 
 > Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
@@ -62,7 +62,8 @@ Mocks still simulate fetch failure (DF2). **No network** is a shell concern; **r
 
 | What | Where | Engine |
 |------|-------|--------|
-| Auth slice (opaque token / `isAuthenticated`) | Keychain (iOS) / EncryptedSharedPreferences (Android) | **redux-persist** + **`react-native-encrypted-storage`** |
+| Auth slice (JWT / `isAuthenticated` / `expiresAt`) | Keychain (iOS) / EncryptedSharedPreferences (Android) | **redux-persist** + **`react-native-encrypted-storage`** |
+| User slice (`userName`) | Memory only | RTK; refill via `/me` on every cold start (doc 04) |
 | Content / storefront slice | Memory only | RTK |
 | UI flags, errors, pagination cursors | Memory only | RTK / hook state |
 | Analytics | `console.log` stubs | none |
@@ -147,7 +148,7 @@ Each hook exposes at least `{ items, loadMore, hasMore, isLoading, error }`. `lo
 
 Virtualized lists call `loadMore` on end-reached. Do not load every tile in every row on first paint.
 
-**Wire format** (cursor vs offset, envelope fields) is **not** locked here — sessions **1.4** and **1.11** own it. This session only requires that the contract and mocks **are** paginated from day one, and that the hook — not a screen — owns the page state.
+**Wire format** is locked as opaque **`nextCursor`** (doc 04). Envelope JSON names are session **1.11**. HomeFeed first page is **hero + 15 carousels**; ContinueWatching is a **second endpoint** (ADR-0006). Horizontal tile page size is OQ-23.
 
 **Forecloses:** treating FPS/size as an 18 Aug gate; dumping the full catalog into one mock payload.
 
@@ -164,14 +165,14 @@ Virtualized lists call `loadMore` on end-reached. Do not load every tile in ever
 | 7 | Device security | Demo-grade: no pinning, no root detection | Mocks never leave the process; simulators false-positive | MITM / compromised-device controls until Phase 3 / store |
 | 8 | Distribution | Local Xcode / Android Studio only | Internal demo; no fleet | TestFlight / Play / OTA / forced upgrade in Phase 1 |
 | 9 | Performance | No numeric SLOs; virtualized lists; Hermes | POC on a handful of devices | FPS/size as a sign-off criterion |
-| 10 | Storefront pagination | Feature hooks + paginated mocks; cursor/offset in 1.4/1.11 | Keeps load organized; avoids a one-shot catalog | Loading the full feed on first paint |
+| 10 | Storefront pagination | Feature hooks + paginated mocks; opaque `nextCursor` (doc 04); two feed endpoints (ADR-0006) | Keeps load organized; silent CW reload | Loading the full feed on first paint |
 
 ## Open Questions
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| OQ-19 | Pagination wire format: cursor vs offset, envelope fields (`nextCursor` / `page` / `hasMore`) | Mobile | 1.4 Data Model; 1.11 Interface Contracts |
-| OQ-20 | Home first-page size and per-carousel page size (how many rows / tiles per request) | Mobile | 1.4; storefront STEP |
+| ~~OQ-19~~ | ~~Pagination wire format: cursor vs offset~~ **Resolved (1.4):** opaque `nextCursor`. JSON names → 1.11 (OQ-22) | — | closed |
+| ~~OQ-20~~ | ~~Home first-page size and per-carousel page size~~ **Resolved in part (1.4):** HomeFeed first page = hero + 15; CW separate. Tiles per row → OQ-23 | — | closed (partial) |
 | OQ-21 | NetInfo “usable network”: treat cellular+wifi as enough, or also require internet reachability (vs captive portal)? | Mobile | Foundation / shell STEP |
 
 Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-storage).
@@ -181,3 +182,4 @@ Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-16 | STEP-1.3a | Initial draft from the native-app session |
+| v0.2.0 | 2026-08-16 | STEP-1.4 | User slice memory-only; `nextCursor`; two feed endpoints. Closed OQ-19 / OQ-20 (partial). |

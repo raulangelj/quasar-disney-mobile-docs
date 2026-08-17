@@ -50,7 +50,8 @@
 |-------|------|--------|-------------------|
 | `ui/disney-plus-reference-screens.md` | Screen inventory & flow order | Live | UI reference transcription (STEP-1.2); 1.3 used flow order for key flows; still feeds 1.7 design system |
 | `ui/disney-plus-reference-screens.md` | §1–4 Auth screens (welcome, email, password, error) | Live | expands doc 01's single "login screen" scope item |
-| `ui/disney-plus-reference-screens.md` | §5–6 Home screens (hero + row stack) | Live | source for the carousel-variant set |
+| `ui/disney-plus-reference-screens.md` | §5–6 Home screens (hero + row stack) | Live | source for the carousel-variant set; visual still feeds 1.7 |
+| `ui/disney-plus-reference-screens.md` | Tile/card metadata fields (title, rating, progress, episode, aspect ratios) | Superseded | `architecture/04-data-model.md` |
 | `ui/disney-plus-reference-screens.md` | Patterns to extract | Live | atoms/molecules + two-theme finding for 1.7 |
 | `ui/disney-plus-reference-screens.md` | Trademark & asset substitution | Live | Phase-1 constraint; carry into 02-phasing-roadmap |
 | `ui/disney-plus-reference-screens.md` | §7 No-internet gate — behavior (overlay, auto-reload, Retry, restore by auth) | Superseded | `architecture/15-native-app-architecture.md`; ADR-0004 |

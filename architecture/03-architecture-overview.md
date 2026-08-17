@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.2.0
+**Version:** v0.3.0
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.3a)
+**Last updated:** 2026-08-16 (STEP-1.4)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -76,9 +76,9 @@ A future HTTP backend is **not a component of this system**. It is a Phase-3 swa
 
 | Name | Responsibility | Tech |
 |------|----------------|------|
-| **App shell** | Boots the RN host on iOS/Android: navigation, store/middleware registration, theme provider, persist rehydrate before choosing the auth vs app navigator, **NetInfo connectivity overlay** (no-internet gate) | Bare RN, TypeScript, React Navigation, Redux Toolkit store composition, `@react-native-community/netinfo` |
-| **Auth feature** | Welcome → email → password → session. Owns the auth slice. Imports `shared/` only | RTK slice, custom hooks, Styled Components |
-| **Storefront feature** | Home/browse and config-driven carousels. Owns the content slice (not persisted) and **pagination hooks** (`loadMore` / `hasMore`). Imports `shared/` only | RTK slice, custom hooks, Styled Components |
+| **App shell** | Boots the RN host on iOS/Android: navigation, store/middleware registration, theme provider, persist rehydrate, **cold-start loading** until `/me` + HomeFeed + ContinueWatching complete, **NetInfo connectivity overlay** | Bare RN, TypeScript, React Navigation, Redux Toolkit store composition, `@react-native-community/netinfo` |
+| **Auth feature** | Welcome → email → password → session. Owns the **auth slice** (JWT) and the **user slice** (`userName` from `/me`). Imports `shared/` only | RTK slices, custom hooks, Styled Components |
+| **Storefront feature** | Home/browse and config-driven carousels. Owns the content slice (not persisted), **pagination hooks**, **client merge** of hero + continue watching + other rows, **silent CW reload**. Imports `shared/` only | RTK slice, custom hooks, Styled Components |
 | **Shared kernel** | Theme (both surface modes), atomic UI, i18n string tables, analytics hook stub | Styled Components + tokens; folders `theme/`, `ui/`, `i18n/`, `analytics/` |
 | **API module** | Client + mock adapter. The only I/O boundary. Single **axios** instance (base URL, auth-header interceptor, error mapping). Mocks return Promises with latency and injectable failure | TypeScript types, axios, mock adapter |
 
@@ -91,27 +91,27 @@ Most handoffs are **in-process imports**, not network APIs. The only contract wo
 | Shell → Auth, Storefront, Shared, API | Screen / reducer / middleware registration | Sync | Shell owns composition | None (in-process public exports) | Do not OpenAPI the shell |
 | Auth → Shared · Storefront → Shared | Atoms, tokens, i18n, analytics stub | Sync | Shared kernel | None | Public component/token API only |
 | Auth ↛ Storefront | Nothing | — | — | — | Shell reads auth selectors to switch navigators |
-| Auth / Storefront → API module (via middleware only) | Login, **paginated** home/carousel payloads | Async (Promises; mock latency/failure) | API module owns wire shapes; features own slice state | **Yes** — TS interfaces, enums, envelope, error shape, **page tokens** | Transport is **axios**, not `fetch`. Screens/hooks never import `axios`. Pagination envelope lands in 1.11 (OQ-19) |
+| Auth / Storefront → API module (via middleware only) | Login, **`/me`**, **paginated HomeFeed** (hero + 15), **paginated ContinueWatching** | Async (Promises; mock latency/failure) | API module owns wire shapes; features own slice state | **Yes** — TS interfaces, enums, envelope, error shape, **`nextCursor`** | Transport is **axios**, not `fetch`. Screens/hooks never import `axios`. JSON names in 1.11 (OQ-22). JWT on `/me` and both feeds |
 | API module → future HTTP backend | Same payloads over the network | Async | Backend team later (not built here) | Same shapes; transport TBD in 1.11 | Not a component we build; do not invent a mock server just to have HTTP |
 
 ## 6. Key flows
 
 ### Flow 1 — Sign-in (success, inline error, and restore)
 
-1. App shell boots. **redux-persist** rehydrates the **auth slice only** from **`react-native-encrypted-storage`** (Keychain / EncryptedSharedPreferences).
+1. App shell boots. **redux-persist** rehydrates the **auth slice only** from **`react-native-encrypted-storage`** (Keychain / EncryptedSharedPreferences). The user slice is empty until `/me`.
 2. If NetInfo reports no network, the shell shows the **no-internet overlay** (doc 15) on top of whichever navigator the session implies; it does not unmount it. Reconnect or `REINTENTAR` hides the overlay and resumes auth vs storefront from auth state.
-3. If a session exists, shell skips Welcome and mounts the app navigator with the **dark** theme.
+3. If a session exists, shell shows the **cold-start loading screen**, then `/me` + HomeFeed + ContinueWatching (doc 04). Success → app navigator, **dark** theme, composed home. `/me` 401 or expired mock JWT → clear session → Welcome.
 4. If not, shell applies the **light** theme and mounts the unauthenticated navigator.
 5. Auth shows Welcome (Shared atoms). CTA → email → password (two-step, Phase 1a).
 6. Submit: Auth dispatches → middleware → **API module** (axios instance or mock). No screen imports `axios`.
-7. **Success:** mock returns an opaque token → auth slice stores it → persist writes it to secure storage → shell reads `isAuthenticated` → switches to the app navigator and **dark** theme.
+7. **Success:** mock returns a JWT (7-day `exp`) → auth slice stores it → persist writes it → **`/me` hydrates the user slice** → same three-call gate as cold start → shell switches to the app navigator and **dark** theme.
 8. **Failure:** mock fails on demand → same error shape as the future API → credentials screen renders the reference inline error (red underline + message). Not an alert, not a local `if (password !== …)` branch. Not the no-internet overlay.
 
 ### Flow 2 — Storefront load and card tap
 
-1. Shell mounts Storefront as the home tab (other tabs inert).
-2. Storefront **pagination hooks** dispatch load-home / `loadMore` → middleware → API module → **paginated** mock payload (a page of carousel configs + tiles).
-3. Storefront renders the config-driven carousel using Shared tiles and virtualized lists; it does not import Auth. End-reached calls `loadMore`.
+1. Shell mounts Storefront as the home tab after the boot gate (other tabs inert).
+2. Storefront **composes** `[hero] + [continue watching] + [15 carousels]` from the two feed responses (ADR-0006). Pagination hooks dispatch `loadMore` → middleware → API module. End-reached calls `loadMore`.
+3. When the storefront screen is shown again, Storefront **silently refetches ContinueWatching** and replaces that row only.
 4. Card tap goes through the **same handler** that will later navigate → Alert with the title (Phase 1). Tile components do not know about navigation.
 
 ## 7. Build vs. buy
@@ -159,6 +159,8 @@ Redux: **Redux Toolkit** for slices plus **explicit async middleware** so the AP
 | 9 | Build vs. buy | Build app + mocks; buy OSS libs only; no BaaS | Phase 1 has no real backend | Auth0/Firebase/CMS as Phase-1 dependencies |
 | 10 | Connectivity | Shell-owned NetInfo overlay | One gate matching the reference; restore by auth state | Per-feature offline screens; last-known-home cache |
 | 11 | Storefront paging | Feature hooks + paginated mocks | Organized loadMore; contract can page in Phase 3 | One-shot full-catalog payload |
+| 12 | User profile | Memory-only user slice; `/me` with JWT on every cold start | Matches production; persist stays auth-only (ADR-0003) | Persisting `userName`; profile inside the auth slice |
+| 13 | Home composition | Two GETs; CW inserted under hero (ADR-0006) | Silent CW reload; real API split | Single home payload |
 
 ## Open Questions
 
@@ -167,9 +169,9 @@ Redux: **Redux Toolkit** for slices plus **explicit async middleware** so the AP
 | ~~OQ-16~~ | ~~Persist backend library: `react-native-encrypted-storage` vs a thin `react-native-keychain` adapter~~ **Resolved (1.3a):** `react-native-encrypted-storage` | — | closed |
 | OQ-17 | Mock strategy: axios-mock-adapter on the real instance vs a separate mock client behind the same functions | Mobile | 1.11 Interface Contracts; contract+mocks STEP |
 | OQ-18 | Application repo name when created | Eng leadership | Planning session / foundation STEP |
-| OQ-19 | Pagination wire format (cursor vs offset, envelope fields) | Mobile | 1.4 Data Model; 1.11 Interface Contracts |
+| ~~OQ-19~~ | ~~Pagination wire format: cursor vs offset, envelope fields~~ **Resolved (1.4):** opaque `nextCursor`. JSON names → 1.11 (OQ-22) | — | closed |
 
-Carried forward: OQ-02 (card schema → 1.4), OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who is Dev A / Dev B).
+Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who is Dev A / Dev B). **OQ-02** is closed (doc 04).
 
 ## Version Log
 
@@ -177,3 +179,4 @@ Carried forward: OQ-02 (card schema → 1.4), OQ-10 (backend team accepts the co
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-16 | STEP-1.3 | Initial draft from architecture session |
 | v0.2.0 | 2026-08-16 | STEP-1.3a | Shell owns NetInfo connectivity overlay; storefront pagination hooks; persist engine locked to `react-native-encrypted-storage`. Closed OQ-16; opened OQ-19. |
+| v0.3.0 | 2026-08-16 | STEP-1.4 | User slice + `/me`; two feed endpoints + boot loader; closed OQ-19. |

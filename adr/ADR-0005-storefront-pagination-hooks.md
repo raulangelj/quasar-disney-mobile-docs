@@ -50,3 +50,10 @@ High if Phase 1a ships a full-catalog fixture and must be retrofitted before Pha
 - Session 1.4 models page tokens / offsets; 1.11 puts them on the envelope.
 - Virtualized carousel lists call `loadMore` on end-reached; they do not fetch.
 - Tests cover reducer/middleware/hook paging (Phase 1a test gate), not UI virtualization.
+
+## Amendment (2026-08-16 — STEP-1.4)
+
+OQ-19’s *kind* is **closed**: pages use an opaque **`nextCursor`** (nullable). Envelope field
+names remain for 1.11. HomeFeed and ContinueWatching are **two** paginated endpoints
+(ADR-0006); first HomeFeed page is hero + 15 carousels. Decision items 1–4 above are
+unchanged.

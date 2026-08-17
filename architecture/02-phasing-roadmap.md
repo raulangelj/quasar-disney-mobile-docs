@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.0
+**Version:** v0.3.1
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.3a)
+**Last updated:** 2026-08-16 (STEP-1.4)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -154,8 +154,9 @@ Criteria A1–A5 trace directly to doc 01 §3's *API swap readiness*, *theme swa
 
 ### Phase 2 — complete storefront (no backend required)
 - Hero / spotlight carousel — near-full-width card with neighbours peeking, badge pill, title
-  artwork, CTA line, metadata row. *Deferred on cost: the most expensive component in the
-  reference, and it demonstrates no pattern the other variants don't.*
+  artwork, CTA line, metadata row. *The Phase-1 **feed contract** already includes a hero row
+  (doc 04 / ADR-0006); this phase is the full spotlight **chrome** if 1a shipped a stand-in
+  (OQ-24).*
 - Filter pill rail (logo-only and icon+label forms). *Needs more than one mocked content source to
   mean anything.*
 - **Content details screen** — metadata, description, cast, "similar to this" row; the alert-on-tap
@@ -197,7 +198,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 | DF9 | **Analytics** | The hook ships with its final signature behind `console.log` stubs |
 | DF10 | **Trademark substitution** | No Disney/Marvel/Star Wars/hulu/ESPN marks or real key art in the codebase or assets, at any phase |
 | DF11 | **Connectivity gate** | No-network is a **shell overlay** (NetInfo + reference no-internet screen), not a feature fetch error and not an offline cache. Restore by auth state. See doc 15 / ADR-0004 |
-| DF12 | **Storefront pagination** | Home rows and carousel tiles **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. Wire format in 1.4/1.11 (OQ-19). See ADR-0005 |
+| DF12 | **Storefront pagination** | Home rows and carousel tiles **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. **Opaque `nextCursor`** (doc 04). Two feed endpoints (ADR-0006). Tile page size still 1.11 (OQ-23). |
 
 ## 7. Phase dependencies and critical path
 
@@ -367,13 +368,13 @@ Two things carried forward:
 | OQ-11 | Who attends the 18 Aug sign-off, and what constitutes "passed"? | Stakeholders | P1 launch criterion |
 | OQ-12 | Which dev is A and which is B? §9 assigns roles, not names | Eng leadership | Planning session (Sat AM) |
 | OQ-13 | Who outlines the wordmark text before 18 Aug? (~30 min; see §10) | Mobile dev | Phase 1a assets |
-| OQ-19 | Pagination wire format (cursor vs offset) and first-page sizes | Mobile | 1.4 Data Model; 1.11 Interface Contracts |
+| ~~OQ-19~~ | ~~Pagination wire format (cursor vs offset) and first-page sizes~~ **Resolved (1.4):** opaque `nextCursor`; HomeFeed first page = hero + 15; CW is a separate endpoint. Envelope JSON names → 1.11 (OQ-22); tile page size → OQ-23 | — | closed |
 
-Carried forward from doc 01 and still open: OQ-02 (card metadata schema → 1.4), OQ-03 (JWT claims →
-Phase 3), OQ-05 (Bitrise setup → Phase 2), OQ-06 (budget). **OQ-01** (final login/storefront UI) is
+Carried forward from doc 01 and still open: OQ-03 (JWT claims →
+Phase 3 / 1.6a), OQ-05 (Bitrise setup → Phase 2), OQ-06 (budget). **OQ-01** (final login/storefront UI) is
 now **resolved** by `inputs/ui/disney-plus-reference-screens.md`. **OQ-04** (real streaming app
 migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is **resolved** by
-1.3a: `react-native-encrypted-storage`.
+1.3a: `react-native-encrypted-storage`. **OQ-02** (card schema) is **resolved** by 1.4.
 
 ## Version Log
 
@@ -383,3 +384,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.2.0 | 2026-08-14 | STEP-1.2 | Second senior dev confirmed → added §9 two-developer split (four disjoint STEPs, two sync points, collision mitigations) and recovered two 1b items into 1a. Added §10 placeholder brand ("Dinsey-" + placeholder art). Closed OQ-07/08/09; opened OQ-12/13. Schedule table updated for parallel work. |
 | v0.2.1 | 2026-08-16 | STEP-1.3 | DF1: axios (not fetch) inside the API module only. DF3: Keychain/Keystore persist of the auth slice from day one. DF5: shell is the composition root. |
 | v0.3.0 | 2026-08-16 | STEP-1.3a | DF3 names `react-native-encrypted-storage`. Added DF11 (connectivity gate) and DF12 (storefront pagination). |
+| v0.3.1 | 2026-08-16 | STEP-1.4 | DF12: opaque `nextCursor` (doc 04). Hero is in the Phase-1 feed contract/composition (ADR-0006); full chrome still OQ-24. Closed OQ-19. |

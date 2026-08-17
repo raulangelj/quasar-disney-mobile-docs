@@ -47,3 +47,10 @@ AsyncStorage and must migrate tokens later.
 OQ-16 is **closed**. The persist storage engine is **`react-native-encrypted-storage`**
 (Keychain on iOS, EncryptedSharedPreferences on Android). A `react-native-keychain`
 adapter was the rejected alternative. Decision items 1–4 above are unchanged.
+
+## Amendment (2026-08-16 — STEP-1.4)
+
+The **user slice is not persisted**. Profile (`userName`) is memory-only and filled by an
+authenticated `/me` on every cold start and after login (see `architecture/04-data-model.md`).
+Decision item 1 still means **auth slice only** — do not add the user slice to the
+redux-persist whitelist.
