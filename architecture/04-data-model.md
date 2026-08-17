@@ -1,8 +1,8 @@
 # Doc 04 — Data Model, Ownership & Retention
 
-**Version:** v0.2.3
+**Version:** v0.2.4
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.7)
+**Last updated:** 2026-08-17 (STEP-1.11)
 **Audience:** Mobile developers, backend team, QA
 
 > Entities the React Native client models, who owns each one, where it lives on device, how long it is kept, and which of it is sensitive — with no server database in this project.
@@ -52,14 +52,16 @@ Continue watching sits **directly under hero** and shifts the other HomeFeed row
 
 **Not entities:** Credentials (login request DTO), Artwork (URIs on Card), WatchProgress (optional fields on a `progress` Card — see §1.3), LiveBroadcast (deferred; later feature), Profile, Download, Search, Payment, pagination cursors (wire only).
 
-### 1.2 Card (closes OQ-02; extra fields still open as OQ-26)
+### 1.2 Card (closes OQ-02; field set closed in 1.11)
 
-The wire **must** include a content **name**. Other production fields are **TBD** (1.11). Phase 1 mocks still fill the UI working set below so hero / portrait / `progress` chrome can ship.
+**OQ-26 is closed (1.11):** the working set below **is** the Card, with §1.3's progress fields as
+optional members populated only inside a `progress` container. Wire names are locked in
+`architecture/11-interface-contracts.md` §7.1.
 
 | Field | Type | Notes |
 |-------|------|--------|
 | `id` | UUID string | Public; tiles, later details, CW merge |
-| `name` | string | Content name. Shown on tap-alert; CW and landscape rows. JSON key → 1.11 (may be `title`) |
+| `title` | string | Content name. Shown on tap-alert; CW and landscape rows. **Renamed from `name` in 1.11** (OQ-22): `Container.name` / `Card.title` keeps rows and content distinguishable in a payload |
 | `artwork` | `Partial<Record<AspectRatio, uri>>` | Keys: `'2:3'` (portrait), `'16:9'` (`progress` / landscape), `'3:4'` (hero). Only ratios a variant needs |
 | `rating` | string \| null | Chip copy: `7+`, `13+`, `16+`, `ATP`, … |
 | `releaseYear` | number \| null | Hero metadata |
@@ -79,7 +81,8 @@ Not a separate table. CW **resources** are **Cards**. Timeline chrome is selecte
 | `remainingMinutes` | number | Format via i18n (e.g. “11 min restantes”); do not hardcode the phrase |
 | `episodeLine` | string \| null | e.g. `T3:E12 …`; null for movies |
 
-Whether these stay on Card, are `progress`-only, or get different JSON names is **OQ-26**. The Continue Watching **request sends the JWT**. The mock (and later the backend) keys progress off that session. There is no WatchProgress id.
+**Resolved (1.11, closing OQ-26):** these stay **on Card as optional fields**, populated only
+inside a `progress` container (doc 11 §7.1). The Continue Watching **request sends the JWT**. The mock (and later the backend) keys progress off that session. There is no WatchProgress id.
 
 ### 1.4 Container (HomeFeed and Continue Watching)
 
@@ -88,10 +91,10 @@ Same type on **both** authenticated feed GETs (ADR-0007).
 | Field | Type | Notes |
 |-------|------|--------|
 | `id` | UUID string | Row identity for paging cards |
-| `name` | string | Row header. **Display string, rendered verbatim** — a feed-supplied name is data, not UI copy, so the client cannot translate it. Phase-1 mocks send Spanish; the real API must return text localized to the request's locale (doc 07 §9, OQ-30). JSON key → 1.11 |
-| `variant` | enum | `'hero' \| 'progress' \| 'standardPortrait' \| 'standardLandscape'`. **`'progress'` is not a HomeFeed response member** — it comes from the CW GET. `'live'` is out until that feature lands |
-| `resources` | Card[] | One page of cards (not `items`). Envelope `nextCursor` pages the list of containers (vertical) or a container’s resources (horizontal) — 1.11 names the JSON |
-| `nextCursor` | string \| null | Opaque; Phase 1 mocks may send `null`. Exact placement (container vs page envelope) → 1.11 |
+| `name` | string | Row header. **Display string, rendered verbatim** — a feed-supplied name is data, not UI copy, so the client cannot translate it. Phase-1 mocks send Spanish; the real API must return text localized to the request's locale (doc 07 §9, OQ-30) |
+| `variant` | enum | `'hero' \| 'progress' \| 'standardPortrait' \| 'standardLandscape'`. **`'progress'` is not a HomeFeed response member** — it comes from the CW GET. `'live'` is out until that feature lands. **An unrecognized value drops the row with a `console.warn`** (doc 11 §4.4) |
+| `resources` | Card[] | One page of cards (not `items`) |
+| `nextCursor` | string \| null | Opaque; Phase 1 mocks may send `null`. **Placement resolved (1.11): both** — the page envelope's cursor pages containers (vertical), this one pages the row's `resources` (horizontal). Doc 11 §6.2 |
 
 HomeFeed first page: **`Container[]`** with one `variant: "hero"` plus **15** other containers. Further vertical pages, if any, are more containers only (no second hero). Phase 1 mocks may set HomeFeed `nextCursor` to `null`.
 
@@ -104,11 +107,11 @@ Continue Watching: **`Container[]`** (typically length 1), each with `variant: "
 | User.`id` | UUID | JWT `sub`; not shown in UI |
 | User.`userName` | string | The only profile field the UI shows. Comes from `/me`, not from login |
 | Session.`accessToken` | string | Mock JWT (`sub` + `exp` + `iat`; doc 16) |
-| Session.`expiresAt` | number | Unix `exp`. Mock TTL **7 days** from each successful login |
+| Session.`expiresAt` | number | Unix `exp` **in the slice**. Mock TTL **7 days** from each successful login. **On the wire it is an ISO 8601 UTC string** (doc 11 §6.4) — so the client never decodes the JWT to learn its expiry |
 
 Login body: `{ email, password }` — request DTO, never stored.
 
-**`GET /me` body (OQ-25 closed):** `{ id, userName }`. No email, no roles. JSON names → 1.11 (OQ-22).
+**`GET /me` body (OQ-25 closed):** `{ id, userName }`. No email, no roles. **Paths and JSON names locked in 1.11** (doc 11 §5, §7.4 — OQ-22 closed).
 
 ---
 
@@ -152,7 +155,7 @@ Persisting the user slice was considered and **rejected**: cold start already wa
 | **ContinueWatching card** | Card `id` (plus implicit session) | No separate id |
 | **Pages** | Opaque `nextCursor` (nullable) | Wire only |
 
-No natural keys (`userName` / email are not ids). No auto-increment ints. Same UUID strings in fixtures and the future backend. Envelope field names for the cursor land in session 1.11 (OQ-19 closed on *kind*; 1.11 names the JSON).
+No natural keys (`userName` / email are not ids). No auto-increment ints. Same UUID strings in fixtures and the future backend. **Envelope and cursor JSON names are locked in doc 11 §6.1–§6.2** — `{ data, nextCursor }`, with a cursor at each of the two paging levels.
 
 ---
 
@@ -185,7 +188,7 @@ Authenticated calls send the JWT (API-module interceptor).
 
 | # | Call | When | Loading UX |
 |---|------|------|------------|
-| 1 | `GET /me` (name illustrative; 1.11 locks paths) | Cold start with a token; after login | Part of the **shell loading screen** |
+| 1 | `GET /me` (path locked in doc 11 §5) | Cold start with a token; after login | Part of the **shell loading screen** |
 | 2 | HomeFeed (`Container[]`, hero + 15) | Same gate as `/me` | Same loader |
 | 3 | ContinueWatching (`Container[]`, `variant: "progress"`) | Same gate as `/me`; **again** whenever the storefront screen is shown | Cold start: loader. Later visits: **silent** (stale-while-revalidate; replace that container only; no full-screen loader) |
 
@@ -205,7 +208,10 @@ Authenticated calls send the JWT (API-module interceptor).
 | Continue watching while home is already shown | **Stale-while-revalidate** on the `progress` container only |
 | Auth | **Strong:** token present or not; 401 / expiry clears JWT + user + content |
 
-There is **no SQL schema**. Types in the API module *are* the schema. Additive optional fields are fine; renames need a contract version (session 1.11).
+There is **no SQL schema**. Types in the API module *are* the schema (ADR-0016). Additive optional
+fields are fine; renames, removals, and type changes are breaking and bump doc 11's Version Log —
+the full compatibility rule is doc 11 §4.3. Breaking changes stay free until the backend team
+accepts the contract (OQ-34).
 
 **redux-persist `version: 1`** on the auth slice. An incompatible persisted token shape → **purge** the session (safer than a migrate for this POC).
 
@@ -233,13 +239,13 @@ Phase 3 replaces the mock adapter (including mock `exp` reminting). Client stora
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| OQ-22 | JSON names and paths for `/me`, HomeFeed, ContinueWatching (the `Container[]` attribute), Container (`name`, `resources`), Card, and the page envelope (`nextCursor` vs `next`) | Mobile | 1.11 Interface Contracts |
-| OQ-26 | Remaining **Card** fields beyond content name, and which are `progress`-only | Mobile | 1.11; 1.7 |
-| OQ-23 | Cards per container horizontal page (first-page size for `resources` inside a row) | Mobile | 1.11; storefront STEP |
+| ~~OQ-22~~ | ~~JSON names and paths for `/me`, HomeFeed, ContinueWatching, Container, Card, and the page envelope~~ **Resolved (1.11):** five operations and full payload shapes in doc 11 §5, §7. `Card.name` → **`title`** | — | closed |
+| ~~OQ-26~~ | ~~Remaining **Card** fields beyond content name, and which are `progress`-only~~ **Resolved (1.11):** §1.2's working set is the Card; §1.3's three fields are optional and `progress`-only (doc 11 §7.1) | — | closed |
+| ~~OQ-23~~ | ~~Cards per container horizontal page~~ **Resolved (1.11):** `limit` defaults — 16 on HomeFeed, 10 on Continue Watching and `resources` (doc 11 §6.3) | — | closed |
 | OQ-24 | Does Phase 1a render full hero chrome (peeking neighbors, title art, CTA) or a 3:4 stand-in? Data composition already includes hero | Mobile / 1.7 | 1.7 UI / Design System; planning session |
 | ~~OQ-25~~ | ~~Exact mock `/me` payload beyond `id` + `userName` (claims vs body)~~ **Resolved (1.6a):** mock JWT claims = `sub` + `exp` + `iat`; `/me` = `{ id, userName }`. JSON names → OQ-22 | — | closed |
 
-Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-17 (mock strategy → 1.11). **OQ-02** (card schema), **OQ-19** (cursor vs offset), and HomeFeed first-page size from **OQ-20** (hero + 15; CW separate) are **closed** here. Horizontal **card** page size remains as OQ-23. Extra Card fields → OQ-26. Identity living doc is `architecture/16-identity-auth.md`.
+**OQ-02** (card schema), **OQ-19** (cursor vs offset), and HomeFeed first-page size from **OQ-20** (hero + 15; CW separate) were closed here in earlier revisions; **OQ-17**, **OQ-22**, **OQ-23**, and **OQ-26** are closed by 1.11. Carried forward: **OQ-30** (server-localized `Container.name`) and **OQ-34** (backend accepts the contract — doc 11 §14). Identity living doc is `architecture/16-identity-auth.md`; the wire contract is `architecture/11-interface-contracts.md`.
 
 ## Version Log
 
@@ -250,3 +256,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-17 (mock
 | v0.2.1 | 2026-08-17 | STEP-1.6 | Privacy session still Deferred; security posture now in doc 06 (abbreviated, Done). |
 | v0.2.2 | 2026-08-17 | STEP-1.6a | Closed OQ-25 (`/me` = `{ id, userName }`; JWT claims `sub`/`exp`/`iat`). Doc 16. |
 | v0.2.3 | 2026-08-17 | STEP-1.7 | §1.4 corrected: `Container.name` is a localized display string from the wire, not client-side i18n (doc 07 §9). Opened OQ-30. |
+| v0.2.4 | 2026-08-17 | STEP-1.11 | **`Card.name` → `Card.title`.** Cursor placement resolved as *both* levels; unknown-`variant` rule added; `expiresAt` is ISO on the wire; paths and envelope point at doc 11. Closed OQ-22, OQ-23, OQ-26. |

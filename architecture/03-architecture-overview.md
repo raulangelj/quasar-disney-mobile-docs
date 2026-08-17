@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.3.4
+**Version:** v0.3.5
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.10)
+**Last updated:** 2026-08-17 (STEP-1.11)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -16,7 +16,7 @@
 5. [Boundaries & contract candidates](#5-boundaries--contract-candidates)
 6. [Key flows](#6-key-flows)
 7. [Build vs. buy](#7-build-vs-buy)
-8. [Import rules](#8-import-rules)
+8. [Import rules & source layout](#8-import-rules--source-layout)
 
 ---
 
@@ -84,15 +84,15 @@ A future HTTP backend is **not a component of this system**. It is a Phase-3 swa
 
 ## 5. Boundaries & contract candidates
 
-Most handoffs are **in-process imports**, not network APIs. The only contract worth writing now is the **API module’s request/response shape** — mocks today, real HTTP later. Final contract policy, source of truth, and artifact locations land in session 1.11.
+Most handoffs are **in-process imports**, not network APIs. The only contract worth writing now is the **API module’s request/response shape** — mocks today, real HTTP later. **Session 1.11 is done: the contract is `architecture/11-interface-contracts.md`** (five operations, envelope, error model, transport profiles; ADR-0016). The table below is the boundary map; doc 11 §1 is the authoritative inventory, and it adds the persisted-auth-blob and `@env` config seams this table never listed.
 
 | Boundary | What crosses it | Sync / async | Data owner | Likely contract style | Notes for 1.11 |
 |----------|-----------------|--------------|------------|----------------------|----------------|
 | Shell → Auth, Storefront, Shared, API | Screen / reducer / middleware registration | Sync | Shell owns composition | None (in-process public exports) | Do not OpenAPI the shell |
 | Auth → Shared · Storefront → Shared | Atoms, tokens, i18n, analytics stub | Sync | Shared kernel | None | Public component/token API only |
 | Auth ↛ Storefront | Nothing | — | — | — | Shell reads auth selectors to switch navigators |
-| Auth / Storefront → API module (via middleware only) | Login, **`/me`**, **paginated HomeFeed** (`Container[]`, hero + 15), **paginated ContinueWatching** (`Container[]`, `variant: "progress"`) | Async (Promises; mock latency/failure) | API module owns wire shapes; features own slice state | **Yes** — TS interfaces, enums, envelope, error shape, **`nextCursor`**, **`resources: Card[]`** | Transport is **axios**, not `fetch`. Screens/hooks never import `axios`. JSON names in 1.11 (OQ-22). JWT on `/me` and both feeds |
-| API module → future HTTP backend | Same payloads over the network | Async | Backend team later (not built here) | Same shapes; transport TBD in 1.11 | Not a component we build; do not invent a mock server just to have HTTP |
+| Auth / Storefront → API module (via middleware only) | **Five operations** — login, **`/me`**, **HomeFeed**, **ContinueWatching**, and **`/containers/{id}/resources`** (horizontal paging, named in 1.11) | Async (Promises; mock latency/failure) | API module owns wire shapes; features own slice state | **Yes** — TS interfaces + doc 11 tables (ADR-0016) | Transport is **axios**, not `fetch`. Screens/hooks never import `axios`. **Shapes locked in doc 11** (OQ-22/23/26 closed). JWT on operations 2–5 |
+| API module → future HTTP backend | Same payloads over the network | Async | Backend team later (not built here) | **Same contract** — doc 11 §6.5 records the transport profile that differs | Not a component we build; do not invent a mock server just to have HTTP |
 
 ## 6. Key flows
 
@@ -133,7 +133,31 @@ Phase 1 is a mobile demo with mocks. Almost everything is built in-app; we only 
 
 The four additions were surfaced in STEP-1.7: the assets decided in 1.2 are SVG, and the UI renders no native headers, so SVG rendering and safe-area insets are load-bearing rather than optional. See ADR-0013.
 
-## 8. Import rules
+## 8. Import rules & source layout
+
+### 8.1 Source layout
+
+The five components of §4 map onto directories. This was implicit until 1.11 needed a stable path
+for the wire types (doc 11 §3) — the layout below is the one already latent in this doc: §2 names
+Shared's internals as `shared/theme/`, `shared/ui/`, … and the import-rule table below has always
+referred to `features/`.
+
+```
+src/app/                       shell — composition root, navigation, store, error boundary
+src/features/auth/
+src/features/storefront/
+src/shared/{theme,ui,i18n,analytics}/
+src/api/
+  ├── types/                   wire types — the contract's authoring source (doc 11 §2)
+  ├── mocks/                   fixtures + mock adapter (typed, never `any` — doc 11 §11.2)
+  └── client/                  axios instance + interceptors
+```
+
+**`src/api/`, not `src/modules/api/`** — no `modules/` prefix appears anywhere in this
+architecture, and `features/` is already the established word. Created by the scaffold STEP, which
+carries doc 11 §3.1's obligation to transcribe the wire types from doc 11 §7.
+
+### 8.2 Import rules
 
 | From → To | Allowed? |
 |-----------|----------|
@@ -154,7 +178,8 @@ Redux: **Redux Toolkit** for slices plus **explicit async middleware** so the AP
 | 2 | Top-level components | Five in-app: shell, auth, storefront, shared kernel, API module | No backend component — we do not build a server | A Phase-1 backend service or mock HTTP process |
 | 3 | Shared kernel grain | One component; folders `theme/`, `ui/`, `i18n/`, `analytics/` | Extraction path later without package ceremony under the deadline | npm workspaces / a global types module |
 | 4 | Architecture style | Modular monolith; shell is composition root | DF5 extractability + two-dev split without services | Microservices; features importing each other |
-| 5 | Contract candidate | API module wire shapes only | Only boundary that will cross a network later | Formal contracts between in-process modules |
+| 5 | Contract candidate | API module wire shapes only — **locked in doc 11** (ADR-0016) | Only boundary that will cross a network later | Formal contracts between in-process modules |
+| 14 | Source layout | `src/{app,features,shared,api}/` — **`src/api/`**, no `modules/` prefix (§8.1) | The layout was already latent in §2 and §8.2; 1.11 needed a stable path for the wire types | A `modules/` convention; deciding folder structure at scaffold time |
 | 6 | HTTP client | axios, API module only | Single instance, interceptors, swap-ready | `fetch`/`axios` from screens or hooks |
 | 7 | Session persistence | redux-persist, auth slice, **`react-native-encrypted-storage`** (Keychain / EncryptedSharedPreferences) | Real JWT later is a payload change, not a storage rewrite (OQ-16 closed) | AsyncStorage for tokens; persisting the whole store; custom Keychain module |
 | 8 | State libraries | RTK + explicit async middleware + React Navigation | Teaching pattern stays visible; stack already locked | Zustand/MobX, Expo Router, Expo |
@@ -169,11 +194,11 @@ Redux: **Redux Toolkit** for slices plus **explicit async middleware** so the AP
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
 | ~~OQ-16~~ | ~~Persist backend library: `react-native-encrypted-storage` vs a thin `react-native-keychain` adapter~~ **Resolved (1.3a):** `react-native-encrypted-storage` | — | closed |
-| OQ-17 | Mock strategy: axios-mock-adapter on the real instance vs a separate mock client behind the same functions | Mobile | 1.11 Interface Contracts; contract+mocks STEP |
+| ~~OQ-17~~ | ~~Mock strategy: axios-mock-adapter on the real instance vs a separate mock client behind the same functions~~ **Resolved (1.11):** a **separate mock adapter behind the same functions** — the axios instance is not mocked. Both transports normalize to one `ApiError` (doc 11 §6.5, §8.3) | — | closed |
 | OQ-18 | Application repo name when created | Eng leadership | Planning session / foundation STEP |
 | ~~OQ-19~~ | ~~Pagination wire format: cursor vs offset, envelope fields~~ **Resolved (1.4):** opaque `nextCursor`. JSON names → 1.11 (OQ-22) | — | closed |
 
-Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who is Dev A / Dev B). **OQ-02** is closed (doc 04).
+Carried forward: OQ-12 (who is Dev A / Dev B). **OQ-02** is closed (doc 04). **OQ-10** is now expressed concretely as doc 11 §14's Phase-3 checklist plus **OQ-34**.
 
 ## Version Log
 
@@ -186,3 +211,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who 
 | v0.3.2 | 2026-08-17 | STEP-1.6a | Phase 3 IdP is buy-behind-API (ADR-0009); Phase 1 mock auth unchanged. |
 | v0.3.3 | 2026-08-17 | STEP-1.7 | §7 hard dependencies completed: `react-native-svg`, `react-native-screens`, `react-native-safe-area-context`, `react-i18next`/`i18next` (ADR-0013). Design system is `architecture/07-ui-design-system.md`. |
 | v0.3.4 | 2026-08-17 | STEP-1.10 | §4 shell gains the **root error boundary** (doc 10 §5.2). No new dependency — §7's hard-dependency list is unchanged. |
+| v0.3.5 | 2026-08-17 | STEP-1.11 | §5 boundary table points at doc 11 and names the **fifth operation** (`/containers/{id}/resources`). §8 gains the **source-layout table** (§8.1, `src/api/`) and is renamed; import rules move to §8.2. Closed OQ-17. No dependency change. |

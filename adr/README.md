@@ -54,6 +54,7 @@ e.g. "tech lead", "consensus of maintainers", "ADR review on PR". -->
 | ADR-0013 | Adopt `react-native-svg`, and complete doc 03's dependency list | Accepted | 2026-08-17 |
 | ADR-0014 | The connectivity gate keys on interface state, not internet reachability | Accepted | 2026-08-17 |
 | ADR-0015 | Config reaches the app through a Babel transform, not native build config | Accepted | 2026-08-17 |
+| ADR-0016 | TypeScript interfaces are the contract now; OpenAPI at backend engagement | Accepted | 2026-08-17 |
 
 <!-- Example row shape (indented so it isn't picked up by the scan / `max + 1`; a real row
      starts at the line's left margin with no leading spaces):

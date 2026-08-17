@@ -1,8 +1,8 @@
 # Doc 07 — UI / Design System
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.7)
+**Last updated:** 2026-08-17 (STEP-1.11)
 **Audience:** Mobile developers, QA, stakeholders reviewing the 2026-08-18 demo
 
 > The visual foundations of the React Native client — tokens, components, navigation, theming, accessibility, i18n, and motion — with exact values, so Phase 1a can be built without re-deciding any of it.
@@ -449,10 +449,11 @@ const Title = styled.Text`
 | OQ-29 | No Phase-1a screen exposes logout — the Perfil tab is a placeholder. Add a dev affordance, or accept that logout is only reachable via token expiry in 1a? | Eng leadership | Planning session / auth STEP |
 | OQ-30 | Confirm the real API returns row `name` localized to the request's locale (and how locale is conveyed) | Backend team | 1.11 Interface Contracts |
 
-Carried forward: **OQ-13** (wordmark outlining / PNG export — now also the wordmark half of ADR-0013), **OQ-24** (hero chrome in 1a vs Phase 2), **OQ-22** (JSON names).
+Carried forward: **OQ-13** (wordmark outlining / PNG export — now also the wordmark half of ADR-0013), **OQ-24** (hero chrome in 1a vs Phase 2). **OQ-22** is closed (1.11) — wire names are in `architecture/11-interface-contracts.md` §7; note that **`Card.name` is now `Card.title`**, and that doc 11 §7.3 records why `Container.name` is rendered verbatim while `error.message` never is.
 
 ## Version Log
 
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.7 | Initial design system from the UI session. Tokens, components, navigation, theme, icons, device strategy, a11y, i18n, motion, implementation, platform conventions. ADR-0011, ADR-0012, ADR-0013. Opened OQ-28/29/30; opened RISK-0011/0012. Corrected doc 04's client-side row-name i18n; surfaced three missing dependencies in doc 03. |
+| v0.1.1 | 2026-08-17 | STEP-1.11 | Closed OQ-22: wire names live in doc 11 §7 (`Card.name` → `Card.title`). Doc 11 §7.3 records the rendered-verbatim vs never-rendered rule for server strings; §8.2 keys all error copy off `error.code`, not server prose. |

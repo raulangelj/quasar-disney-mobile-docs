@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.6
+**Version:** v0.3.7
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.10)
+**Last updated:** 2026-08-17 (STEP-1.11)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -198,7 +198,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 | DF9 | **Analytics** | The hook ships with its final signature behind `console.log` stubs |
 | DF10 | **Trademark substitution** | No Disney/Marvel/Star Wars/hulu/ESPN marks or real key art in the codebase or assets, at any phase |
 | DF11 | **Connectivity gate** | No-network is a **shell overlay** (NetInfo + reference no-internet screen), not a feature fetch error and not an offline cache. Restore by auth state. **Online = interface up**, no reachability probe (ADR-0014). See doc 15 / ADR-0004 |
-| DF12 | **Storefront pagination** | Home rows and cards **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. **Opaque `nextCursor`** (doc 04). Two **`Container[]`** endpoints; cards in **`resources`** (ADR-0006 / ADR-0007). Card page size still 1.11 (OQ-23). |
+| DF12 | **Storefront pagination** | Home rows and cards **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. **Opaque `nextCursor`** (doc 04). Two **`Container[]`** endpoints; cards in **`resources`** (ADR-0006 / ADR-0007). **Page sizes locked (1.11):** `limit` 16 on HomeFeed, 10 on Continue Watching and on `resources` (doc 11 §6.3). |
 
 ## 7. Phase dependencies and critical path
 
@@ -381,7 +381,7 @@ Two things carried forward:
 | ~~OQ-07~~ | ~~Is a second senior dev available for 15–18 Aug?~~ **Resolved 2026-08-14: yes, two seniors.** See §9 | — | closed |
 | ~~OQ-08~~ | ~~Placeholder branding — existing wordmark, or create one?~~ **Resolved 2026-08-14:** fictional "Dinsey-" brand authored in `assets/brand/` | — | closed |
 | ~~OQ-09~~ | ~~Source of placeholder key art at 2:3, 16:9, 3:4~~ **Resolved 2026-08-14:** SVG art in `assets/placeholder-art/` | — | closed |
-| OQ-10 | Does the backend team accept a contract they did not draft, and who reviews it? | Backend team | 1.11 Interface Contracts |
+| ~~OQ-10~~ | ~~Does the backend team accept a contract they did not draft, and who reviews it?~~ **Superseded (1.11):** the contract now exists (`architecture/11-interface-contracts.md`); the question becomes **OQ-34**, and doc 11 §14 lists the eight items to settle with them | — | closed |
 | OQ-11 | Who attends the 18 Aug sign-off, and what constitutes "passed"? | Stakeholders | P1 launch criterion |
 | OQ-12 | Which dev is A and which is B? §9 assigns roles, not names | Eng leadership | Planning session (Sat AM) |
 | OQ-13 | Who outlines the wordmark text before 18 Aug? (~30 min; see §10) | Mobile dev | Phase 1a assets |
@@ -407,3 +407,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.4 | 2026-08-17 | STEP-1.7 | §2 "inert" tabs defined as tappable `ComingSoon` placeholders (doc 07 §4). Design system delivered; DF4/DF6/DF8 now have concrete token, component, and i18n specs. |
 | v0.3.5 | 2026-08-17 | STEP-1.8 | §7 amendment: 1.8 ran (doc 08); 1.9 and 1.10 remain. §8 Tue-AM sync point now includes the release build + two-device install. DF11 notes ADR-0014 (interface-up connectivity). |
 | v0.3.6 | 2026-08-17 | STEP-1.10 | §7 amendment: 1.9 (doc 09) and 1.10 (doc 10) ran — no originally-deferred session remains in the STEP-1 queue. 1.10 declines the telemetry stack and adds a shell-root error boundary (RISK-0014). No schedule change. |
+| v0.3.7 | 2026-08-17 | STEP-1.11 | DF12 page sizes locked from doc 11 §6.3. **OQ-10 closed** — the contract exists; the backend-acceptance question becomes OQ-34 against doc 11 §14's checklist. No schedule change. |

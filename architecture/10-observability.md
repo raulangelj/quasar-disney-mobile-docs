@@ -1,6 +1,6 @@
 # Doc 10 — Observability
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
 **Coverage:** full for Phase 1. Metrics, tracing, health checks, dashboards, and alerting are
 **consciously declined** with named revisit triggers (§3, §4, §6) rather than left unenumerated.
@@ -270,8 +270,11 @@ build, or any real user data exists.
 |----|----------|-------|------------|
 | OQ-33 | What the error-boundary fallback screen looks like — copy, which doc 07 atoms it composes, and whether it uses the `base` surface mode or the active theme | Mobile | 1.7 follow-up / the shell scaffold STEP |
 
-Carried forward, unchanged by this session: **OQ-10** (backend accepts the contract → 1.11),
-**OQ-22** / **OQ-23** / **OQ-26** (wire shapes → 1.11), **OQ-28** (who owns the sign-off binary),
+Closed by 1.11: **OQ-22** / **OQ-23** / **OQ-26** (wire shapes — doc 11 §5–§7). **OQ-10** is now
+expressed concretely as doc 11 §14's Phase-3 checklist plus **OQ-34**; §2.4's correlation-ID
+decision is item 2 on that list, and 1.11 deliberately did **not** reserve a header name.
+
+Carried forward, unchanged by this session: **OQ-28** (who owns the sign-off binary),
 **OQ-31** / **OQ-32** (Phase 2/3 config and CI). **RISK-0002**'s deferral of this session is
 closed by this doc.
 
@@ -280,3 +283,4 @@ closed by this doc.
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.10 | Initial draft from the observability session. Logging is bare `console.*` with a no-bodies rule; metrics, tracing, health checks, correlation IDs, dashboards, alerting, and any vendor are consciously declined with triggers. Adds one shell-root error boundary (doc 03 §4 updated). Opened OQ-33, RISK-0014. |
+| v0.1.1 | 2026-08-17 | STEP-1.11 | §2.4's correlation-ID deferral becomes item 2 on doc 11 §14's Phase-3 checklist; no header name reserved. Boundary-logging rule restated in doc 11 §10. Closed OQ-22, OQ-23, OQ-26. |

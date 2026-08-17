@@ -1,8 +1,8 @@
 # Doc 05 — Scaling & Performance
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.5)
+**Last updated:** 2026-08-17 (STEP-1.11)
 **Audience:** Mobile developers, backend team, QA
 
 > Load this React Native demo actually has, which on-device shortcuts are fine, and which
@@ -167,8 +167,10 @@ Reuse one **Container** component and one **Card** component; variant selects ch
 into the HomeFeed **response** — only into the composed list — so silent reload can replace
 the `progress` container alone.
 
-ADR-0006 (two GETs) still holds; ADR-0007 records the shared types. Envelope field names
-for the `Container[]` attribute remain 1.11 (OQ-22).
+ADR-0006 (two GETs) still holds; ADR-0007 records the shared types. **Envelope field names are
+locked in doc 11 §6.1** — `{ data, nextCursor }`. Note that 1.11 found a **fifth** operation this
+section implies but never named: `GET /containers/{id}/resources`, the horizontal page fetch behind
+`useCarouselPage` (doc 11 §5).
 
 ---
 
@@ -189,15 +191,17 @@ for the `Container[]` attribute remain 1.11 (OQ-22).
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| OQ-22 | JSON names and paths for `/me`, HomeFeed, Continue Watching (the `Container[]` attribute), page envelope (`nextCursor`), Container, and Card | Mobile | 1.11 Interface Contracts |
-| OQ-23 | Cards per container horizontal page | Mobile | 1.11; storefront STEP |
-| OQ-26 | Remaining **Card** fields beyond content name (artwork keys, rating, progress/timeline fields, etc.) and which are `progress`-only | Mobile | 1.11; 1.7 for chrome |
+| ~~OQ-22~~ | ~~JSON names and paths~~ **Resolved (1.11):** doc 11 §5, §6, §7 | — | closed |
+| ~~OQ-23~~ | ~~Cards per container horizontal page~~ **Resolved (1.11):** `limit` defaults 16 / 10 / 10 (doc 11 §6.3) | — | closed |
+| ~~OQ-26~~ | ~~Remaining **Card** fields~~ **Resolved (1.11):** doc 04 §1.2's working set, with §1.3's three fields optional and `progress`-only (doc 11 §7.1) | — | closed |
 | OQ-27 | When (if ever) to evict old container/card pages from the content slice | Mobile | Revisit if a long paginated feed is real (Phase 3+) |
 
-Carried forward: OQ-17 (mock strategy → 1.11), OQ-24 (hero chrome vs stand-in → 1.7).
+Carried forward: OQ-24 (hero chrome vs stand-in → 1.7). **OQ-17** is closed (1.11): a separate
+mock adapter behind the same functions; the axios instance is not mocked.
 
 ## Version Log
 
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.5 | Initial draft from the scaling & performance session |
+| v0.1.1 | 2026-08-17 | STEP-1.11 | Envelope names locked in doc 11; the horizontal `resources` fetch named as a fifth operation. Closed OQ-17, OQ-22, OQ-23, OQ-26. |

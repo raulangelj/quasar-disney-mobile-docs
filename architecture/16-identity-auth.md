@@ -1,8 +1,8 @@
 # Doc 16 — Identity & Auth
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6a)
+**Last updated:** 2026-08-17 (STEP-1.11)
 **Audience:** Mobile developers, backend team, QA
 
 > How this React Native demo proves who someone is, what they may do, and how that swaps to a managed IdP behind our API in Phase 3 — without putting Auth0/Firebase in the app or inventing roles we do not have.
@@ -130,7 +130,7 @@ Closes **OQ-25** (client mock). Production claims remain **OQ-03**.
 | Storage | Auth slice → `redux-persist` + `react-native-encrypted-storage` (ADR-0003). Do not reopen. |
 | Restore | Rehydrate → always `GET /me`. |
 | Revocation | **Client-side only:** logout, `/me` 401, or `exp`. No denylist (no host). |
-| Header | Bearer JWT on authenticated calls (interceptor). JSON names → 1.11 (OQ-22). |
+| Header | `Authorization: Bearer <jwt>` on authenticated calls (interceptor). Locked in doc 11 §9.1. |
 
 **Mock JWT claims** (adapter; discarded with the mock in Phase 3):
 
@@ -142,7 +142,10 @@ Closes **OQ-25** (client mock). Production claims remain **OQ-03**.
 
 Do **not** put `userName`, email, or roles in the token.
 
-**`GET /me` body (closes OQ-25):** `{ id, userName }` only. Path/JSON names still OQ-22.
+**`GET /me` body (closes OQ-25):** `{ id, userName }` only. **Path and JSON names locked in 1.11**
+(doc 11 §5, §7.4). Note one wire detail decided there: the login response carries **`expiresAt` as
+an ISO 8601 string**, not the JWT's numeric `exp` — so the client never decodes the token, and no
+`jwt-decode` dependency is needed (doc 11 §6.4).
 
 Phase 3 keeps this **client shape**. Refresh tokens and server revocation wait until a real IdP exists — do not add a mock refresh “for later.” DF3 still holds: when refresh arrives, it plugs into the API module / interceptor, not screens.
 
@@ -176,10 +179,20 @@ When Phase 3 adds a host, **the app authenticates as a user** (JWT on HTTPS), no
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| OQ-03 | Production backend contract and JWT claims shape (vendor + real claims) | Backend team | 1.11 Interface Contracts; Phase 3 |
-| OQ-22 | JSON names and paths for `/me`, login, and the JWT header | Mobile | 1.11 Interface Contracts |
+| OQ-03 | Production backend contract and JWT claims shape (vendor + real claims) | Backend team | Doc 11 §14 item 3; Phase 3 |
+| ~~OQ-22~~ | ~~JSON names and paths for `/me`, login, and the JWT header~~ **Resolved (1.11):** doc 11 §5, §7.4, §9.1 | — | closed |
 
-~~OQ-25~~ **Resolved (1.6a):** mock JWT claims = `sub` + `exp` + `iat`; `/me` body = `{ id, userName }`. JSON names → OQ-22.
+~~OQ-25~~ **Resolved (1.6a):** mock JWT claims = `sub` + `exp` + `iat`; `/me` body = `{ id, userName }`.
+
+**Added by 1.11 (doc 11 §8.4, §9.2), because both bear directly on this doc's flows:**
+
+- The interceptor's session-clearing **401 handler excludes `/auth/login`** — otherwise a wrong
+  password would bounce the user out of the credentials screen and destroy the F2 inline-error
+  demo. `INVALID_CREDENTIALS` and `UNAUTHORIZED` are distinct codes so the distinction is
+  mechanical.
+- The **mock adapter validates the token's presence *and* `exp`** on authenticated operations.
+  §4's "401 without a valid token" is now a contract obligation, not an implementation detail —
+  a permissive mock would leave this doc's expiry → Welcome path untested until Phase 3.
 
 Carried: privacy session remains Deferred (doc 04). Pinning / root detection remain **RISK-0007**. Shared demo login remains **RISK-0008**.
 
@@ -188,3 +201,4 @@ Carried: privacy session remains Deferred (doc 04). Pinning / root detection rem
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.6a | Initial identity & auth design. ADR-0009, ADR-0010. Closed OQ-25. |
+| v0.1.1 | 2026-08-17 | STEP-1.11 | §6 header and `/me` names locked in doc 11; `expiresAt` is ISO on the wire. Added the 401-scoping rule and the mock's token-validation obligation. Closed OQ-22. |

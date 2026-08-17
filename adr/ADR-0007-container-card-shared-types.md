@@ -53,3 +53,23 @@ everything.
 - ADR-0006 composition formula is amended to operate on `Container[]`.
 - Session 1.11 names the JSON attribute that holds `Container[]` on each endpoint.
 - Contract & mock STEP authors two fixtures of the same Container/Card shape.
+
+## Amendment (2026-08-17 — STEP-1.11, Interface Contracts)
+
+The original decision above stands unchanged. Session 1.11 resolved the three things it left to
+1.11, recorded in `architecture/11-interface-contracts.md`:
+
+1. **The JSON attribute holding `Container[]`** (Consequences, bullet 3) is **`data`**, inside the
+   envelope `{ data, nextCursor }` — the same envelope on every paginated response, never a bare
+   top-level array (doc 11 §6.1).
+2. **`Card`'s content-name field is `title`, not `name`** (Decision 4). `Container.name` /
+   `Card.title` keeps rows and content distinguishable when reading a payload. Doc 04 §1.2 is
+   updated to match.
+3. **OQ-26 is closed** (Decision 4): doc 04 §1.2's working set *is* the Card, with §1.3's three
+   progress fields as optional members populated only inside a `progress` container
+   (doc 11 §7.1). No speculative production fields were added.
+
+One thing this ADR's Decision implies but never states: because a Container carries `resources`
+that page independently, there is a **fifth operation** — `GET /containers/{id}/resources`
+(doc 11 §5). Each Container therefore carries its **own** `nextCursor` alongside the envelope's
+(doc 11 §6.2).

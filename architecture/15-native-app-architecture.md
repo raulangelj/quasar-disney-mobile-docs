@@ -1,8 +1,8 @@
 # Doc 15 — Native App Architecture
 
-**Version:** v0.2.4
+**Version:** v0.2.5
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.8)
+**Last updated:** 2026-08-17 (STEP-1.11)
 **Audience:** Mobile developers, QA
 
 > Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
@@ -156,7 +156,10 @@ Each hook exposes at least `{ items, loadMore, hasMore, isLoading, error }`. `lo
 
 Virtualized lists call `loadMore` on end-reached. Do not load every tile in every row on first paint.
 
-**Wire format** is locked as opaque **`nextCursor`** (doc 04). Envelope JSON names are session **1.11**. HomeFeed first page is **`Container[]`** (hero + 15); ContinueWatching is a **second** `Container[]` with `variant: "progress"` (ADR-0006 / ADR-0007). Horizontal card page size is OQ-23.
+**Wire format** is locked as opaque **`nextCursor`** (doc 04), and **doc 11 §6.1–§6.2 names the envelope**: `{ data, nextCursor }`, with a cursor at *each* paging level — the page envelope's cursor pages containers, each Container's own cursor pages its `resources`. HomeFeed first page is **`Container[]`** (hero + 15); ContinueWatching is a **second** `Container[]` with `variant: "progress"` (ADR-0006 / ADR-0007). **Page sizes (OQ-23 closed):** `limit` defaults to 16 on HomeFeed, 10 on Continue Watching and on `resources`.
+
+`useCarouselPage` fetches **`GET /containers/{containerId}/resources`** — an operation this table
+implied but no doc named until 1.11 (doc 11 §5).
 
 **Forecloses:** treating FPS/size as an 18 Aug gate; dumping the full catalog into one mock payload.
 
@@ -184,7 +187,9 @@ Virtualized lists call `loadMore` on end-reached. Do not load every tile in ever
 | ~~OQ-21~~ | ~~NetInfo “usable network”: treat cellular+wifi as enough, or also require internet reachability (vs captive portal)?~~ **Resolved (1.8):** interface up is enough; no reachability probe (ADR-0014) | — | closed |
 | OQ-29 | Does “connected but not reachable” need a reachability probe once a real host exists? | Mobile | Phase 3 backend integration (doc 08 §6.1) |
 
-Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-storage).
+**OQ-16** is closed (encrypted-storage). **OQ-17** is closed (1.11): a separate mock adapter behind
+the same functions — the axios instance is not mocked, and both transports normalize to one
+`ApiError` (doc 11 §6.5, §8.3). **OQ-23** is closed (doc 11 §6.3).
 
 ## Version Log
 
@@ -196,3 +201,4 @@ Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-
 | v0.2.2 | 2026-08-17 | STEP-1.6 | Device-security deferrals indexed from doc 06 (ADR-0008); token storage unchanged. |
 | v0.2.3 | 2026-08-17 | STEP-1.6a | Biometrics stay Phase 3 (doc 16); no Face ID in Phase 1. |
 | v0.2.4 | 2026-08-17 | STEP-1.8 | §2 connectivity gate keys on interface state, not reachability (ADR-0014). Closed OQ-21; opened OQ-29. §7 distribution: the release build is now the declared sign-off artifact (doc 08 §2). |
+| v0.2.5 | 2026-08-17 | STEP-1.11 | §8 envelope and page sizes locked from doc 11; `useCarouselPage`'s operation named (`GET /containers/{id}/resources`). Closed OQ-17, OQ-23. |
