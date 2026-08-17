@@ -229,6 +229,44 @@ risks:
       date:
       reason:
 
+  - id: RISK-0011
+    status: open
+    title: "Accessibility is verified only by a manual pass in Phase 1a"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/07-ui-design-system.md"
+    description: "The design system targets WCAG 2.1 AA and specifies labels, grouping, live-region errors, and reduced-motion mapping, but UI tests are deferred to 1b (RISK-0001), so nothing asserts any of it."
+    impact: "A missing accessibilityLabel or an ungrouped tile ships silently. The live-region auth error is the sharpest case: without it a failed login is inaudible to a screen-reader user, so criterion F2 fails for them while appearing to pass."
+    mitigation: "A11y props are written as each atom is written, not retrofitted; a 10-minute VoiceOver + TalkBack pass is added to the Tuesday-AM smoke checklist (doc 02 §8)."
+    revisit_trigger: "Phase 1b UI tests — add a11y assertions to the component test suite."
+    refs:
+      - "architecture/07-ui-design-system.md#8-accessibility"
+      - "architecture/02-phasing-roadmap.md#2-phase-1a-the-2026-08-18-demo-cut"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0012
+    status: open
+    title: "Decisions can imply dependencies that no doc records"
+    category: tech-debt
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "adr/ADR-0013-svg-rendering-dependency.md"
+    description: "STEP-1.2 chose SVG assets; STEP-1.3 listed hard dependencies without react-native-svg, so for three days two accepted docs described a stack that could not render its own assets. React Navigation's required peers were missing for the same reason."
+    impact: "A gap of this kind surfaces during the scaffold — the window RISK-0003 already names as the top schedule risk — rather than during design."
+    mitigation: "ADR-0013 completes doc 03's list and sets the rule: a session that decides an asset format also names the dependency that renders it. The check-in sweep re-reconciles doc 03 §7 against what the design and asset docs assume."
+    revisit_trigger: "Next check-in, and any session that introduces a new asset format or rendering surface."
+    refs:
+      - "adr/ADR-0013-svg-rendering-dependency.md"
+      - "architecture/03-architecture-overview.md#7-build-vs-buy"
+    closed:
+      date:
+      reason:
+
 # Example:
 # risks:
 #   - id: RISK-0001

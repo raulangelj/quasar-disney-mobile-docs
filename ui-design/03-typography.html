@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision 3 — Typography · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face {
+    font-family: "InterVar"; src: url("fonts/inter-latin.woff2") format("woff2");
+    font-weight: 400 800; font-style: normal; font-display: block;
+  }
+  @font-face {
+    font-family: "ManropeVar"; src: url("fonts/manrope-latin.woff2") format("woff2");
+    font-weight: 400 800; font-style: normal; font-display: block;
+  }
+
+  /* ---- page chrome ---- */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 24px 64px; background: #16161a; color: #e7e7ea;
+    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  h2 { font-size: 17px; margin: 0 0 2px; }
+  .lede { max-width: 76ch; color: #b0b0b8; margin: 0 0 8px; }
+  .lede strong { color: #e7e7ea; }
+  .hold {
+    max-width: 76ch; margin: 18px 0 30px; padding: 12px 14px;
+    border-left: 3px solid #52525b; background: #1d1d22; border-radius: 0 6px 6px 0;
+    color: #b0b0b8; font-size: 13.5px;
+  }
+  .opt { border-top: 1px solid #2c2c33; padding: 26px 0 8px; }
+  .opt-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; margin-bottom: 4px; }
+  .tag {
+    font: 600 11px/1 -apple-system, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+    padding: 5px 9px; border-radius: 5px; background: #2c2c33; color: #b0b0b8;
+  }
+  .rec { background: #14532d; color: #a7f3d0; }
+  .no { background: #4c1d1d; color: #fecaca; }
+  .char { color: #b0b0b8; max-width: 80ch; margin: 2px 0 0; font-size: 14px; }
+  .char em { color: #e7e7ea; font-style: normal; font-weight: 600; }
+  .row { display: flex; gap: 22px; align-items: flex-start; overflow-x: auto; padding: 18px 2px 6px; }
+  .cap { font: 600 11px/1 sans-serif; letter-spacing: .09em; text-transform: uppercase; color: #8a8a93; margin: 0 0 8px; }
+  table { border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 5px 12px 5px 0; border-bottom: 1px solid #26262c; white-space: nowrap; }
+  th { color: #8a8a93; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+  td.mono { font-family: ui-monospace, Menlo, monospace; color: #d4d4d8; }
+
+  /* ================================================================
+     Palette is LOCKED to decision 2, option A. Spacing, radius and
+     layout are the same neutral defaults as page 02. The only thing
+     that changes between options below is --ff (the typeface) and,
+     in the specimen, nothing at all — same ladder everywhere.
+     ================================================================ */
+  .sys { --ff: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+  .int { --ff: "InterVar", sans-serif; }
+  .man { --ff: "ManropeVar", sans-serif; }
+  .avn { --ff: "Avenir Next", "Futura", sans-serif; }
+
+  .phone {
+    width: 262px; flex: 0 0 262px; height: 486px; border-radius: 26px; overflow: hidden;
+    position: relative; border: 1px solid #35353d; font-family: var(--ff);
+    --base:#0E0E12; --chrome:rgba(255,255,255,.07); --border:rgba(255,255,255,.12);
+    --text:#FFFFFF; --text2:#A1A1AA; --text3:#8A8A93; --accent:#38BDF8;
+    --live:#FF4D63; --chipFill:#3F3F46; --chipText:#D4D4D8;
+    --gradTop:#0F3C46; --gradBot:#0A0A0E; --sheet:#FFFFFF; --ltext:#111114; --ltext2:#52525B;
+    --field:#E9E9EB; --ph:#5F5F68; --ctaBg:#0E0E12; --link:#1D4ED8; --err:#C81E1E;
+  }
+  /* the ladder — identical numbers in every option */
+  .t-display { font-size: 30px; line-height: 36px; font-weight: 800; letter-spacing: -.02em; }
+  .t-h1  { font-size: 26px; line-height: 31px; font-weight: 800; letter-spacing: -.015em; }
+  .t-h2  { font-size: 21px; line-height: 26px; font-weight: 700; letter-spacing: -.01em; }
+  .t-h3  { font-size: 16px; line-height: 21px; font-weight: 700; }
+  .t-body{ font-size: 14px; line-height: 20px; font-weight: 400; }
+  .t-cap { font-size: 12px; line-height: 16px; font-weight: 400; }
+  .t-mic { font-size: 10px; line-height: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+  .app { background: var(--base); display: flex; flex-direction: column; }
+  .app-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 14px 10px; }
+  .app-hd .ttl { color: var(--text); }
+  .icn { width: 19px; height: 19px; }
+  .icn path, .icn rect { stroke: var(--text2); }
+  .sect { color: var(--text); padding: 2px 14px 8px; }
+  .rowx { display: flex; gap: 8px; padding: 0 14px 12px; }
+  .tile { border-radius: 10px; overflow: hidden; position: relative; flex: 0 0 auto; }
+  .tile.wide { width: 148px; } .tile.port { width: 76px; }
+  .tile svg { display: block; width: 100%; height: auto; }
+  .play { position: absolute; inset: 0; margin: auto; width: 28px; height: 28px; border-radius: 999px;
+          background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.5); }
+  .play::after { content:""; position:absolute; inset:0; margin:auto; width:0; height:0;
+          border-left: 8px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+  .bar { position: absolute; left:0; right:0; bottom:0; height:3px; background: rgba(255,255,255,.28); }
+  .bar i { display:block; height:100%; width:62%; background: var(--accent); }
+  .meta { padding: 0 14px; }
+  .meta .sub { color: var(--text3); display:flex; justify-content:space-between; align-items:center; }
+  .meta .nm { color: var(--text); margin: 3px 0; }
+  .meta .ep { color: var(--text2); display:flex; align-items:center; gap:6px; }
+  .chip { font-size: 9.5px; font-weight: 700; padding: 2px 5px; border-radius: 4px; background: var(--chipFill); color: var(--chipText); }
+  .tabs { margin-top:auto; display:flex; justify-content:space-around; align-items:center;
+          padding: 11px 0 15px; background: var(--chrome); border-top: 1px solid var(--border); }
+  .tabs span { width:19px; height:19px; border-radius:4px; background: var(--text3); }
+  .tabs span.on { background: var(--text); }
+  .tabs span.av { border-radius:999px; background: var(--accent); opacity:.85; }
+  .cta-dark { margin: 4px 14px 10px; background:#fff; color:#0E0E12; text-align:center;
+              padding: 12px; border-radius: 999px; }
+
+  .auth { background: linear-gradient(var(--gradTop), var(--gradBot)); display:flex; flex-direction:column; }
+  .auth-top { height: 84px; display:flex; align-items:center; justify-content:center; position:relative; }
+  .auth-top .wm { color:#fff; letter-spacing:.06em; font-weight: 800; font-size: 14px; }
+  .auth-top .back { position:absolute; left:12px; width:26px; height:26px; border-radius:999px;
+                    background: rgba(255,255,255,.2); color:#fff; display:flex; align-items:center; justify-content:center; }
+  .sheet { flex:1; background: var(--sheet); border-radius: 22px 22px 0 0; padding: 18px 16px; }
+  .sheet .brand { color: var(--ltext); font-weight: 800; font-size: 12px; letter-spacing: .02em; }
+  .sheet .hd { color: var(--ltext); margin: 9px 0 6px; }
+  .sheet .bd { color: var(--ltext2); margin: 0 0 12px; }
+  .field { background: var(--field); border-radius:8px; padding: 13px 11px; color: var(--ltext);
+           display:flex; justify-content:space-between; align-items:center;
+           border-bottom: 2px solid var(--err); border-radius: 8px 8px 2px 2px; }
+  .err { color: var(--err); margin: 7px 0 5px; }
+  .hint { color: var(--ltext2); margin: 0 0 13px; }
+  .cta { background: var(--ctaBg); color:#fff; text-align:center; padding: 13px; border-radius: 999px; margin-bottom: 12px; }
+  .llnk { color: var(--link); font-weight: 600; }
+
+  /* specimen */
+  .spec { font-family: var(--ff); background: #0E0E12; border: 1px solid #35353d; border-radius: 12px;
+          padding: 16px 18px; min-width: 320px; flex: 1; color: #fff; }
+  .spec > div { margin-bottom: 12px; }
+  .spec .lbl { font: 600 10px/1 ui-monospace, Menlo, monospace; letter-spacing: .08em;
+               text-transform: uppercase; color: #8a8a93; margin-bottom: 3px; }
+  .spec .sample.dim { color: #A1A1AA; }
+  .num { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+
+<h1>Decision 3 — Typography</h1>
+<p class="lede">
+  Palette is now locked to <strong>option A</strong> and is identical in every mock below. Spacing,
+  radius, and layout are the same neutral defaults as page 02. <strong>The only variable is the
+  typeface</strong> — and the type ladder (sizes, line heights, weights, tracking) is deliberately the
+  <em>same numbers</em> in all three options, so you are judging letterforms, not scale.
+</p>
+<p class="lede">
+  Inter and Manrope are rendered from real font files fetched into <code>ui-design/fonts/</code> — not
+  a CSS fallback. If a specimen below looks like the system font, the file failed to load and you
+  should tell me rather than judge it.
+</p>
+
+<div class="hold">
+  <strong>Why this decision is bigger than it looks here.</strong> The demo is shown with
+  <em>iOS and Android side by side</em> (doc 01, §"Scale &amp; shape"). A system-font stack renders
+  <em>SF Pro</em> on one device and <em>Roboto</em> on the other — different letterforms, different
+  widths, different vertical metrics, in the same screenshot. The <code>Dinsey-</code> wordmark already
+  has this exact bug (doc 02 §10: SVG <code>&lt;text&gt;</code> with an <code>Avenir Next</code> stack
+  that falls back on Android), and it is filed as a defect to fix before sign-off. Choosing a system
+  stack here re-introduces the same class of problem across every screen.
+  <br><br>
+  <strong>Implementation note that applies to options 2 and 3:</strong> in bare React Native, numeric
+  <code>fontWeight</code> is unreliable for bundled fonts on Android — it silently synthesizes or
+  ignores weights. The theme's typography tokens must name <em>files</em>
+  (<code>Inter-Regular</code> / <code>-SemiBold</code> / <code>-Bold</code> / <code>-ExtraBold</code>),
+  not weight numbers, and each is linked via <code>react-native.config.js</code> + <code>npx react-native-asset</code>.
+  That is ~4 files per family, ~350&nbsp;KB total — irrelevant for a locally-installed demo.
+</div>
+
+<!-- ===================== OPTION 1 — SYSTEM ===================== -->
+<section class="opt sys">
+  <div class="opt-head">
+    <h2>Option 1 — System stack (SF Pro / Roboto)</h2>
+    <span class="tag">zero bundle · diverges per platform</span>
+  </div>
+  <p class="char">
+    <code>-apple-system</code> on iOS, Roboto on Android. Nothing to bundle, nothing to link, native
+    text rendering and native Dynamic Type behavior for free. <em>Tradeoff:</em> the two platforms do not
+    match, and this build's whole argument is visual fidelity demonstrated on both at once. Note the
+    specimen below shows <em>only</em> the iOS half — Roboto isn't installed on this machine, which is
+    itself the point.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Dark — app mode</p>
+      <div class="phone app">
+        <div class="app-hd"><span class="ttl t-h2">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="sect t-h2">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide">
+            <svg viewBox="0 0 160 90"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="sc" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></linearGradient><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg>
+            <div class="play"></div><div class="bar"><i></i></div>
+          </div>
+          <div class="tile wide">
+            <svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#sc)"/></svg>
+            <div class="play"></div><div class="bar"><i style="width:22%"></i></div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="sub t-cap"><span class="num">11 min restantes</span><span style="font-size:14px">⋮</span></div>
+          <div class="nm t-h3">El Umbral de Orión</div>
+          <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red — Parte 1</span></div>
+        </div>
+        <div class="sect t-h2" style="padding-top:14px">Recomendaciones</div>
+        <div class="rowx">
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+        </div>
+        <div class="cta-dark t-mic">Reintentar</div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Light — auth mode</p>
+      <div class="phone auth">
+        <div class="auth-top"><span class="back">‹</span><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></div>
+          <div class="field t-body"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><div class="lbl">display 30/36 w800</div><div class="sample t-display">Todo lo que amas</div></div>
+      <div><div class="lbl">h1 26/31 w800</div><div class="sample t-h1">Escribir contraseña</div></div>
+      <div><div class="lbl">h2 21/26 w700</div><div class="sample t-h2">Continuar viendo</div></div>
+      <div><div class="lbl">h3 16/21 w700</div><div class="sample t-h3">El Umbral de Orión</div></div>
+      <div><div class="lbl">body 14/20 w400</div><div class="sample t-body dim">Ingresa la contraseña de ana@ejemplo.com para continuar.</div></div>
+      <div><div class="lbl">caption 12/16 w400 · tabular</div><div class="sample t-cap dim num">11 min restantes · T3:E12 · 2026 · 13+</div></div>
+      <div style="margin-bottom:0"><div class="lbl">micro 10/13 w700 +.06em</div><div class="sample t-mic">Iniciar sesión · Vivo · Nueva película</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPTION 2 — INTER ===================== -->
+<section class="opt int">
+  <div class="opt-head">
+    <h2>Option 2 — Inter (bundled)</h2>
+    <span class="tag rec">recommended</span>
+    <span class="tag">identical on both platforms · OFL</span>
+  </div>
+  <p class="char">
+    Neutral humanist sans built for screen UI. Large x-height and open apertures make the 10–12&nbsp;pt
+    metadata line — <em>the smallest text in the whole app, and there is a lot of it</em> — hold up better
+    than any of the alternatives. Real tabular figures, so “11 min restantes” doesn't wobble as the
+    number changes. Renders identically on iOS and Android. <em>Tradeoff:</em> deliberately
+    characterless; it will not make the storefront feel like a brand on its own.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Dark — app mode</p>
+      <div class="phone app">
+        <div class="app-hd"><span class="ttl t-h2">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="sect t-h2">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+        </div>
+        <div class="meta">
+          <div class="sub t-cap"><span class="num">11 min restantes</span><span style="font-size:14px">⋮</span></div>
+          <div class="nm t-h3">El Umbral de Orión</div>
+          <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red — Parte 1</span></div>
+        </div>
+        <div class="sect t-h2" style="padding-top:14px">Recomendaciones</div>
+        <div class="rowx">
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+        </div>
+        <div class="cta-dark t-mic">Reintentar</div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Light — auth mode</p>
+      <div class="phone auth">
+        <div class="auth-top"><span class="back">‹</span><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></div>
+          <div class="field t-body"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><div class="lbl">display 30/36 w800</div><div class="sample t-display">Todo lo que amas</div></div>
+      <div><div class="lbl">h1 26/31 w800</div><div class="sample t-h1">Escribir contraseña</div></div>
+      <div><div class="lbl">h2 21/26 w700</div><div class="sample t-h2">Continuar viendo</div></div>
+      <div><div class="lbl">h3 16/21 w700</div><div class="sample t-h3">El Umbral de Orión</div></div>
+      <div><div class="lbl">body 14/20 w400</div><div class="sample t-body dim">Ingresa la contraseña de ana@ejemplo.com para continuar.</div></div>
+      <div><div class="lbl">caption 12/16 w400 · tabular</div><div class="sample t-cap dim num">11 min restantes · T3:E12 · 2026 · 13+</div></div>
+      <div style="margin-bottom:0"><div class="lbl">micro 10/13 w700 +.06em</div><div class="sample t-mic">Iniciar sesión · Vivo · Nueva película</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPTION 3 — MANROPE ===================== -->
+<section class="opt man">
+  <div class="opt-head">
+    <h2>Option 3 — Manrope (bundled)</h2>
+    <span class="tag">geometric · closest to the wordmark</span>
+  </div>
+  <p class="char">
+    Semi-geometric sans — rounder bowls, more even stroke, a distinctly "streaming brand" feel. It is the
+    closest freely-licensable proxy for the <em>Avenir Next</em> geometry the <code>Dinsey-</code>
+    wordmark is drawn in, so chrome and brand agree instead of merely coexisting. Also identical on both
+    platforms. <em>Tradeoff:</em> the geometric forms are less legible than Inter at the 10–12&nbsp;pt
+    sizes the metadata rows live at, and Manrope's default figures are proportional — the
+    time-remaining line shifts slightly as digits change unless we opt into tabular figures.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Dark — app mode</p>
+      <div class="phone app">
+        <div class="app-hd"><span class="ttl t-h2">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="sect t-h2">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+        </div>
+        <div class="meta">
+          <div class="sub t-cap"><span class="num">11 min restantes</span><span style="font-size:14px">⋮</span></div>
+          <div class="nm t-h3">El Umbral de Orión</div>
+          <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red — Parte 1</span></div>
+        </div>
+        <div class="sect t-h2" style="padding-top:14px">Recomendaciones</div>
+        <div class="rowx">
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+        </div>
+        <div class="cta-dark t-mic">Reintentar</div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Light — auth mode</p>
+      <div class="phone auth">
+        <div class="auth-top"><span class="back">‹</span><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></div>
+          <div class="field t-body"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="spec">
+      <div><div class="lbl">display 30/36 w800</div><div class="sample t-display">Todo lo que amas</div></div>
+      <div><div class="lbl">h1 26/31 w800</div><div class="sample t-h1">Escribir contraseña</div></div>
+      <div><div class="lbl">h2 21/26 w700</div><div class="sample t-h2">Continuar viendo</div></div>
+      <div><div class="lbl">h3 16/21 w700</div><div class="sample t-h3">El Umbral de Orión</div></div>
+      <div><div class="lbl">body 14/20 w400</div><div class="sample t-body dim">Ingresa la contraseña de ana@ejemplo.com para continuar.</div></div>
+      <div><div class="lbl">caption 12/16 w400 · tabular</div><div class="sample t-cap dim num">11 min restantes · T3:E12 · 2026 · 13+</div></div>
+      <div style="margin-bottom:0"><div class="lbl">micro 10/13 w700 +.06em</div><div class="sample t-mic">Iniciar sesión · Vivo · Nueva película</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ANCHOR — AVENIR NEXT ===================== -->
+<section class="opt avn">
+  <div class="opt-head">
+    <h2>Reference anchor — Avenir Next</h2>
+    <span class="tag no">not selectable</span>
+  </div>
+  <p class="char">
+    Shown for calibration only: this is the family the <code>Dinsey-</code> wordmark SVGs currently
+    specify, and it is roughly the register the reference screens sit in. It is <strong>not an
+    option</strong> — Avenir Next is a licensed Monotype/Apple font, present on macOS and iOS and absent
+    on Android, so it can neither be bundled nor relied on. Compare option 3 against this to see how
+    close Manrope gets. <em>(If this specimen looks like the system font, Avenir Next isn't installed
+    here either.)</em>
+  </p>
+  <div class="row">
+    <div class="spec" style="max-width: 520px">
+      <div><div class="lbl">display 30/36 w800</div><div class="sample t-display">Todo lo que amas</div></div>
+      <div><div class="lbl">h1 26/31 w800</div><div class="sample t-h1">Escribir contraseña</div></div>
+      <div><div class="lbl">h2 21/26 w700</div><div class="sample t-h2">Continuar viendo</div></div>
+      <div><div class="lbl">body 14/20 w400</div><div class="sample t-body dim">Ingresa la contraseña de ana@ejemplo.com para continuar.</div></div>
+      <div style="margin-bottom:0"><div class="lbl">caption 12/16 w400</div><div class="sample t-cap dim num">11 min restantes · T3:E12 · 2026 · 13+</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE LADDER ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>The type ladder — same in every option above</h2>
+    <span class="tag">confirm, don't choose</span>
+  </div>
+  <p class="char">
+    Seven steps, derived from the sizes measured in the reference transcription rather than from an
+    abstract modular ratio — a 1.25 ratio would have produced a 33&nbsp;pt <code>h1</code> and a
+    17&nbsp;pt <code>h3</code>, neither of which matches what the reference actually does. Line heights
+    are <strong>absolute</strong>, because React Native's <code>lineHeight</code> is a number, not a
+    multiplier. Sizes are unitless RN density-independent points.
+  </p>
+  <div class="row">
+    <div>
+      <table>
+        <tr><th>Token</th><th>Size</th><th>Line</th><th>Weight</th><th>Tracking</th><th>Used by</th></tr>
+        <tr><td class="mono">display</td><td class="mono">30</td><td class="mono">36</td><td class="mono">800</td><td class="mono">-0.02em</td><td>Welcome headline</td></tr>
+        <tr><td class="mono">h1</td><td class="mono">26</td><td class="mono">31</td><td class="mono">800</td><td class="mono">-0.015em</td><td>Auth sheet heading</td></tr>
+        <tr><td class="mono">h2</td><td class="mono">21</td><td class="mono">26</td><td class="mono">700</td><td class="mono">-0.01em</td><td>Screen title (<code>Para ti</code>), row header</td></tr>
+        <tr><td class="mono">h3</td><td class="mono">16</td><td class="mono">21</td><td class="mono">700</td><td class="mono">0</td><td>Tile title, CTA label (sentence case)</td></tr>
+        <tr><td class="mono">body</td><td class="mono">14</td><td class="mono">20</td><td class="mono">400/600</td><td class="mono">0</td><td>Sheet copy, field text</td></tr>
+        <tr><td class="mono">caption</td><td class="mono">12</td><td class="mono">16</td><td class="mono">400</td><td class="mono">0</td><td>Metadata, error text, hints, episode line</td></tr>
+        <tr><td class="mono">micro</td><td class="mono">10</td><td class="mono">13</td><td class="mono">700</td><td class="mono">+0.06em</td><td>Chips, badges, uppercase CTAs (<code>REINTENTAR</code>)</td></tr>
+      </table>
+    </div>
+    <div class="spec sys" style="max-width:420px; font-family: -apple-system, sans-serif">
+      <div class="lbl" style="margin-bottom:10px">Notes carried into the doc</div>
+      <p class="char" style="margin:0 0 10px">
+        <em>No mono family.</em> Nothing in Phase 1 shows code, IDs, or aligned numerics beyond the
+        time-remaining line, which the caption step handles with tabular figures. Adding a mono family
+        would be a token nobody imports.
+      </p>
+      <p class="char" style="margin:0 0 10px">
+        <em>Tabular figures</em> on <code>caption</code> only — the one place a changing number would
+        otherwise shift the layout on every tick.
+      </p>
+      <p class="char" style="margin:0">
+        <em>Font scaling</em> (iOS Dynamic Type / Android font size) is decision 11's business; the
+        ladder is authored so that the two chrome steps (<code>micro</code>, <code>caption</code>) are
+        the ones that will need <code>maxFontSizeMultiplier</code> caps, not the headings.
+      </p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

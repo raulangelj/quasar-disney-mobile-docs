@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision 5 — Shape &amp; elevation · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face {
+    font-family: "InterVar"; src: url("fonts/inter-latin.woff2") format("woff2");
+    font-weight: 400 800; font-style: normal; font-display: block;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:28px 24px 64px; background:#16161a; color:#e7e7ea;
+         font: 15px/1.55 "InterVar", -apple-system, sans-serif; }
+  h1 { font-size:22px; margin:0 0 6px; } h2 { font-size:17px; margin:0 0 2px; }
+  .lede { max-width:76ch; color:#b0b0b8; margin:0 0 8px; } .lede strong { color:#e7e7ea; }
+  .hold { max-width:76ch; margin:18px 0 30px; padding:12px 14px; border-left:3px solid #52525b;
+          background:#1d1d22; border-radius:0 6px 6px 0; color:#b0b0b8; font-size:13.5px; }
+  .opt { border-top:1px solid #2c2c33; padding:26px 0 8px; }
+  .opt-head { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:baseline; margin-bottom:4px; }
+  .tag { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+         padding:5px 9px; border-radius:5px; background:#2c2c33; color:#b0b0b8; }
+  .rec { background:#14532d; color:#a7f3d0; } .no { background:#4c1d1d; color:#fecaca; }
+  .char { color:#b0b0b8; max-width:80ch; margin:2px 0 0; font-size:14px; }
+  .char em { color:#e7e7ea; font-style:normal; font-weight:600; }
+  .row { display:flex; gap:22px; align-items:flex-start; overflow-x:auto; padding:18px 2px 6px; }
+  .cap { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.09em; text-transform:uppercase; color:#8a8a93; margin:0 0 8px; }
+  table { border-collapse:collapse; font-size:12.5px; }
+  th,td { text-align:left; padding:5px 12px 5px 0; border-bottom:1px solid #26262c; white-space:nowrap; }
+  th { color:#8a8a93; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; }
+  .mono, td.mono { font-family: ui-monospace, Menlo, monospace; color:#d4d4d8; }
+  .note { background:#1d1d22; border:1px solid #2c2c33; border-radius:10px; padding:14px 16px; max-width:440px; }
+
+  /* ================================================================
+     Palette (A) · Inter · reference-tight spacing — all LOCKED.
+     Only the radius / elevation properties vary between options:
+     --rTile --rSheet --rField --rChip --rModal --elev
+     ================================================================ */
+  .phone {
+    width:264px; flex:0 0 264px; height:498px; border-radius:26px; overflow:hidden;
+    position:relative; border:1px solid #35353d; font-family:"InterVar",sans-serif;
+    --base:#0E0E12; --raised:#17171D; --chrome:rgba(255,255,255,.07); --border:rgba(255,255,255,.12);
+    --text:#FFFFFF; --text2:#A1A1AA; --text3:#8A8A93; --accent:#38BDF8;
+    --chipFill:#3F3F46; --chipText:#D4D4D8;
+    --gradTop:#0F3C46; --gradBot:#0A0A0E; --sheet:#FFFFFF; --ltext:#111114; --ltext2:#52525B;
+    --field:#E9E9EB; --ctaBg:#0E0E12; --link:#1D4ED8; --err:#C81E1E;
+    --gut:16px; --tg:8px; --sg:20px; --mg:6px; --pad:20px; --fld:48px;
+  }
+  .t-h1 { font-size:26px; line-height:31px; font-weight:800; letter-spacing:-.015em; }
+  .t-h2 { font-size:21px; line-height:26px; font-weight:700; letter-spacing:-.01em; }
+  .t-h3 { font-size:16px; line-height:21px; font-weight:700; }
+  .t-body { font-size:14px; line-height:20px; font-weight:400; }
+  .t-cap { font-size:12px; line-height:16px; font-weight:400; }
+  .t-mic { font-size:10px; line-height:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+
+  .app { background:var(--base); display:flex; flex-direction:column; }
+  .app-hd { display:flex; align-items:center; justify-content:space-between; padding:var(--sg) var(--gut) 11px; }
+  .icn { width:19px; height:19px; } .icn path,.icn rect { stroke:var(--text2); }
+  .pills { display:flex; gap:7px; padding:0 var(--gut) 12px; }
+  .pill { font-size:11px; font-weight:600; color:var(--text); padding:6px 11px; border-radius:999px;
+          background:var(--chrome); border:1px solid var(--border); }
+  .sect { color:var(--text); padding:0 var(--gut) 8px; }
+  .rowx { display:flex; gap:var(--tg); padding:0 var(--gut); }
+  .tile { border-radius:var(--rTile); overflow:hidden; position:relative; flex:0 0 auto; }
+  .tile.wide { width:150px; } .tile.port { width:78px; }
+  .tile svg { display:block; width:100%; height:auto; }
+  .play { position:absolute; inset:0; margin:auto; width:28px; height:28px; border-radius:999px;
+          background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.5); }
+  .play::after { content:""; position:absolute; inset:0; margin:auto; width:0; height:0;
+          border-left:8px solid #fff; border-top:5px solid transparent; border-bottom:5px solid transparent; }
+  .bar { position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,.28); }
+  .bar i { display:block; height:100%; width:62%; background:var(--accent); }
+  .meta { padding:var(--mg) var(--gut) 0; }
+  .meta .sub { color:var(--text3); display:flex; justify-content:space-between; }
+  .meta .nm { color:var(--text); margin:var(--mg) 0 4px; }
+  .meta .ep { color:var(--text2); display:flex; align-items:center; gap:6px; }
+  .chip { font-size:9.5px; font-weight:700; padding:2px 5px; border-radius:var(--rChip);
+          background:var(--chipFill); color:var(--chipText); }
+  .group { margin-bottom:var(--sg); }
+  .tabs { margin-top:auto; display:flex; justify-content:space-around; align-items:center;
+          padding:11px 0 15px; background:var(--chrome); border-top:1px solid var(--border); }
+  .tabs span { width:19px; height:19px; border-radius:4px; background:var(--text3); }
+  .tabs span.on { background:var(--text); } .tabs span.av { border-radius:999px; background:var(--accent); opacity:.85; }
+
+  /* modal / toast, to show the larger radius steps */
+  .modal { position:absolute; left:16px; right:16px; bottom:74px; background:var(--raised);
+           border:1px solid var(--border); border-radius:var(--rModal); padding:12px 14px; }
+  .modal .ttl { color:var(--text); } .modal .bd { color:var(--text2); margin-top:3px; }
+
+  .auth { background:linear-gradient(var(--gradTop),var(--gradBot)); display:flex; flex-direction:column; }
+  .auth-top { height:80px; display:flex; align-items:center; justify-content:center; }
+  .auth-top .wm { color:#fff; letter-spacing:.06em; font-weight:800; font-size:14px; }
+  .sheet { flex:1; background:var(--sheet); border-radius:var(--rSheet) var(--rSheet) 0 0; padding:var(--pad); }
+  .sheet .brand { color:var(--ltext); font-weight:800; font-size:12px; }
+  .sheet .hd { color:var(--ltext); margin:10px 0 6px; }
+  .sheet .bd { color:var(--ltext2); margin:0 0 12px; }
+  .field { background:var(--field); border-radius:var(--rField) var(--rField) 2px 2px; height:var(--fld);
+           padding:0 12px; color:var(--ltext); display:flex; justify-content:space-between; align-items:center;
+           border-bottom:2px solid var(--err); }
+  .err { color:var(--err); margin:7px 0 5px; } .hint { color:var(--ltext2); margin:0 0 13px; }
+  .cta { background:var(--ctaBg); color:#fff; text-align:center; height:var(--fld); display:flex;
+         align-items:center; justify-content:center; border-radius:999px; margin-bottom:12px; }
+  .llnk { color:var(--link); font-weight:600; }
+
+  .R1 { --rTile:10px; --rSheet:24px; --rField:8px;  --rChip:4px; --rModal:16px; }
+  .R2 { --rTile:16px; --rSheet:28px; --rField:12px; --rChip:6px; --rModal:20px; }
+  .R3 { --rTile:6px;  --rSheet:16px; --rField:6px;  --rChip:3px; --rModal:10px; }
+
+  /* elevation demo */
+  .elev-row { display:flex; gap:18px; flex-wrap:wrap; background:#0E0E12; padding:26px 22px;
+              border-radius:12px; border:1px solid #26262c; }
+  .card { width:150px; border-radius:12px; padding:14px; background:#0E0E12; color:#fff; font-size:12.5px; }
+  .card b { display:block; font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:#8a8a93; margin-bottom:6px; }
+  .e-shadow { box-shadow: 0 8px 24px rgba(0,0,0,.6); }
+  .e-border { border:1px solid rgba(255,255,255,.12); }
+  .e-lift   { background:#17171D; border:1px solid rgba(255,255,255,.12); }
+  .e-lift2  { background:#1F1F26; border:1px solid rgba(255,255,255,.16); }
+  .lightbg { background:#FFFFFF; color:#111114; }
+  .lightbg .card { background:#fff; color:#111114; }
+  .lightbg .card b { color:#71717A; }
+  .lightbg .e-shadow { box-shadow: 0 8px 24px rgba(0,0,0,.16); }
+  .lightbg .e-border { border:1px solid #E4E4E7; }
+  .lightbg .e-lift { background:#FAFAFA; border:1px solid #E4E4E7; }
+  .lightbg .e-lift2 { background:#F4F4F5; border:1px solid #E4E4E7; }
+</style>
+</head>
+<body>
+
+<h1>Decision 5 — Shape &amp; elevation</h1>
+<p class="lede">
+  Two coupled questions. <strong>Shape:</strong> the corner-radius set. <strong>Elevation:</strong>
+  whether a raised surface is signalled by a <em>shadow</em> or by a <em>lighter surface plus a hairline
+  border</em>. Palette, typeface, and the reference-tight spacing are locked and identical below; only
+  radius and elevation change.
+</p>
+
+<div class="hold">
+  <strong>Elevation is close to decided by the palette you already picked.</strong> On a
+  <code>#0E0E12</code> ground, a drop shadow is nearly invisible — there is no lighter background for it
+  to fall on. Scroll to the elevation section: the shadow-only card is indistinguishable from the flat one
+  on dark, and obvious on white. That is not a taste question, it's a physics one, and it's why the
+  reference signals depth with translucent fills and hairline borders instead.
+  <br><br>
+  <strong>Implementation cost, on top of that.</strong> React Native has two unrelated shadow APIs —
+  iOS takes <code>shadowColor/Offset/Opacity/Radius</code>, Android takes a single
+  <code>elevation</code> number — and they do not produce matching results. A shadow-based system
+  therefore diverges across the two platforms shown side by side, the same failure mode we just rejected
+  in the font decision. Android also won't render a shadow on a view with <code>overflow: hidden</code>,
+  which every rounded tile needs, so each shadowed tile would need a wrapper view.
+</div>
+
+<!-- ===================== OPTION 1 ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option 1 — Reference radii</h2>
+    <span class="tag rec">recommended</span>
+    <span class="tag">tile 10 · sheet 24 · field 8 · chip 4</span>
+  </div>
+  <p class="char">
+    The transcribed values: tiles <em>10</em>, the auth sheet's top corners <em>24</em>, fields
+    <em>8</em>, chips <em>4</em>, CTAs and filter pills fully rounded. The mix is deliberate and worth
+    noticing — <em>large</em> on the sheet, <em>small</em> on content, <em>full</em> on actions. That
+    contrast is a big part of why the reference reads as a polished product rather than a uniformly-rounded
+    template. <em>Tradeoff:</em> three radius families is more to keep straight than one, so the tokens
+    have to name roles, not numbers.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Storefront</p>
+      <div class="phone app R1">
+        <div class="app-hd"><span class="t-h2" style="color:var(--text)">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span><span class="pill">Películas</span></div>
+        <div class="group">
+          <div class="sect t-h2">Continuar viendo</div>
+          <div class="rowx">
+            <div class="tile wide">
+              <svg viewBox="0 0 160 90"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="sc" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></linearGradient><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg>
+              <div class="play"></div><div class="bar"><i></i></div>
+            </div>
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+          </div>
+          <div class="meta">
+            <div class="sub t-cap"><span>11 min restantes</span><span>⋮</span></div>
+            <div class="nm t-h3">El Umbral de Orión</div>
+            <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red</span></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Recomendaciones</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+          </div>
+        </div>
+        <div class="modal"><div class="ttl t-h3">El Umbral de Orión</div><div class="bd t-cap">Tocaste esta tarjeta.</div></div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Auth sheet</p>
+      <div class="phone auth R1">
+        <div class="auth-top"><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="field t-body"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <p class="cap">Radius tokens</p>
+      <table>
+        <tr><th>Role</th><th>Value</th><th>Applies to</th></tr>
+        <tr><td class="mono">radius.chip</td><td class="mono">4</td><td>rating chip, badge</td></tr>
+        <tr><td class="mono">radius.field</td><td class="mono">8</td><td>text / password field</td></tr>
+        <tr><td class="mono">radius.tile</td><td class="mono">10</td><td>all carousel tiles</td></tr>
+        <tr><td class="mono">radius.surface</td><td class="mono">16</td><td>overlay, toast, alert</td></tr>
+        <tr><td class="mono">radius.sheet</td><td class="mono">24</td><td>auth sheet top corners</td></tr>
+        <tr><td class="mono">radius.full</td><td class="mono">999</td><td>pill CTA, filter pill, icon button, play button</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPTION 2 ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option 2 — Softer</h2>
+    <span class="tag">tile 16 · sheet 28 · field 12 · chip 6</span>
+  </div>
+  <p class="char">
+    Everything rounder — closer to current Material 3 / Android house style, friendlier, reads as more
+    "app" and less "cinema". <em>Tradeoff:</em> at 16, a 78&nbsp;pt-wide portrait tile loses a visible bite
+    of artwork at each corner, which matters when the artwork <em>is</em> the content. The rounder field
+    and chip also blur the shape contrast that option 1 gets between content, input, and action.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Storefront</p>
+      <div class="phone app R2">
+        <div class="app-hd"><span class="t-h2" style="color:var(--text)">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span><span class="pill">Películas</span></div>
+        <div class="group">
+          <div class="sect t-h2">Continuar viendo</div>
+          <div class="rowx">
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+          </div>
+          <div class="meta">
+            <div class="sub t-cap"><span>11 min restantes</span><span>⋮</span></div>
+            <div class="nm t-h3">El Umbral de Orión</div>
+            <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red</span></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Recomendaciones</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+          </div>
+        </div>
+        <div class="modal"><div class="ttl t-h3">El Umbral de Orión</div><div class="bd t-cap">Tocaste esta tarjeta.</div></div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Auth sheet</p>
+      <div class="phone auth R2">
+        <div class="auth-top"><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="field t-body"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <p class="cap">Radius tokens</p>
+      <table>
+        <tr><th>Role</th><th>Value</th></tr>
+        <tr><td class="mono">radius.chip</td><td class="mono">6</td></tr>
+        <tr><td class="mono">radius.field</td><td class="mono">12</td></tr>
+        <tr><td class="mono">radius.tile</td><td class="mono">16</td></tr>
+        <tr><td class="mono">radius.surface</td><td class="mono">20</td></tr>
+        <tr><td class="mono">radius.sheet</td><td class="mono">28</td></tr>
+        <tr><td class="mono">radius.full</td><td class="mono">999</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPTION 3 ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option 3 — Crisper</h2>
+    <span class="tag">tile 6 · sheet 16 · field 6 · chip 3</span>
+  </div>
+  <p class="char">
+    Tighter corners, more editorial — closer to how Netflix and most broadcast EPGs treat artwork, and it
+    preserves the maximum amount of every tile. <em>Tradeoff:</em> it reads noticeably harder-edged than
+    the reference, and paired with the fully-rounded CTAs the system starts to look like two design
+    languages sharing a screen rather than one with deliberate contrast.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Storefront</p>
+      <div class="phone app R3">
+        <div class="app-hd"><span class="t-h2" style="color:var(--text)">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span><span class="pill">Películas</span></div>
+        <div class="group">
+          <div class="sect t-h2">Continuar viendo</div>
+          <div class="rowx">
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+          </div>
+          <div class="meta">
+            <div class="sub t-cap"><span>11 min restantes</span><span>⋮</span></div>
+            <div class="nm t-h3">El Umbral de Orión</div>
+            <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red</span></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Recomendaciones</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+          </div>
+        </div>
+        <div class="modal"><div class="ttl t-h3">El Umbral de Orión</div><div class="bd t-cap">Tocaste esta tarjeta.</div></div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Auth sheet</p>
+      <div class="phone auth R3">
+        <div class="auth-top"><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="field t-body"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <p class="cap">Radius tokens</p>
+      <table>
+        <tr><th>Role</th><th>Value</th></tr>
+        <tr><td class="mono">radius.chip</td><td class="mono">3</td></tr>
+        <tr><td class="mono">radius.field</td><td class="mono">6</td></tr>
+        <tr><td class="mono">radius.tile</td><td class="mono">6</td></tr>
+        <tr><td class="mono">radius.surface</td><td class="mono">10</td></tr>
+        <tr><td class="mono">radius.sheet</td><td class="mono">16</td></tr>
+        <tr><td class="mono">radius.full</td><td class="mono">999</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ELEVATION ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Elevation — borders and surface lift, not shadows</h2>
+    <span class="tag rec">recommended</span>
+    <span class="tag">same in all three radius options</span>
+  </div>
+  <p class="char">
+    The same four treatments, on the dark app surface and then on the light auth sheet. Compare the
+    first card in each strip.
+  </p>
+  <div class="row" style="flex-direction:column; align-items:stretch">
+    <div>
+      <p class="cap">On <span class="mono">#0E0E12</span> — app mode</p>
+      <div class="elev-row">
+        <div class="card"><b>shadow only</b>Indistinguishable from flat. Nothing lighter behind it for the shadow to darken.</div>
+        <div class="card e-border"><b>hairline border</b>Reads immediately. 1&nbsp;px white at 12%.</div>
+        <div class="card e-lift"><b>lift + hairline</b><span style="color:#A1A1AA">surface.raised</span> #17171D plus the hairline — the overlay/toast treatment.</div>
+        <div class="card e-lift2"><b>lift 2</b>#1F1F26 at 16% border — reserved; nothing in Phase 1 needs a third level.</div>
+      </div>
+    </div>
+    <div style="margin-top:22px">
+      <p class="cap">On <span class="mono">#FFFFFF</span> — auth mode</p>
+      <div class="elev-row lightbg">
+        <div class="card e-shadow"><b>shadow only</b>Works here — this is the mode where a shadow actually carries information.</div>
+        <div class="card e-border"><b>hairline border</b>Also fine, flatter.</div>
+        <div class="card e-lift"><b>lift + hairline</b>#FAFAFA on white — barely distinguishable, the inverse of the dark-mode problem.</div>
+        <div class="card e-lift2"><b>lift 2</b>#F4F4F5 — the field fill, effectively.</div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:22px; max-width:none">
+      <p class="char" style="margin:0 0 10px">
+        <strong>The rule:</strong> elevation is expressed as <code>surface.base</code> →
+        <code>surface.raised</code> plus <code>border.hairline</code>, in <em>both</em> modes. Dark mode gets
+        no shadows because they don't work; light mode gets no shadows because using them <em>only</em> there
+        would mean the two modes express depth by different mechanisms — and criterion A1 (re-skin by
+        swapping tokens, touching no component) requires the mechanism to be shared and only the
+        <em>values</em> to differ.
+      </p>
+      <p class="char" style="margin:0 0 10px">
+        <strong>One deliberate exception:</strong> the auth sheet's own edge against the gradient. It is
+        the one place in the app where a real surface sits over a lighter background, so a soft shadow is
+        the honest treatment there — <code>0 -8px 24px rgba(0,0,0,.18)</code> on the sheet's top edge, one
+        shadow token, used once. Everything else uses borders.
+      </p>
+      <p class="char" style="margin:0">
+        <strong>Also decided here:</strong> translucent chrome (tab bar, filter pills) is
+        <code>rgba(255,255,255,.07)</code> over the base rather than a real blur. RN has no built-in
+        backdrop blur — it needs <code>@react-native-community/blur</code>, a native dependency, for an
+        effect nobody will notice at 7% over near-black. Flagged as a Phase-2 polish item, not a Phase-1
+        dependency.
+      </p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

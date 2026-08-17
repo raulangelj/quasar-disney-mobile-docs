@@ -1,8 +1,8 @@
 # Doc 04 — Data Model, Ownership & Retention
 
-**Version:** v0.2.2
+**Version:** v0.2.3
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6a)
+**Last updated:** 2026-08-17 (STEP-1.7)
 **Audience:** Mobile developers, backend team, QA
 
 > Entities the React Native client models, who owns each one, where it lives on device, how long it is kept, and which of it is sensitive — with no server database in this project.
@@ -88,7 +88,7 @@ Same type on **both** authenticated feed GETs (ADR-0007).
 | Field | Type | Notes |
 |-------|------|--------|
 | `id` | UUID string | Row identity for paging cards |
-| `name` | string | Row header; i18n in the client. JSON key → 1.11 |
+| `name` | string | Row header. **Display string, rendered verbatim** — a feed-supplied name is data, not UI copy, so the client cannot translate it. Phase-1 mocks send Spanish; the real API must return text localized to the request's locale (doc 07 §9, OQ-30). JSON key → 1.11 |
 | `variant` | enum | `'hero' \| 'progress' \| 'standardPortrait' \| 'standardLandscape'`. **`'progress'` is not a HomeFeed response member** — it comes from the CW GET. `'live'` is out until that feature lands |
 | `resources` | Card[] | One page of cards (not `items`). Envelope `nextCursor` pages the list of containers (vertical) or a container’s resources (horizontal) — 1.11 names the JSON |
 | `nextCursor` | string \| null | Opaque; Phase 1 mocks may send `null`. Exact placement (container vs page envelope) → 1.11 |
@@ -249,3 +249,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-17 (mock
 | v0.2.0 | 2026-08-17 | STEP-1.5 | Shared **Container** / **Card**; both feeds are `Container[]` with `resources`; variants `hero` and `progress`. Title/Carousel/`items` renamed. ADR-0007. |
 | v0.2.1 | 2026-08-17 | STEP-1.6 | Privacy session still Deferred; security posture now in doc 06 (abbreviated, Done). |
 | v0.2.2 | 2026-08-17 | STEP-1.6a | Closed OQ-25 (`/me` = `{ id, userName }`; JWT claims `sub`/`exp`/`iat`). Doc 16. |
+| v0.2.3 | 2026-08-17 | STEP-1.7 | §1.4 corrected: `Container.name` is a localized display string from the wire, not client-side i18n (doc 07 §9). Opened OQ-30. |

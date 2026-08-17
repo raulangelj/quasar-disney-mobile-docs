@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision 7 — Navigation · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face { font-family:"InterVar"; src:url("fonts/inter-latin.woff2") format("woff2");
+               font-weight:400 800; font-style:normal; font-display:block; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 24px 64px; background:#16161a; color:#e7e7ea;
+         font:15px/1.55 "InterVar",-apple-system,sans-serif; }
+  h1 { font-size:22px; margin:0 0 6px; } h2 { font-size:17px; margin:0 0 2px; }
+  .lede { max-width:78ch; color:#b0b0b8; margin:0 0 8px; } .lede strong { color:#e7e7ea; }
+  .hold { max-width:78ch; margin:18px 0 26px; padding:12px 14px; border-left:3px solid #52525b;
+          background:#1d1d22; border-radius:0 6px 6px 0; color:#b0b0b8; font-size:13.5px; }
+  .sec { border-top:1px solid #2c2c33; padding:24px 0 8px; }
+  .sec-head { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:baseline; margin-bottom:4px; }
+  .tag { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+         padding:5px 9px; border-radius:5px; background:#2c2c33; color:#b0b0b8; }
+  .rec { background:#14532d; color:#a7f3d0; } .lock { background:#3f3f46; color:#e4e4e7; }
+  .char { color:#b0b0b8; max-width:82ch; margin:2px 0 0; font-size:14px; }
+  .char em { color:#e7e7ea; font-style:normal; font-weight:600; }
+  .cap { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.09em; text-transform:uppercase;
+         color:#8a8a93; margin:0 0 10px; }
+  .row { display:flex; gap:22px; align-items:flex-start; overflow-x:auto; padding:16px 2px 6px; }
+  table { border-collapse:collapse; font-size:12.5px; width:100%; }
+  th,td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid #26262c; vertical-align:top; }
+  th { color:#8a8a93; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; }
+  code,.mono { font-family:ui-monospace,Menlo,monospace; color:#d4d4d8; }
+  td.mono { white-space:nowrap; }
+
+  /* navigator tree */
+  .tree { background:#0E0E12; border:1px solid #2c2c33; border-radius:12px; padding:20px 22px; }
+  .node { border:1px solid; border-radius:8px; padding:8px 12px; font-size:12.5px; display:inline-block; }
+  .n-root { border-color:#52525b; background:#1d1d22; color:#e7e7ea; }
+  .n-auth { border-color:#1D4ED8; background:rgba(29,78,216,.14); color:#bfdbfe; }
+  .n-app  { border-color:#38BDF8; background:rgba(56,189,248,.12); color:#bae6fd; }
+  .n-scr  { border-color:#3f3f46; background:#17171D; color:#d4d4d8; }
+  .n-off  { border-color:#3f3f46; background:#17171D; color:#71717A; }
+  .lvl { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0; }
+  .arm { color:#52525b; font-family:ui-monospace,Menlo,monospace; font-size:12px; }
+  .indent1 { padding-left:26px; } .indent2 { padding-left:52px; }
+
+  /* phones */
+  .phone { width:250px; flex:0 0 250px; height:420px; border-radius:24px; overflow:hidden;
+           border:1px solid #35353d; position:relative; background:#0E0E12; font-size:13px; }
+  .grad { background:linear-gradient(#0F3C46,#0A0A0E); }
+  .tabs { position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:space-around;
+          align-items:center; padding:11px 0 16px; background:rgba(255,255,255,.07);
+          border-top:1px solid rgba(255,255,255,.12); }
+  .ti { display:flex; flex-direction:column; align-items:center; gap:3px; position:relative; }
+  .ti i { width:20px; height:20px; border-radius:4px; background:#8A8A93; display:block; }
+  .ti.on i { background:#fff; }
+  .ti.av i { border-radius:999px; background:#38BDF8; opacity:.85; }
+  .ti.dim { opacity:.38; }
+  .ti::after { content:""; position:absolute; top:-12px; width:48px; height:48px; }
+  .scr { padding:20px 16px; }
+  .scr h4 { color:#fff; font-size:21px; font-weight:700; margin:0 0 12px; letter-spacing:-.01em; }
+  .skelrow { display:flex; gap:8px; margin-bottom:16px; }
+  .sk { background:#17171D; border-radius:10px; }
+  .center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+            justify-content:center; gap:12px; padding:26px; text-align:center; color:#A1A1AA; }
+  .center b { color:#fff; font-size:16px; font-weight:700; }
+  .sheet { position:absolute; left:0; right:0; bottom:0; top:86px; background:#fff;
+           border-radius:24px 24px 0 0; padding:20px; }
+  .sheet .hd { color:#111114; font-size:22px; font-weight:800; letter-spacing:-.015em; margin:8px 0 6px; }
+  .sheet .bd { color:#52525B; font-size:13px; margin:0 0 12px; }
+  .fld { background:#E9E9EB; border-radius:8px; height:48px; padding:0 12px; display:flex;
+         align-items:center; color:#5F5F68; font-size:13px; }
+  .cta { background:#0E0E12; color:#fff; height:48px; border-radius:999px; display:flex;
+         align-items:center; justify-content:center; font-weight:700; margin-top:12px; font-size:15px; }
+  .wm { position:absolute; top:32px; left:0; right:0; text-align:center; color:#fff;
+        font-weight:800; letter-spacing:.06em; font-size:14px; }
+  .back { position:absolute; top:26px; left:12px; width:28px; height:28px; border-radius:999px;
+          background:rgba(255,255,255,.2); color:#fff; display:flex; align-items:center;
+          justify-content:center; font-size:14px; }
+  .swipe { position:absolute; left:0; top:0; bottom:0; width:22px;
+           background:linear-gradient(90deg, rgba(56,189,248,.35), transparent); }
+  .note { background:#1d1d22; border:1px solid #2c2c33; border-radius:10px; padding:14px 16px; }
+</style>
+</head>
+<body>
+
+<h1>Decision 7 — Navigation</h1>
+<p class="lede">
+  Most of the structure is already fixed by earlier docs, so this page separates what is
+  <strong>locked</strong> from the three things that are genuinely still open. Locked: React Navigation
+  (doc 03, decision 8); a <strong>binary navigator split</strong> driven by an auth selector in the shell
+  (ADR-0010); a <strong>4-item bottom tab bar</strong> with only home live (doc 02); card tap raises a
+  native <code>Alert</code>, not a route (DF7).
+</p>
+
+<div class="hold">
+  <strong>Why the split is two navigators and not one stack with a guard.</strong> With two root
+  navigators, an unauthenticated user has <em>no route</em> to the storefront — it isn't mounted. A single
+  stack with a redirect guard leaves the screen reachable and relies on the guard being correct
+  everywhere, which is the class of bug that survives into production. It also means the theme mode
+  (light for auth, dark for app) can be chosen at the navigator boundary rather than per screen.
+</div>
+
+<!-- ===================== TREE ===================== -->
+<section class="sec">
+  <div class="sec-head"><h2>Navigator tree</h2><span class="tag lock">locked — shown for confirmation</span></div>
+  <div class="row"><div class="tree" style="flex:1; min-width:520px">
+    <div class="lvl"><span class="node n-root">RootNavigator</span><span class="arm">— switches on <code>selectIsAuthenticated</code>; renders nothing until rehydrate + boot gate resolve</span></div>
+    <div class="lvl indent1"><span class="arm">├─</span><span class="node n-auth">AuthNavigator</span><span class="arm">stack · <b>light</b> theme · <code>headerShown: false</code></span></div>
+    <div class="lvl indent2"><span class="arm">│&nbsp;&nbsp;├─</span><span class="node n-scr">Welcome</span><span class="arm">gesture back: n/a (root)</span></div>
+    <div class="lvl indent2"><span class="arm">│&nbsp;&nbsp;├─</span><span class="node n-scr">EmailEntry</span><span class="arm">1a (recovered, doc 02 §9)</span></div>
+    <div class="lvl indent2"><span class="arm">│&nbsp;&nbsp;└─</span><span class="node n-scr">PasswordEntry</span><span class="arm">owns the inline error state (F2)</span></div>
+    <div class="lvl indent1"><span class="arm">└─</span><span class="node n-app">AppTabsNavigator</span><span class="arm">bottom tabs · <b>dark</b> theme · custom header</span></div>
+    <div class="lvl indent2"><span class="arm">&nbsp;&nbsp;&nbsp;├─</span><span class="node n-scr">Home</span><span class="arm">Storefront · the only live tab</span></div>
+    <div class="lvl indent2"><span class="arm">&nbsp;&nbsp;&nbsp;├─</span><span class="node n-off">Novedades</span><span class="arm">inert</span></div>
+    <div class="lvl indent2"><span class="arm">&nbsp;&nbsp;&nbsp;├─</span><span class="node n-off">Buscar</span><span class="arm">inert · Phase 3</span></div>
+    <div class="lvl indent2"><span class="arm">&nbsp;&nbsp;&nbsp;└─</span><span class="node n-off">Perfil</span><span class="arm">inert · Phase 4</span></div>
+    <div class="lvl" style="margin-top:16px"><span class="node n-root" style="border-color:#FF4D63;color:#fecaca;background:rgba(255,77,99,.1)">NoInternetOverlay</span><span class="arm">— shell-level, <b>outside</b> both navigators; covers whichever is mounted (ADR-0004)</span></div>
+    <div class="lvl"><span class="node n-root" style="border-color:#A1A1AA">LoadingGate</span><span class="arm">— shell-level; held until <code>/me</code> + HomeFeed + CW resolve (doc 04 §6)</span></div>
+  </div></div>
+</section>
+
+<!-- ===================== CHOICE 1 ===================== -->
+<section class="sec">
+  <div class="sec-head"><h2>Choice 1 — what the three inert tabs do</h2><span class="tag">choose</span></div>
+  <p class="char">
+    Doc 02 says the other three tabs are "inert". That word covers three quite different demo
+    experiences, and a stakeholder <em>will</em> tap them on 18 Aug.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">A · tappable → placeholder</p>
+      <div class="phone">
+        <div class="center"><b>Novedades</b><div>Disponible pronto.</div></div>
+        <div class="tabs">
+          <div class="ti"><i></i></div><div class="ti on"><i></i></div><div class="ti"><i></i></div><div class="ti av"><i></i></div>
+        </div>
+      </div>
+      <p class="char" style="max-width:250px;margin-top:10px">
+        Tab activates, screen says so. Reads as a scoped product, not a broken one. ~15 min: one
+        <code>ComingSoon</code> screen, three routes. Needs an i18n string.
+      </p>
+    </div>
+    <div>
+      <p class="cap">B · visibly disabled</p>
+      <div class="phone">
+        <div class="scr"><h4>Para ti</h4>
+          <div class="skelrow"><div class="sk" style="width:158px;height:89px"></div><div class="sk" style="width:158px;height:89px"></div></div>
+          <div class="skelrow"><div class="sk" style="width:88px;height:132px"></div><div class="sk" style="width:88px;height:132px"></div></div>
+        </div>
+        <div class="tabs">
+          <div class="ti on"><i></i></div><div class="ti dim"><i></i></div><div class="ti dim"><i></i></div><div class="ti dim av"><i></i></div>
+        </div>
+      </div>
+      <p class="char" style="max-width:250px;margin-top:10px">
+        Dimmed and non-tappable. Honest, zero new screens — but three greyed tabs is the most visually
+        obvious "unfinished" signal on the demo's main screen, and it diverges from the reference, where
+        all four are live-looking.
+      </p>
+    </div>
+    <div>
+      <p class="cap">C · tappable, no-op</p>
+      <div class="phone">
+        <div class="scr"><h4>Para ti</h4>
+          <div class="skelrow"><div class="sk" style="width:158px;height:89px"></div><div class="sk" style="width:158px;height:89px"></div></div>
+          <div class="skelrow"><div class="sk" style="width:88px;height:132px"></div><div class="sk" style="width:88px;height:132px"></div></div>
+        </div>
+        <div class="tabs">
+          <div class="ti on"><i></i></div><div class="ti"><i></i></div><div class="ti"><i></i></div><div class="ti av"><i></i></div>
+        </div>
+      </div>
+      <p class="char" style="max-width:250px;margin-top:10px">
+        Looks exactly like the reference; tapping does nothing at all. Cheapest, and the worst demo
+        moment — indistinguishable from a bug in front of the audience whose sign-off you need.
+      </p>
+    </div>
+    <div class="note" style="max-width:300px">
+      <p class="cap">Recommendation</p>
+      <p class="char" style="margin:0">
+        <strong>A.</strong> It costs one screen and preserves the reference's look, and it turns the three
+        deferred tabs from an apparent defect into visible evidence of scope control — which is the
+        argument this demo is actually making. It is a small deviation from doc 02's "inert", so it gets
+        recorded in the doc rather than assumed.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CHOICE 2 ===================== -->
+<section class="sec">
+  <div class="sec-head"><h2>Choice 2 — back navigation in the auth stack</h2><span class="tag">choose</span></div>
+  <p class="char">
+    Three auth screens means back navigation exists, and it has to answer to <em>three</em> different
+    inputs: the on-screen chevron, the iOS edge-swipe, and the Android hardware/gesture back.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">A · all three pop the stack</p>
+      <div class="phone grad">
+        <div class="swipe"></div>
+        <div class="back">‹</div><div class="wm">DINSEY-</div>
+        <div class="sheet">
+          <div style="color:#111114;font-weight:800;font-size:12px">MiDinsey</div>
+          <div class="hd">Escribir contraseña</div>
+          <div class="bd">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="fld">Contraseña</div>
+          <div class="cta">Iniciar sesión</div>
+        </div>
+      </div>
+      <p class="char" style="max-width:250px;margin-top:10px">
+        Chevron, edge-swipe (cyan hint at the left edge), and Android back all do the same thing: pop to
+        the previous screen; from Welcome, Android back exits the app. Platform-expected behavior on both.
+      </p>
+    </div>
+    <div>
+      <p class="cap">B · gestures disabled, chevron only</p>
+      <div class="phone grad">
+        <div class="back">‹</div><div class="wm">DINSEY-</div>
+        <div class="sheet">
+          <div style="color:#111114;font-weight:800;font-size:12px">MiDinsey</div>
+          <div class="hd">Escribir contraseña</div>
+          <div class="bd">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="fld">Contraseña</div>
+          <div class="cta">Iniciar sesión</div>
+        </div>
+      </div>
+      <p class="char" style="max-width:250px;margin-top:10px">
+        <code>gestureEnabled: false</code>. Fully deterministic for a scripted demo, and it can't drop a
+        half-typed credential by accident. But an iOS user who swipes and gets nothing reads it as a
+        frozen app, and Android back still has to be handled regardless.
+      </p>
+    </div>
+    <div class="note" style="max-width:340px">
+      <p class="cap">Recommendation</p>
+      <p class="char" style="margin:0 0 10px">
+        <strong>A.</strong> Respecting the platform back contract is decision 15 territory, and Android's
+        hardware back is not optional — you handle it or the OS closes your app mid-flow. Since it must
+        exist, iOS's equivalent gesture should behave the same way.
+      </p>
+      <p class="char" style="margin:0">
+        Two rules that come with it: back from PasswordEntry <em>clears the password field but keeps the
+        email</em> (matching the reference's <code>(editar)</code> affordance), and back is
+        <strong>blocked during an in-flight submit</strong> so a pop can't race the mock's resolve. Both
+        are auth-feature behavior, recorded here because they are navigation contracts.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CHOICE 3 ===================== -->
+<section class="sec">
+  <div class="sec-head"><h2>Choice 3 — headers</h2><span class="tag">choose</span></div>
+  <div class="row">
+    <div class="note" style="max-width:none; flex:1">
+      <table>
+        <tr><th>Option</th><th>Approach</th><th>Consequence</th></tr>
+        <tr>
+          <td><strong>A</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
+          <td><code>headerShown: false</code> everywhere; screens render their own chrome (<code>AppHeader</code>, <code>AuthSheetLayout</code>)</td>
+          <td>The reference has no native header on any screen: the storefront's <code>Para ti</code> is a large in-content title that scrolls, and the auth back button floats over the gradient with no bar behind it. A native header would also style differently per platform — the divergence problem again. Cost: safe-area insets become ours to handle (decision 10).</td>
+        </tr>
+        <tr>
+          <td><strong>B</strong></td>
+          <td>React Navigation's native header, restyled with theme tokens</td>
+          <td>Free safe-area handling, free back button, free iOS large-title behavior. But it cannot produce either reference screen without fighting it, and it renders platform-natively, so iOS and Android headers won't match in the side-by-side demo.</td>
+        </tr>
+      </table>
+      <p class="char" style="margin-top:14px">
+        With A, the tab bar stays React Navigation's <code>BottomTabBar</code> with a custom
+        <code>tabBar</code> renderer — it keeps safe-area bottom inset and route state handling, while the
+        4 unlabeled items match the reference. <strong>Unlabeled tabs still need
+        <code>accessibilityLabel</code> on every item</strong>, since there is no visible text for a screen
+        reader to announce; that is the single most commonly skipped a11y defect in a tab bar (decision 11).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NOT DOING ===================== -->
+<section class="sec">
+  <div class="sec-head"><h2>Explicitly not in Phase 1</h2></div>
+  <table style="margin-top:12px">
+    <tr><th>Pattern</th><th>Why not</th></tr>
+    <tr><td>Details screen route</td><td>DF7 — card tap is an <code>Alert</code> behind the handler that will later navigate. Phase 2.</td></tr>
+    <tr><td>Deep links / universal links</td><td>No fleet, no store, no URL scheme. Would add native config for nothing.</td></tr>
+    <tr><td>Modal / bottom-sheet routes</td><td>Nothing dispatches one; the <code>⋮</code> overflow is visual in 1a.</td></tr>
+    <tr><td>Drawer navigation</td><td>Not in the reference; tabs are the pattern.</td></tr>
+    <tr><td>Nested stack inside the Home tab</td><td>Nothing to push onto it until the details screen exists. Added in Phase 2 with that screen.</td></tr>
+    <tr><td>Navigation state persistence</td><td>Cold start always resolves to Welcome or composed Home; restoring a mid-auth screen would be wrong, not helpful.</td></tr>
+    <tr><td>Logout entry point</td><td>Doc 16 defines logout behavior, but no 1a screen exposes it — the Perfil tab is inert. Recorded as an open question rather than silently dropped.</td></tr>
+  </table>
+</section>
+
+</body>
+</html>

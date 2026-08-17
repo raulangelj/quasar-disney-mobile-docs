@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.3
+**Version:** v0.3.4
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6a)
+**Last updated:** 2026-08-17 (STEP-1.7)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -77,7 +77,7 @@ remainder, no external date).
 - Hardcoded demo credentials; opaque token stored in the auth slice from day one.
 
 **Storefront** (dark theme)
-- Header (`Para ti` + cast/downloads icons) and 4-item bottom tab bar (home active; others inert).
+- Header (`Para ti` + cast/downloads icons) and 4-item bottom tab bar (home active; others inert — STEP-1.7 defines "inert" as **tappable, leading to a `ComingSoon` placeholder screen**, so a dead tap is not mistaken for a bug at sign-off; doc 07 §4).
 - **Two carousel variants**, both config-driven:
   - *Continue watching* — 16:9 tiles, play button, cyan progress bar, time-remaining, `⋮` menu,
     title + rating chip + episode line.
@@ -391,3 +391,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.1 | 2026-08-16 | STEP-1.4 | DF12: opaque `nextCursor` (doc 04). Hero is in the Phase-1 feed contract/composition (ADR-0006); full chrome still OQ-24. Closed OQ-19. |
 | v0.3.2 | 2026-08-17 | STEP-1.5 | DF6/DF12: Container variants include `progress`; both feeds are `Container[]` + `resources` (ADR-0007). |
 | v0.3.3 | 2026-08-17 | STEP-1.6a | §7 amendment: 1.5 and 1.6a ran. Phase 3 JWT/refresh per doc 16. OQ-03 → 1.11 / Phase 3. |
+| v0.3.4 | 2026-08-17 | STEP-1.7 | §2 "inert" tabs defined as tappable `ComingSoon` placeholders (doc 07 §4). Design system delivered; DF4/DF6/DF8 now have concrete token, component, and i18n specs. |

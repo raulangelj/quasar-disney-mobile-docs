@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.3.2
+**Version:** v0.3.3
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6a)
+**Last updated:** 2026-08-17 (STEP-1.7)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -129,7 +129,9 @@ Phase 1 is a mobile demo with mocks. Almost everything is built in-app; we only 
 | Analytics | **Build stub** | Hook + `console.log`; no vendor |
 | Backend / IdP / Bitrise | **Not now** | Backend is a future swap; CI is Phase 2 |
 
-**Hard dependencies:** React Native, Redux Toolkit, React Navigation, Styled Components, axios, redux-persist, `react-native-encrypted-storage`, `@react-native-community/netinfo`. No cloud vendor lock-in in Phase 1.
+**Hard dependencies:** React Native, Redux Toolkit, React Navigation (with its required peers **`react-native-screens`** and **`react-native-safe-area-context`**), Styled Components, axios, redux-persist, `react-native-encrypted-storage`, `@react-native-community/netinfo`, **`react-native-svg`** (renders the SVG brand and placeholder-art assets, and the icon set — ADR-0013), **`react-i18next` + `i18next`** (doc 07 §9). No cloud vendor lock-in in Phase 1.
+
+The four additions were surfaced in STEP-1.7: the assets decided in 1.2 are SVG, and the UI renders no native headers, so SVG rendering and safe-area insets are load-bearing rather than optional. See ADR-0013.
 
 ## 8. Import rules
 
@@ -182,3 +184,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who 
 | v0.3.0 | 2026-08-16 | STEP-1.4 | User slice + `/me`; two feed endpoints + boot loader; closed OQ-19. |
 | v0.3.1 | 2026-08-17 | STEP-1.5 | HomeFeed/CW are `Container[]` + `resources: Card[]`; CW variant `progress` (ADR-0007). |
 | v0.3.2 | 2026-08-17 | STEP-1.6a | Phase 3 IdP is buy-behind-API (ADR-0009); Phase 1 mock auth unchanged. |
+| v0.3.3 | 2026-08-17 | STEP-1.7 | §7 hard dependencies completed: `react-native-svg`, `react-native-screens`, `react-native-safe-area-context`, `react-i18next`/`i18next` (ADR-0013). Design system is `architecture/07-ui-design-system.md`. |

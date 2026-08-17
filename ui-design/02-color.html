@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision 2 — Color · quasar-disney-mobile 1.7</title>
+<style>
+  /* ---- page chrome (not part of any option) ---- */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 24px 64px;
+    background: #16161a; color: #e7e7ea;
+    font: 15px/1.55 -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  h2 { font-size: 17px; margin: 0 0 2px; }
+  .lede { max-width: 74ch; color: #b0b0b8; margin: 0 0 8px; }
+  .lede strong { color: #e7e7ea; }
+  .hold {
+    max-width: 74ch; margin: 18px 0 30px; padding: 12px 14px;
+    border-left: 3px solid #52525b; background: #1d1d22; border-radius: 0 6px 6px 0;
+    color: #b0b0b8; font-size: 13.5px;
+  }
+  .opt { border-top: 1px solid #2c2c33; padding: 26px 0 8px; }
+  .opt-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; margin-bottom: 4px; }
+  .tag {
+    font: 600 11px/1 -apple-system, sans-serif; letter-spacing: .1em; text-transform: uppercase;
+    padding: 5px 9px; border-radius: 5px; background: #2c2c33; color: #b0b0b8;
+  }
+  .rec { background: #14532d; color: #a7f3d0; }
+  .char { color: #b0b0b8; max-width: 78ch; margin: 2px 0 0; font-size: 14px; }
+  .char em { color: #e7e7ea; font-style: normal; font-weight: 600; }
+  .row { display: flex; gap: 22px; align-items: flex-start; overflow-x: auto; padding: 18px 2px 6px; }
+  .cap { font: 600 11px/1 sans-serif; letter-spacing: .09em; text-transform: uppercase; color: #8a8a93; margin: 0 0 8px; }
+
+  /* ---- swatch table ---- */
+  .tokens { min-width: 320px; flex: 1; }
+  table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+  th, td { text-align: left; padding: 4px 8px 4px 0; border-bottom: 1px solid #26262c; white-space: nowrap; }
+  th { color: #8a8a93; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+  td.mono { font-family: ui-monospace, Menlo, monospace; color: #d4d4d8; }
+  .sw { display: inline-block; width: 13px; height: 13px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; border: 1px solid rgba(255,255,255,.18); }
+  .ok { color: #4ade80; } .warn { color: #fbbf24; }
+
+  /* ================================================================
+     PHONE MOCKS — identical markup, type, spacing, radius for all
+     four options. ONLY the custom-property values below differ.
+     ================================================================ */
+  .phone {
+    width: 268px; flex: 0 0 268px; height: 500px; border-radius: 26px; overflow: hidden;
+    position: relative; border: 1px solid #35353d;
+    font: 13px/1.4 -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* ---- dark app surface ---- */
+  .app { background: var(--base); display: flex; flex-direction: column; }
+  .app-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px 14px 10px; }
+  .app-hd .ttl { font-size: 21px; font-weight: 800; color: var(--text); letter-spacing: -.01em; }
+  .icn { width: 19px; height: 19px; opacity: .9; }
+  .icn path, .icn rect, .icn circle { stroke: var(--text2); }
+  .pills { display: flex; gap: 7px; padding: 4px 14px 12px; }
+  .pill {
+    font-size: 11px; font-weight: 600; color: var(--text); padding: 6px 11px; border-radius: 999px;
+    background: var(--chrome); border: 1px solid var(--border); white-space: nowrap;
+  }
+  .sect { font-size: 14.5px; font-weight: 700; color: var(--text); padding: 2px 14px 8px; }
+  .rowx { display: flex; gap: 8px; padding: 0 14px 14px; }
+  .tile { border-radius: 10px; overflow: hidden; position: relative; flex: 0 0 auto; }
+  .tile.wide { width: 150px; }
+  .tile.port { width: 78px; }
+  .tile svg { display: block; width: 100%; height: auto; }
+  .play {
+    position: absolute; inset: 0; margin: auto; width: 30px; height: 30px; border-radius: 999px;
+    background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.5);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .play::after { content: ""; border-left: 9px solid #fff; border-top: 5.5px solid transparent; border-bottom: 5.5px solid transparent; margin-left: 3px; }
+  .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,.28); }
+  .bar i { display: block; height: 100%; width: 62%; background: var(--accent); }
+  .bar.live i { width: 34%; background: var(--live); }
+  .badge {
+    position: absolute; left: 7px; bottom: 9px; font-size: 9px; font-weight: 800; letter-spacing: .06em;
+    padding: 3px 6px; border-radius: 4px; background: var(--live); color: var(--liveText);
+  }
+  .meta { padding: 0 14px; }
+  .meta .sub { font-size: 11px; color: var(--text3); display: flex; justify-content: space-between; align-items: center; }
+  .meta .nm { font-size: 13px; font-weight: 700; color: var(--text); margin: 3px 0 3px; }
+  .meta .ep { font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+  .chip { font-size: 9.5px; font-weight: 700; padding: 2px 5px; border-radius: 4px; background: var(--chipFill); color: var(--chipText); }
+  .lnk { color: var(--accent); font-size: 12px; font-weight: 600; }
+  .tabs {
+    margin-top: auto; display: flex; justify-content: space-around; align-items: center;
+    padding: 11px 0 15px; background: var(--chrome); border-top: 1px solid var(--border);
+  }
+  .tabs span { width: 19px; height: 19px; border-radius: 4px; background: var(--text3); }
+  .tabs span.on { background: var(--text); }
+  .tabs span.av { border-radius: 999px; background: var(--accent); opacity: .85; }
+
+  /* ---- light auth surface ---- */
+  .auth { background: linear-gradient(var(--gradTop), var(--gradBot)); display: flex; flex-direction: column; }
+  .auth-top { height: 92px; display: flex; align-items: center; justify-content: center; position: relative; }
+  .auth-top .wm { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .06em; }
+  .auth-top .back {
+    position: absolute; left: 12px; width: 26px; height: 26px; border-radius: 999px;
+    background: rgba(255,255,255,.2); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .sheet { flex: 1; background: var(--sheet); border-radius: 22px 22px 0 0; padding: 18px 16px; }
+  .sheet .brand { font-size: 12px; font-weight: 800; color: var(--ltext); letter-spacing: .02em; }
+  .sheet h3 { font-size: 19px; line-height: 1.2; font-weight: 800; color: var(--ltext); margin: 9px 0 6px; letter-spacing: -.01em; }
+  .sheet p { font-size: 11.5px; color: var(--ltext2); margin: 0 0 12px; }
+  .field {
+    background: var(--field); border-radius: 8px; padding: 13px 11px; font-size: 12.5px; color: var(--ph);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .field.bad { border-bottom: 2px solid var(--err); border-radius: 8px 8px 2px 2px; color: var(--ltext); }
+  .err { font-size: 11px; color: var(--err); margin: 7px 0 5px; }
+  .hint { font-size: 10.5px; color: var(--ltext2); margin: 0 0 13px; }
+  .cta {
+    background: var(--ctaBg); color: var(--ctaFg); text-align: center; font-size: 13px; font-weight: 700;
+    padding: 13px; border-radius: 999px; margin-bottom: 12px;
+  }
+  .llnk { font-size: 11.5px; color: var(--link); font-weight: 600; }
+
+  /* ---------- OPTION A · Reference Cyan ---------- */
+  .A {
+    --base:#0E0E12; --raised:#17171D; --chrome:rgba(255,255,255,.07); --border:rgba(255,255,255,.12);
+    --text:#FFFFFF; --text2:#A1A1AA; --text3:#8A8A93; --accent:#38BDF8;
+    --live:#FF4D63; --liveText:#0E0E12; --chipFill:#3F3F46; --chipText:#D4D4D8;
+    --gradTop:#0F3C46; --gradBot:#0A0A0E; --sheet:#FFFFFF; --ltext:#111114; --ltext2:#52525B;
+    --field:#E9E9EB; --ph:#5F5F68; --ctaBg:#0E0E12; --ctaFg:#FFFFFF; --link:#1D4ED8; --err:#C81E1E;
+    --a1:#7DD3FC; --a2:#38BDF8; --a3:#0284C7;
+  }
+  /* ---------- OPTION B · Deep Teal ---------- */
+  .B {
+    --base:#0B1215; --raised:#131E22; --chrome:rgba(190,230,240,.08); --border:rgba(190,230,240,.14);
+    --text:#FFFFFF; --text2:#9BB0B6; --text3:#7E959B; --accent:#22D3EE;
+    --live:#FF4D63; --liveText:#0B1215; --chipFill:#2A3A3F; --chipText:#CFE0E4;
+    --gradTop:#14545F; --gradBot:#08191D; --sheet:#FFFFFF; --ltext:#0D1416; --ltext2:#4B5A5E;
+    --field:#E6EDEE; --ph:#5C6A6E; --ctaBg:#0B1215; --ctaFg:#FFFFFF; --link:#0E7490; --err:#C81E1E;
+    --a1:#67E8F9; --a2:#22D3EE; --a3:#0E7490;
+  }
+  /* ---------- OPTION C · Neutral Indigo ---------- */
+  .C {
+    --base:#101014; --raised:#1A1A1F; --chrome:rgba(255,255,255,.07); --border:rgba(255,255,255,.12);
+    --text:#FFFFFF; --text2:#A1A1AA; --text3:#8A8A93; --accent:#818CF8;
+    --live:#FF4D63; --liveText:#101014; --chipFill:#3F3F46; --chipText:#D4D4D8;
+    --gradTop:#23234A; --gradBot:#0A0A0E; --sheet:#FFFFFF; --ltext:#111114; --ltext2:#52525B;
+    --field:#E9E9EB; --ph:#5F5F68; --ctaBg:#101014; --ctaFg:#FFFFFF; --link:#4338CA; --err:#C81E1E;
+    --a1:#A5B4FC; --a2:#818CF8; --a3:#4F46E5;
+  }
+  /* ---------- OPTION D · True Black ---------- */
+  .D {
+    --base:#000000; --raised:#0D0D0F; --chrome:rgba(255,255,255,.09); --border:rgba(255,255,255,.16);
+    --text:#FFFFFF; --text2:#B4B4BC; --text3:#94949C; --accent:#00D8F0;
+    --live:#FF4D63; --liveText:#000000; --chipFill:#38383F; --chipText:#D4D4D8;
+    --gradTop:#0F3C46; --gradBot:#000000; --sheet:#FFFFFF; --ltext:#111114; --ltext2:#52525B;
+    --field:#E9E9EB; --ph:#5F5F68; --ctaBg:#000000; --ctaFg:#FFFFFF; --link:#1D4ED8; --err:#C81E1E;
+    --a1:#67E8F9; --a2:#00D8F0; --a3:#0891B2;
+  }
+</style>
+</head>
+<body>
+
+<h1>Decision 2 — Color</h1>
+<p class="lede">
+  Four palettes for the <strong>two surface modes</strong> the theme must carry (doc 02, decision 9 /
+  DF4): the <strong>dark app</strong> mode and the <strong>light auth</strong> mode. Each option below
+  shows the same storefront screen and the same credentials-with-error screen, so what you are
+  comparing is <strong>only color</strong>.
+</p>
+<p class="lede">
+  Contrast ratios are computed, not estimated. Every text pair shown meets <strong>WCAG 2.1 AA</strong>
+  (≥4.5:1) in all four options — that is a floor I applied while choosing values, not a
+  differentiator between them.
+</p>
+
+<div class="hold">
+  <strong>Held constant across all four</strong> (decided later, neutral for now): system sans typography
+  and one type scale · 4&nbsp;pt spacing rhythm · tile radius 10, sheet radius 22, pill CTA fully rounded ·
+  bottom tab bar · placeholder art geometry. The brand wordmark is drawn as text here only because the
+  real <code>Dinsey-</code> SVG isn't inlined in this scratch page.
+  <br><br>
+  <strong>Two findings that apply whichever you pick:</strong> (1) the cyan/indigo accent <em>cannot</em>
+  carry white text as a button fill (2.1:1 and 3.0:1 — both fail), so accent stays a
+  <em>progress-bar / link / active-state</em> color and pill CTAs on dark stay white-fill-with-black-label,
+  exactly as the reference does it. (2) The reference's dimmest greys (inactive tab icons,
+  “11&nbsp;min restantes”) land at ~4:1, so I raised the tertiary text floor to ≥4.5:1 in every option.
+</div>
+
+<!-- ============================= OPTION A ============================= -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option A — Reference Cyan</h2>
+    <span class="tag rec">recommended</span>
+    <span class="tag">cool neutral · closest to reference</span>
+  </div>
+  <p class="char">
+    Neutral-cool near-black (<em>#0E0E12</em>, the value transcribed from the reference home screen) with a
+    sky-cyan accent. Zinc grey ramp — no hue in the neutrals, so placeholder art colors never fight the
+    chrome. <em>Tradeoff:</em> it is the most Disney+-like of the four, which is the goal here but also the
+    most lookalike exposure (RISK-0005 is about the name, not the palette).
+  </p>
+  <div class="row A">
+    <div>
+      <p class="cap">Dark — app mode</p>
+      <div class="phone app">
+        <div class="app-hd">
+          <span class="ttl">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span><span class="pill">🎬 Películas</span></div>
+        <div class="sect">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide">
+            <svg viewBox="0 0 160 90"><defs><linearGradient id="a1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="s1" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></linearGradient></defs><rect width="160" height="90" fill="url(#a1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><path d="M0 74l52-22 44 16 64-24v46H0z" fill="#0ea5e9" opacity=".18"/><rect width="160" height="90" fill="url(#s1)"/></svg>
+            <div class="play"></div><div class="bar"><i></i></div>
+          </div>
+          <div class="tile wide">
+            <svg viewBox="0 0 160 90"><defs><linearGradient id="a2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient></defs><rect width="160" height="90" fill="url(#a2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#s1)"/></svg>
+            <div class="play"></div><div class="bar"><i style="width:22%"></i></div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="sub"><span>11 min restantes</span><span style="font-size:14px;color:var(--text2)">⋮</span></div>
+          <div class="nm">El Umbral de Orión</div>
+          <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red — Parte 1</span></div>
+        </div>
+        <div class="sect" style="padding-top:14px">Destacados en vivo</div>
+        <div class="rowx">
+          <div class="tile port"><svg viewBox="0 0 80 120"><defs><linearGradient id="a3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><rect width="80" height="120" fill="url(#a3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg><span class="badge">⚡ VIVO</span><div class="bar live"><i></i></div></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><defs><linearGradient id="a4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c2d12"/><stop offset="1" stop-color="#1c1917"/></linearGradient></defs><rect width="80" height="120" fill="url(#a4)"/><path d="M0 96l30-18 50 22v20H0z" fill="#fb923c" opacity=".22"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><defs><linearGradient id="a5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e1b4b"/><stop offset="1" stop-color="#0e7490"/></linearGradient></defs><rect width="80" height="120" fill="url(#a5)"/><circle cx="58" cy="82" r="26" fill="#818cf8" opacity=".25"/></svg></div>
+        </div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Light — auth mode (error state)</p>
+      <div class="phone auth">
+        <div class="auth-top"><span class="back">‹</span><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <h3>Escribir contraseña</h3>
+          <p>Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></p>
+          <div class="field bad"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo, o solicita un código de acceso único.</div>
+          <div class="hint">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta">Iniciar sesión</div>
+          <div class="llnk">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="tokens">
+      <p class="cap">Tokens &amp; measured contrast</p>
+      <table>
+        <tr><th>Token</th><th>Value</th><th>On</th><th>Ratio</th></tr>
+        <tr><td>surface.base</td><td class="mono"><i class="sw" style="background:#0E0E12"></i>#0E0E12</td><td>—</td><td>—</td></tr>
+        <tr><td>surface.raised</td><td class="mono"><i class="sw" style="background:#17171D"></i>#17171D</td><td>—</td><td>—</td></tr>
+        <tr><td>text.primary</td><td class="mono"><i class="sw" style="background:#FFFFFF"></i>#FFFFFF</td><td>base</td><td class="ok">18.9</td></tr>
+        <tr><td>text.secondary</td><td class="mono"><i class="sw" style="background:#A1A1AA"></i>#A1A1AA</td><td>base</td><td class="ok">7.52</td></tr>
+        <tr><td>text.tertiary</td><td class="mono"><i class="sw" style="background:#8A8A93"></i>#8A8A93</td><td>base</td><td class="ok">5.63</td></tr>
+        <tr><td>accent</td><td class="mono"><i class="sw" style="background:#38BDF8"></i>#38BDF8</td><td>base</td><td class="ok">8.99</td></tr>
+        <tr><td>accent ramp</td><td class="mono"><i class="sw" style="background:#7DD3FC"></i>#7DD3FC <i class="sw" style="background:#0284C7"></i>#0284C7</td><td>hover / press</td><td>—</td></tr>
+        <tr><td>live</td><td class="mono"><i class="sw" style="background:#FF4D63"></i>#FF4D63</td><td>base</td><td class="ok">5.96</td></tr>
+        <tr><td>chip fill / text</td><td class="mono"><i class="sw" style="background:#3F3F46"></i>#3F3F46 · #D4D4D8</td><td>chip</td><td class="ok">7.07</td></tr>
+        <tr><td>auth gradient</td><td class="mono"><i class="sw" style="background:#0F3C46"></i>#0F3C46 → #0A0A0E</td><td>—</td><td>—</td></tr>
+        <tr><td>link (light)</td><td class="mono"><i class="sw" style="background:#1D4ED8"></i>#1D4ED8</td><td>sheet</td><td class="ok">6.70</td></tr>
+        <tr><td>error (light)</td><td class="mono"><i class="sw" style="background:#C81E1E"></i>#C81E1E</td><td>sheet</td><td class="ok">5.74</td></tr>
+        <tr><td>field / placeholder</td><td class="mono"><i class="sw" style="background:#E9E9EB"></i>#E9E9EB · #5F5F68</td><td>field</td><td class="ok">5.21</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= OPTION B ============================= -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option B — Deep Teal</h2>
+    <span class="tag">brand-cohesive · tinted neutrals</span>
+  </div>
+  <p class="char">
+    The welcome screen's teal gradient is pulled through the <em>whole</em> system: near-black is
+    teal-tinted (<em>#0B1215</em>), the grey ramp is teal-tinted, the accent is a brighter aqua, and even the
+    light-mode link is teal instead of blue. Most cohesive as a <em>brand</em> — one hue family everywhere.
+    <em>Tradeoff:</em> tinted neutrals cast a green-blue wash over warm placeholder art, and it drifts
+    furthest from the transcribed reference values while still reading as the same product.
+  </p>
+  <div class="row B">
+    <div>
+      <p class="cap">Dark — app mode</p>
+      <div class="phone app">
+        <div class="app-hd">
+          <span class="ttl">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span><span class="pill">🎬 Películas</span></div>
+        <div class="sect">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><path d="M0 74l52-22 44 16 64-24v46H0z" fill="#0ea5e9" opacity=".18"/><rect width="160" height="90" fill="url(#s1)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#s1)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+        </div>
+        <div class="meta">
+          <div class="sub"><span>11 min restantes</span><span style="font-size:14px;color:var(--text2)">⋮</span></div>
+          <div class="nm">El Umbral de Orión</div>
+          <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red — Parte 1</span></div>
+        </div>
+        <div class="sect" style="padding-top:14px">Destacados en vivo</div>
+        <div class="rowx">
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg><span class="badge">⚡ VIVO</span><div class="bar live"><i></i></div></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a4)"/><path d="M0 96l30-18 50 22v20H0z" fill="#fb923c" opacity=".22"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a5)"/><circle cx="58" cy="82" r="26" fill="#818cf8" opacity=".25"/></svg></div>
+        </div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Light — auth mode (error state)</p>
+      <div class="phone auth">
+        <div class="auth-top"><span class="back">‹</span><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <h3>Escribir contraseña</h3>
+          <p>Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></p>
+          <div class="field bad"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo, o solicita un código de acceso único.</div>
+          <div class="hint">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta">Iniciar sesión</div>
+          <div class="llnk">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="tokens">
+      <p class="cap">Tokens &amp; measured contrast</p>
+      <table>
+        <tr><th>Token</th><th>Value</th><th>On</th><th>Ratio</th></tr>
+        <tr><td>surface.base</td><td class="mono"><i class="sw" style="background:#0B1215"></i>#0B1215</td><td>—</td><td>—</td></tr>
+        <tr><td>surface.raised</td><td class="mono"><i class="sw" style="background:#131E22"></i>#131E22</td><td>—</td><td>—</td></tr>
+        <tr><td>text.primary</td><td class="mono"><i class="sw" style="background:#FFFFFF"></i>#FFFFFF</td><td>base</td><td class="ok">19.6</td></tr>
+        <tr><td>text.secondary</td><td class="mono"><i class="sw" style="background:#9BB0B6"></i>#9BB0B6</td><td>base</td><td class="ok">8.35</td></tr>
+        <tr><td>text.tertiary</td><td class="mono"><i class="sw" style="background:#7E959B"></i>#7E959B</td><td>base</td><td class="ok">5.99</td></tr>
+        <tr><td>accent</td><td class="mono"><i class="sw" style="background:#22D3EE"></i>#22D3EE</td><td>base</td><td class="ok">10.45</td></tr>
+        <tr><td>accent ramp</td><td class="mono"><i class="sw" style="background:#67E8F9"></i>#67E8F9 <i class="sw" style="background:#0E7490"></i>#0E7490</td><td>hover / press</td><td>—</td></tr>
+        <tr><td>live</td><td class="mono"><i class="sw" style="background:#FF4D63"></i>#FF4D63</td><td>base</td><td class="ok">6.20</td></tr>
+        <tr><td>chip fill / text</td><td class="mono"><i class="sw" style="background:#2A3A3F"></i>#2A3A3F · #CFE0E4</td><td>chip</td><td class="ok">8.69</td></tr>
+        <tr><td>auth gradient</td><td class="mono"><i class="sw" style="background:#14545F"></i>#14545F → #08191D</td><td>—</td><td>—</td></tr>
+        <tr><td>link (light)</td><td class="mono"><i class="sw" style="background:#0E7490"></i>#0E7490</td><td>sheet</td><td class="ok">5.36</td></tr>
+        <tr><td>error (light)</td><td class="mono"><i class="sw" style="background:#C81E1E"></i>#C81E1E</td><td>sheet</td><td class="ok">5.74</td></tr>
+        <tr><td>field / placeholder</td><td class="mono"><i class="sw" style="background:#E6EDEE"></i>#E6EDEE · #5C6A6E</td><td>field</td><td class="ok">4.73</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= OPTION C ============================= -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option C — Neutral Indigo</h2>
+    <span class="tag">most distinct from the reference</span>
+  </div>
+  <p class="char">
+    Same cinematic structure, but the accent moves off cyan to indigo and the auth gradient goes
+    indigo-navy. Pure-neutral zinc greys. <em>Why consider it:</em> cyan-on-near-black plus a teal auth
+    gradient is arguably the most recognizable part of Disney+'s palette; indigo keeps the craft and drops
+    that association. <em>Tradeoff:</em> the cyan progress bar is a named element of the reference
+    transcription — swapping it is a visible fidelity concession, and indigo at AA-safe brightness sits
+    closer to the violet placeholder art, so tiles and chrome compete slightly.
+  </p>
+  <div class="row C">
+    <div>
+      <p class="cap">Dark — app mode</p>
+      <div class="phone app">
+        <div class="app-hd">
+          <span class="ttl">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span><span class="pill">🎬 Películas</span></div>
+        <div class="sect">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><path d="M0 74l52-22 44 16 64-24v46H0z" fill="#0ea5e9" opacity=".18"/><rect width="160" height="90" fill="url(#s1)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#s1)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+        </div>
+        <div class="meta">
+          <div class="sub"><span>11 min restantes</span><span style="font-size:14px;color:var(--text2)">⋮</span></div>
+          <div class="nm">El Umbral de Orión</div>
+          <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red — Parte 1</span></div>
+        </div>
+        <div class="sect" style="padding-top:14px">Destacados en vivo</div>
+        <div class="rowx">
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg><span class="badge">⚡ VIVO</span><div class="bar live"><i></i></div></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a4)"/><path d="M0 96l30-18 50 22v20H0z" fill="#fb923c" opacity=".22"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a5)"/><circle cx="58" cy="82" r="26" fill="#818cf8" opacity=".25"/></svg></div>
+        </div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Light — auth mode (error state)</p>
+      <div class="phone auth">
+        <div class="auth-top"><span class="back">‹</span><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <h3>Escribir contraseña</h3>
+          <p>Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></p>
+          <div class="field bad"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo, o solicita un código de acceso único.</div>
+          <div class="hint">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta">Iniciar sesión</div>
+          <div class="llnk">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="tokens">
+      <p class="cap">Tokens &amp; measured contrast</p>
+      <table>
+        <tr><th>Token</th><th>Value</th><th>On</th><th>Ratio</th></tr>
+        <tr><td>surface.base</td><td class="mono"><i class="sw" style="background:#101014"></i>#101014</td><td>—</td><td>—</td></tr>
+        <tr><td>surface.raised</td><td class="mono"><i class="sw" style="background:#1A1A1F"></i>#1A1A1F</td><td>—</td><td>—</td></tr>
+        <tr><td>text.primary</td><td class="mono"><i class="sw" style="background:#FFFFFF"></i>#FFFFFF</td><td>base</td><td class="ok">18.6</td></tr>
+        <tr><td>text.secondary</td><td class="mono"><i class="sw" style="background:#A1A1AA"></i>#A1A1AA</td><td>base</td><td class="ok">7.41</td></tr>
+        <tr><td>text.tertiary</td><td class="mono"><i class="sw" style="background:#8A8A93"></i>#8A8A93</td><td>base</td><td class="ok">5.55</td></tr>
+        <tr><td>accent</td><td class="mono"><i class="sw" style="background:#818CF8"></i>#818CF8</td><td>base</td><td class="ok">6.36</td></tr>
+        <tr><td>accent ramp</td><td class="mono"><i class="sw" style="background:#A5B4FC"></i>#A5B4FC <i class="sw" style="background:#4F46E5"></i>#4F46E5</td><td>hover / press</td><td>—</td></tr>
+        <tr><td>live</td><td class="mono"><i class="sw" style="background:#FF4D63"></i>#FF4D63</td><td>base</td><td class="ok">5.88</td></tr>
+        <tr><td>chip fill / text</td><td class="mono"><i class="sw" style="background:#3F3F46"></i>#3F3F46 · #D4D4D8</td><td>chip</td><td class="ok">7.07</td></tr>
+        <tr><td>auth gradient</td><td class="mono"><i class="sw" style="background:#23234A"></i>#23234A → #0A0A0E</td><td>—</td><td>—</td></tr>
+        <tr><td>link (light)</td><td class="mono"><i class="sw" style="background:#4338CA"></i>#4338CA</td><td>sheet</td><td class="ok">7.90</td></tr>
+        <tr><td>error (light)</td><td class="mono"><i class="sw" style="background:#C81E1E"></i>#C81E1E</td><td>sheet</td><td class="ok">5.74</td></tr>
+        <tr><td>field / placeholder</td><td class="mono"><i class="sw" style="background:#E9E9EB"></i>#E9E9EB · #5F5F68</td><td>field</td><td class="ok">5.21</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= OPTION D ============================= -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option D — True Black</h2>
+    <span class="tag">max art pop · OLED</span>
+  </div>
+  <p class="char">
+    Option A's hues on a <em>pure #000000</em> ground, with a more vivid accent and slightly brighter
+    greys to compensate. Artwork appears to float; on an OLED device it is the punchiest of the four.
+    <em>Tradeoff:</em> pure black loses the "slightly lifted from black" quality the reference actually
+    has, translucent chrome over #000 shows banding on lower-end Android panels, and the
+    <code>placeholder-art</code> bottom scrims were authored against a lifted near-black, so tile edges
+    disappear into the background.
+  </p>
+  <div class="row D">
+    <div>
+      <p class="cap">Dark — app mode</p>
+      <div class="phone app">
+        <div class="app-hd">
+          <span class="ttl">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span><span class="pill">🎬 Películas</span></div>
+        <div class="sect">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><path d="M0 74l52-22 44 16 64-24v46H0z" fill="#0ea5e9" opacity=".18"/><rect width="160" height="90" fill="url(#s1)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+          <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#s1)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+        </div>
+        <div class="meta">
+          <div class="sub"><span>11 min restantes</span><span style="font-size:14px;color:var(--text2)">⋮</span></div>
+          <div class="nm">El Umbral de Orión</div>
+          <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red — Parte 1</span></div>
+        </div>
+        <div class="sect" style="padding-top:14px">Destacados en vivo</div>
+        <div class="rowx">
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg><span class="badge">⚡ VIVO</span><div class="bar live"><i></i></div></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a4)"/><path d="M0 96l30-18 50 22v20H0z" fill="#fb923c" opacity=".22"/></svg></div>
+          <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a5)"/><circle cx="58" cy="82" r="26" fill="#818cf8" opacity=".25"/></svg></div>
+        </div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Light — auth mode (error state)</p>
+      <div class="phone auth">
+        <div class="auth-top"><span class="back">‹</span><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <h3>Escribir contraseña</h3>
+          <p>Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></p>
+          <div class="field bad"><span>••••••••</span><span style="opacity:.6">👁</span></div>
+          <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo, o solicita un código de acceso único.</div>
+          <div class="hint">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta">Iniciar sesión</div>
+          <div class="llnk">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="tokens">
+      <p class="cap">Tokens &amp; measured contrast</p>
+      <table>
+        <tr><th>Token</th><th>Value</th><th>On</th><th>Ratio</th></tr>
+        <tr><td>surface.base</td><td class="mono"><i class="sw" style="background:#000000"></i>#000000</td><td>—</td><td>—</td></tr>
+        <tr><td>surface.raised</td><td class="mono"><i class="sw" style="background:#0D0D0F"></i>#0D0D0F</td><td>—</td><td>—</td></tr>
+        <tr><td>text.primary</td><td class="mono"><i class="sw" style="background:#FFFFFF"></i>#FFFFFF</td><td>base</td><td class="ok">21.0</td></tr>
+        <tr><td>text.secondary</td><td class="mono"><i class="sw" style="background:#B4B4BC"></i>#B4B4BC</td><td>base</td><td class="ok">10.2</td></tr>
+        <tr><td>text.tertiary</td><td class="mono"><i class="sw" style="background:#94949C"></i>#94949C</td><td>base</td><td class="ok">6.98</td></tr>
+        <tr><td>accent</td><td class="mono"><i class="sw" style="background:#00D8F0"></i>#00D8F0</td><td>base</td><td class="ok">12.08</td></tr>
+        <tr><td>accent ramp</td><td class="mono"><i class="sw" style="background:#67E8F9"></i>#67E8F9 <i class="sw" style="background:#0891B2"></i>#0891B2</td><td>hover / press</td><td>—</td></tr>
+        <tr><td>live</td><td class="mono"><i class="sw" style="background:#FF4D63"></i>#FF4D63</td><td>base</td><td class="ok">6.55</td></tr>
+        <tr><td>chip fill / text</td><td class="mono"><i class="sw" style="background:#38383F"></i>#38383F · #D4D4D8</td><td>chip</td><td class="ok">7.87</td></tr>
+        <tr><td>auth gradient</td><td class="mono"><i class="sw" style="background:#0F3C46"></i>#0F3C46 → #000000</td><td>—</td><td>—</td></tr>
+        <tr><td>link (light)</td><td class="mono"><i class="sw" style="background:#1D4ED8"></i>#1D4ED8</td><td>sheet</td><td class="ok">6.70</td></tr>
+        <tr><td>error (light)</td><td class="mono"><i class="sw" style="background:#C81E1E"></i>#C81E1E</td><td>sheet</td><td class="ok">5.74</td></tr>
+        <tr><td>field / placeholder</td><td class="mono"><i class="sw" style="background:#E9E9EB"></i>#E9E9EB · #5F5F68</td><td>field</td><td class="ok">5.21</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============================= SEMANTICS ============================= -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Semantic ramp — same in all four options</h2>
+    <span class="tag">not a differentiator</span>
+  </div>
+  <p class="char">
+    Success / warning / error / info are decided <em>once</em>, independent of which palette you pick,
+    because Phase 1 barely uses them: the only semantic color on a shipping 1a screen is the auth
+    <strong>error</strong>. The rest exist so the token set is complete and a later toast/empty-state
+    doesn't invent hexes. <em>Note:</em> on the dark surface the semantic colors need to be lighter than
+    their light-mode counterparts — same role, two values, which is exactly what the two-mode token
+    structure is for (criterion A1).
+  </p>
+  <div class="row">
+    <div class="tokens" style="max-width:640px">
+      <table>
+        <tr><th>Role</th><th>Dark mode</th><th>on #0E0E12</th><th>Light mode</th><th>on #FFF</th><th>Phase-1 use</th></tr>
+        <tr><td>success</td><td class="mono"><i class="sw" style="background:#4ADE80"></i>#4ADE80</td><td class="ok">11.05</td><td class="mono"><i class="sw" style="background:#15803D"></i>#15803D</td><td class="ok">4.99</td><td>none (reserved)</td></tr>
+        <tr><td>warning</td><td class="mono"><i class="sw" style="background:#FBBF24"></i>#FBBF24</td><td class="ok">11.54</td><td class="mono"><i class="sw" style="background:#B45309"></i>#B45309</td><td class="ok">5.13</td><td>none (reserved)</td></tr>
+        <tr><td>error</td><td class="mono"><i class="sw" style="background:#F87171"></i>#F87171</td><td class="ok">6.96</td><td class="mono"><i class="sw" style="background:#C81E1E"></i>#C81E1E</td><td class="ok">5.74</td><td><strong>auth inline error (F2)</strong>; storefront error state</td></tr>
+        <tr><td>info</td><td class="mono"><i class="sw" style="background:#38BDF8"></i>#38BDF8</td><td class="ok">8.99</td><td class="mono"><i class="sw" style="background:#0369A1"></i>#0369A1</td><td class="ok">5.74</td><td>none (reserved)</td></tr>
+        <tr><td>live</td><td class="mono"><i class="sw" style="background:#FF4D63"></i>#FF4D63</td><td class="ok">5.96</td><td class="mono">n/a — dark only</td><td>—</td><td>1b live carousel badge + bar</td></tr>
+      </table>
+      <p class="char" style="margin-top:14px">
+        <strong>live is deliberately its own token, not <code>error</code>.</strong> They are both red and
+        they mean opposite things; aliasing them would make the live badge change color the day someone
+        retunes the error red.
+      </p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
