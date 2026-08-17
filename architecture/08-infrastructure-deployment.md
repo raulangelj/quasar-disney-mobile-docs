@@ -1,10 +1,10 @@
 # Doc 08 — Infrastructure & Deployment
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
 **Coverage:** deferred — server-side hosting, IaC, networking/TLS, and CI are consciously not
 enumerated in Phase 1 (see §1). Resurface at each check-in.
-**Last updated:** 2026-08-17 (STEP-1.8)
+**Last updated:** 2026-08-17 (STEP-1.9)
 **Audience:** Mobile developers, QA, eng leadership
 
 > Where quasar-disney-mobile runs, how a build reaches the sign-off device, and what actually
@@ -178,6 +178,13 @@ from `.env`, so **`.env` must exist on whichever laptop builds the sign-off bina
 the auth flow. This becomes a **pre-flight checkbox** in `runbooks/release-deploy.md` — a
 checklist item, not a new mechanism.
 
+**Updated in 1.9 (doc 09 §4, §7.2).** This section asserted `.env` without naming how React
+Native reads it; **ADR-0015** closes that with `react-native-dotenv` (a Babel transform, no
+native dependency). Two refinements to the checkbox above: the mechanism inlines missing keys as
+`undefined` rather than failing the build, so the pre-flight check verifies **`.env` has every
+key in `.env.example`**, not merely that the file exists — and `.env.example` is updated in the
+**same PR** as any code that reads a new key.
+
 ### Dependency audit in CI (OQ-27 / RISK-0010)
 
 Doc 06 §6 deferred the exact `npm audit` gate — fail vs. warn, lockfile check, cadence — to
@@ -200,7 +207,8 @@ service and no uptime concept. It is **"what stops the 18 Aug sign-off from happ
 |------|-------------|------------|
 | **The demo device** | No demo | **Install the release build on two devices** (or a device plus a second device/simulator) |
 | **The demo laptop** (holds `.env` and the signed build) | Cannot rebuild or reinstall | A second machine can build; `.env` present on both |
-| **The `.env` file** | Login fails on stage for a non-code reason | Pre-flight checkbox (§5) |
+| **The `.env` file** | Login fails on stage for a non-code reason | Pre-flight checkbox (§5) — **completeness**, not just existence (1.9) |
+| **Device state** *(added 1.9)* | A rehearsal login persists (ADR-0003, 7-day mock `exp`), so the app opens on the storefront and the **entire auth flow is skipped** — F1/F2 silently absent | **Install to a clean state**; verify the app opens on the welcome screen (doc 09 §5.1) |
 | **The git remote** | Lost work, no rollback source | Push before the demo (§7) |
 | ~~Metro dev server~~ | ~~Red box / disconnect mid-demo~~ | **Eliminated** by the release-build decision (§2) |
 | **Network availability at the venue** | See below — the sharp one | §6.1 |
@@ -325,3 +333,4 @@ real line item), OQ-13 (wordmark outlining before 18 Aug).
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.8 | Initial draft from the infrastructure & deployment session. Release build declared the sign-off artifact; release/rollback procedure written to `runbooks/release-deploy.md`; OQ-21 resolved (ADR-0014); OQ-27 closed as deferred. Opened OQ-28, OQ-29. |
+| v0.1.1 | 2026-08-17 | STEP-1.9 | §5 names the `.env` mechanism (ADR-0015) and upgrades the pre-flight check from existence to key-completeness; §6 SPOF table gains a **device state** row (persisted rehearsal session skips the auth flow). Environments are now doc 09; OQ-28 noted as blocking a dated pre-flight sequence. |

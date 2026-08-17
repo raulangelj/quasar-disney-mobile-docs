@@ -30,7 +30,8 @@ Most of these are produced by the **architecture sessions** during STEP-1
 | 05 | [Scaling & Performance](05-scaling-performance.md) | v0.1.0 | Draft |
 | 06 | [Security & Threat Model](06-security-threat-model.md) | v0.1.2 | Draft |
 | 07 | [UI / Design System](07-ui-design-system.md) | v0.1.0 | Draft |
-| 08 | [Infrastructure & Deployment](08-infrastructure-deployment.md) | v0.1.0 | Draft |
+| 08 | [Infrastructure & Deployment](08-infrastructure-deployment.md) | v0.1.1 | Draft |
+| 09 | [Environments](09-environments.md) | v0.1.0 | Draft |
 | 15 | [Native App Architecture](15-native-app-architecture.md) | v0.2.4 | Draft |
 | 16 | [Identity & Auth](16-identity-auth.md) | v0.1.0 | Draft |
 | _(remaining core-block rows filled in by later sessions / the Cross-Cutting Review)_ | | | |

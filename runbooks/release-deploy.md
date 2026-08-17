@@ -5,10 +5,12 @@
 > *"roll back the last release"*) and it follows this file.
 >
 > **Project-specific.** This file was rewritten from the method's generic template in
-> **STEP-1.8** to match what quasar-disney-mobile actually does. The mechanism it executes is
-> designed in `architecture/08-infrastructure-deployment.md` (§2 sign-off artifact, §3 deploy
-> pipeline, §6 SPOFs). Environments are session 1.9 — until then there is exactly one
-> destination: **a physical demo device over USB**.
+> **STEP-1.8** to match what quasar-disney-mobile actually does, and updated in **STEP-1.9**.
+> The mechanism it executes is designed in `architecture/08-infrastructure-deployment.md` (§2
+> sign-off artifact, §3 deploy pipeline, §6 SPOFs) and
+> `architecture/09-environments.md` (§5.1 clean device state, §6 release parity, §7 promotion).
+> There is exactly one destination — **a physical demo device over USB** — and doc 09 confirms
+> it: environments here are two **build configurations**, not deployment targets.
 
 ## What a "release" means here
 
@@ -32,12 +34,18 @@ sixty-second reinstall instead of improvised debugging on stage.
 
 ## Part 1 — Pre-flight
 
-- [ ] **Work is merged and the test suite is green** — every reducer, middleware, hook, and the
-      API/mock layer (doc 02 criterion A6), not just the area you touched.
-- [ ] **`.env` exists on this machine**, with `API_BASE_URL`, `DEMO_EMAIL`, `DEMO_PASSWORD`
-      (doc 06 §5). **Check this explicitly.** The mock adapter reads the demo pair from env, so
-      a missing `.env` produces a login that fails on stage looking exactly like an auth bug.
-      `.env` is gitignored — a fresh clone does **not** have it.
+- [ ] **Work is merged to trunk and the test suite is green** — every reducer, middleware, hook,
+      and the API/mock layer (doc 02 criterion A6), not just the area you touched.
+- [ ] **You are on trunk, not a `step-NNNN-*` branch.** Release builds are cut from trunk only
+      (doc 09 §7.1) — two developers work either side of a seam, and the git tag below is only
+      trustworthy if the build came from the tagged commit.
+- [ ] **`.env` exists on this machine and has every key in `.env.example`** — currently
+      `API_BASE_URL`, `DEMO_EMAIL`, `DEMO_PASSWORD` (doc 06 §5). **Check completeness, not just
+      existence** (doc 09 §7.2): config reaches the app through a Babel transform (ADR-0015),
+      which inlines a missing key as `undefined` instead of failing the build. The mock adapter
+      reads the demo pair from env, so either a missing file or a missing key produces a login
+      that fails on stage looking exactly like an auth bug. `.env` is gitignored — a fresh clone
+      does **not** have it.
 - [ ] **Version stamped** — bump `CFBundleShortVersionString` (iOS) and `versionName` (Android),
       per doc 15 §7.
 - [ ] **Git tag the commit** you are about to build, so the binary on the device is traceable to
@@ -71,9 +79,16 @@ laptop hosting it are out of the demo's critical path.
 
 ## Part 3 — Install & verify
 
+- [ ] **Install to a clean state.** Uninstall any existing copy first, or use a device that has
+      never run it. **Verify the app opens on the welcome screen** (doc 09 §5.1). The auth slice
+      persists to secure storage (ADR-0003) and the mock JWT lives **7 days**, so any rehearsal
+      login leaves a valid session — the app then launches straight into the storefront and the
+      whole welcome → email → password → inline error flow (criteria **F1**, **F2**) is silently
+      absent from the demo.
 - [ ] **Install over USB onto the demo device.**
-- [ ] **Install onto a second device too.** The demo device is a single point of failure
-      (doc 08 §6); a second installed device is the cheapest possible redundancy.
+- [ ] **Install onto a second device too**, also to a clean state. The demo device is a single
+      point of failure (doc 08 §6); a second installed device is the cheapest possible
+      redundancy.
 - [ ] **Confirm the demo device has a live network connection.** The shell's connectivity
       overlay keys on interface state (ADR-0014), so an associated wifi or cellular interface is
       enough — a captive portal will not trip it. Check anyway; the overlay is full-screen and
@@ -129,5 +144,7 @@ does not evaporate once the demo is over.
 
 **Phase 2 (Bitrise)** replaces Parts 2 and 3 with a pipeline and installable QA builds — rewrite
 those parts then, and design the CI gates (including the deferred `npm audit` gate, RISK-0010)
-in that STEP. **Session 1.9** introduces environments, which is when "which destination" becomes
-a real question. Until either happens, this file is the whole deployment story.
+in that STEP. Bitrise is a **runner** of the `release` configuration, not a new destination
+(doc 09 §2). **Phase 3** is when "which destination" finally becomes a real question, because a
+real `API_BASE_URL` makes a `staging` configuration meaningful (doc 09 §2.1, OQ-31). Until then
+this file is the whole deployment story.

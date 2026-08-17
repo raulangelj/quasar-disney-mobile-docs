@@ -64,10 +64,10 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Sessions 1.9 Environments and 1.10 Observability remain in the STEP-1 queue after 1.5, 1.6a, and 1.8 ran. 1.6, 1.13, and 1.14 run abbreviated."
+    description: "Session 1.10 Observability remains in the STEP-1 queue after 1.5, 1.6a, 1.8, and 1.9 ran. 1.6, 1.13, and 1.14 run abbreviated."
     impact: "Design posture in those remaining areas is undecided; a later phase may find Phase-1a choices constrain it."
-    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, and 1.8 are Done (docs 05, 16, and 08)."
-    revisit_trigger: "After 1.9–1.10 run, or the next periodic check-in — whichever comes first."
+    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, 1.8, and 1.9 are Done (docs 05, 16, 08, and 09)."
+    revisit_trigger: "After 1.10 runs, or the next periodic check-in — whichever comes first."
     refs:
       - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
       - "../../prompts/STEP-index.md"
@@ -277,13 +277,14 @@ risks:
     owner: "TBD"
     opened: "2026-08-17"
     source: "architecture/08-infrastructure-deployment.md"
-    description: "Session 1.8 deliberately scoped to a showcase with no QA or deployment tier: no CI, no IaC beyond committed lockfiles, no secret manager, no environments, no availability target. Recovery is reinstalling the previous known-good .ipa/.apk (RTO ~1 min, RPO = last git push)."
+    description: "Session 1.8 deliberately scoped to a showcase with no QA or deployment tier: no CI, no IaC beyond committed lockfiles, no secret manager, no availability target. Session 1.9 confirmed environments are two build configurations rather than deployment tiers, and no staging or sandbox tier exists. Recovery is reinstalling the previous known-good .ipa/.apk (RTO ~1 min, RPO = last git push)."
     impact: "Correct for an internal POC and negligent for a product with users. The gap surfaces the moment anyone other than the two devs depends on a build, or real data exists."
-    mitigation: "The manual procedure is written down and repeatable (runbooks/release-deploy.md); build on two machines and install on two devices; keep the previous binary."
-    revisit_trigger: "Bitrise implementation (Phase 2), session 1.9 Environments, or any real users / real data / store submission — whichever comes first."
+    mitigation: "The manual procedure is written down and repeatable (runbooks/release-deploy.md); build on two machines and install on two devices; keep the previous binary. Session 1.9 hardened the procedure: trunk-only builds, clean-state install verified at the welcome screen, .env key-completeness check, and a release-build smoke at every sync point."
+    revisit_trigger: "Bitrise implementation (Phase 2), Phase 3 backend integration (when a staging tier becomes meaningful — OQ-31), or any real users / real data / store submission — whichever comes first."
     refs:
       - "architecture/08-infrastructure-deployment.md#3-deploy-pipeline--build--install--roll-back"
       - "architecture/08-infrastructure-deployment.md#7-backups--dr--artifact-and-code-survival"
+      - "architecture/09-environments.md#7-promotion-flow"
       - "runbooks/release-deploy.md"
     closed:
       date:
