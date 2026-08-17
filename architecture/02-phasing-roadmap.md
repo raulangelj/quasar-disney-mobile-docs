@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.5
+**Version:** v0.3.6
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.8)
+**Last updated:** 2026-08-17 (STEP-1.10)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -229,10 +229,17 @@ Infrastructure, **1.9** Environments, and **1.10** Observability were originally
 informs a 1a decision. **1.6** Security (no real PII), **1.13** Glossary, and **1.14** Cross-Cutting
 Review run abbreviated.
 
-*Amendment (2026-08-17):* **1.5**, **1.6a**, and **1.8** subsequently ran
+*Amendment (2026-08-17):* **1.5**, **1.6a**, **1.8**, **1.9**, and **1.10** subsequently ran
 (`architecture/05-scaling-performance.md`, `architecture/16-identity-auth.md`,
-`architecture/08-infrastructure-deployment.md`). Remaining originally-deferred sessions still in
-the STEP-1 queue: **1.9**, **1.10**. RISK-0002 tracks that list.
+`architecture/08-infrastructure-deployment.md`, `architecture/09-environments.md`,
+`architecture/10-observability.md`). **No originally-deferred session remains in the STEP-1
+queue** — what is left is the never-deferred set: **1.11**, **1.12**, **1.13**, **1.14**.
+RISK-0002 tracks that list.
+
+1.10 declined the whole telemetry stack for Phase 1 (no metrics, tracing, health checks,
+dashboards, alerting, or vendor) and added exactly one thing to the build: a **shell-root error
+boundary**, so a render exception on 18 Aug degrades to a recoverable screen rather than a white
+one. It changes no schedule item. Accepted posture: **RISK-0014**.
 
 1.8 scoped itself to the mobile build-and-distribute path (no server exists to host) and made
 one change that touches this document's schedule: **the release build is the declared sign-off
@@ -399,3 +406,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.3 | 2026-08-17 | STEP-1.6a | §7 amendment: 1.5 and 1.6a ran. Phase 3 JWT/refresh per doc 16. OQ-03 → 1.11 / Phase 3. |
 | v0.3.4 | 2026-08-17 | STEP-1.7 | §2 "inert" tabs defined as tappable `ComingSoon` placeholders (doc 07 §4). Design system delivered; DF4/DF6/DF8 now have concrete token, component, and i18n specs. |
 | v0.3.5 | 2026-08-17 | STEP-1.8 | §7 amendment: 1.8 ran (doc 08); 1.9 and 1.10 remain. §8 Tue-AM sync point now includes the release build + two-device install. DF11 notes ADR-0014 (interface-up connectivity). |
+| v0.3.6 | 2026-08-17 | STEP-1.10 | §7 amendment: 1.9 (doc 09) and 1.10 (doc 10) ran — no originally-deferred session remains in the STEP-1 queue. 1.10 declines the telemetry stack and adds a shell-root error boundary (RISK-0014). No schedule change. |

@@ -64,10 +64,10 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Session 1.10 Observability remains in the STEP-1 queue after 1.5, 1.6a, 1.8, and 1.9 ran. 1.6, 1.13, and 1.14 run abbreviated."
+    description: "Sessions 1.11 Interface Contracts, 1.12 Test Strategy, and 1.13 Glossary remain in the STEP-1 queue. 1.6, 1.13, and 1.14 run abbreviated. Session 1.10 Observability has now run (doc 10)."
     impact: "Design posture in those remaining areas is undecided; a later phase may find Phase-1a choices constrain it."
-    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, 1.8, and 1.9 are Done (docs 05, 16, 08, and 09)."
-    revisit_trigger: "After 1.10 runs, or the next periodic check-in — whichever comes first."
+    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, 1.8, 1.9, and 1.10 are Done (docs 05, 16, 08, 09, and 10)."
+    revisit_trigger: "After 1.14 Cross-Cutting Review runs, or the next periodic check-in — whichever comes first."
     refs:
       - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
       - "../../prompts/STEP-index.md"
@@ -286,6 +286,27 @@ risks:
       - "architecture/08-infrastructure-deployment.md#7-backups--dr--artifact-and-code-survival"
       - "architecture/09-environments.md#7-promotion-flow"
       - "runbooks/release-deploy.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0014
+    status: open
+    title: "The app ships no telemetry — no metrics, tracing, crash reporting, or release-build logs"
+    category: operations
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/10-observability.md"
+    description: "Session 1.10 consciously declined metrics, distributed tracing, health checks, correlation IDs, dashboards, alerting, and any error-tracking vendor, and left the release configuration's console.* strip in place. Logging is bare console.* in development only, and request/response bodies are never logged at all."
+    impact: "If the sign-off binary misbehaves in a way that is not visible on screen there is no signal at all, and diagnosis means reproducing it on a development build. Correct for an internal POC held by its own authors; negligent for a product with users."
+    mitigation: "One shell-root React error boundary ships in both configurations so a render exception degrades to a recoverable screen rather than a white one. Release build is smoked at every sync point (doc 09 §6.1) and the previous known-good binary reinstalls in ~1 minute (doc 08 §7)."
+    revisit_trigger: "The first time anyone outside the two developers depends on a running build, any real user data, Phase 3 backend integration (correlation IDs, health checks), or a store submission — whichever comes first."
+    refs:
+      - "architecture/10-observability.md#9-what-this-accepts"
+      - "architecture/10-observability.md#2-logging"
+      - "architecture/10-observability.md#5-error-tracking--one-boundary-no-vendor"
+      - "architecture/09-environments.md#6-parity--the-release-only-failure-class"
     closed:
       date:
       reason:

@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.3.3
+**Version:** v0.3.4
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.7)
+**Last updated:** 2026-08-17 (STEP-1.10)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -76,7 +76,7 @@ A future HTTP backend is **not a component of this system**. It is a Phase-3 swa
 
 | Name | Responsibility | Tech |
 |------|----------------|------|
-| **App shell** | Boots the RN host on iOS/Android: navigation, store/middleware registration, theme provider, persist rehydrate, **cold-start loading** until `/me` + HomeFeed + ContinueWatching complete, **NetInfo connectivity overlay** | Bare RN, TypeScript, React Navigation, Redux Toolkit store composition, `@react-native-community/netinfo` |
+| **App shell** | Boots the RN host on iOS/Android: navigation, store/middleware registration, theme provider, persist rehydrate, **cold-start loading** until `/me` + HomeFeed + ContinueWatching complete, **NetInfo connectivity overlay**, **root error boundary** (inside the theme provider; doc 10 §5.2) | Bare RN, TypeScript, React Navigation, Redux Toolkit store composition, `@react-native-community/netinfo` |
 | **Auth feature** | Welcome → email → password → session. Owns the **auth slice** (JWT) and the **user slice** (`userName` from `/me`). Imports `shared/` only | RTK slices, custom hooks, Styled Components |
 | **Storefront feature** | Home/browse and config-driven carousels. Owns the content slice (not persisted), **pagination hooks**, **client merge** of hero + `progress` (CW) + other containers, **silent CW reload**. Imports `shared/` only | RTK slice, custom hooks, Styled Components |
 | **Shared kernel** | Theme (both surface modes), atomic UI, i18n string tables, analytics hook stub | Styled Components + tokens; folders `theme/`, `ui/`, `i18n/`, `analytics/` |
@@ -185,3 +185,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who 
 | v0.3.1 | 2026-08-17 | STEP-1.5 | HomeFeed/CW are `Container[]` + `resources: Card[]`; CW variant `progress` (ADR-0007). |
 | v0.3.2 | 2026-08-17 | STEP-1.6a | Phase 3 IdP is buy-behind-API (ADR-0009); Phase 1 mock auth unchanged. |
 | v0.3.3 | 2026-08-17 | STEP-1.7 | §7 hard dependencies completed: `react-native-svg`, `react-native-screens`, `react-native-safe-area-context`, `react-i18next`/`i18next` (ADR-0013). Design system is `architecture/07-ui-design-system.md`. |
+| v0.3.4 | 2026-08-17 | STEP-1.10 | §4 shell gains the **root error boundary** (doc 10 §5.2). No new dependency — §7's hard-dependency list is unchanged. |
