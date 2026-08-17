@@ -1,8 +1,8 @@
 # Doc 04 — Data Model, Ownership & Retention
 
-**Version:** v0.2.0
+**Version:** v0.2.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.5)
+**Last updated:** 2026-08-17 (STEP-1.6)
 **Audience:** Mobile developers, backend team, QA
 
 > Entities the React Native client models, who owns each one, where it lives on device, how long it is kept, and which of it is sensitive — with no server database in this project.
@@ -169,7 +169,7 @@ Phase 1 has **no real people**. Treat the *shape* as production so it is not log
 
 **None of this is regulated** (no payments, health, children’s data, real accounts).
 
-**Privacy/compliance session:** remains **Deferred**. Revisit **before Phase 3 real accounts / real JWT**. Security 1.6 still runs abbreviated.
+**Privacy/compliance session:** remains **Deferred**. Revisit **before Phase 3 real accounts / real JWT**. Security 1.6 is **Done** (abbreviated) — see `architecture/06-security-threat-model.md`.
 
 ### Mock JWT expiry (demo only)
 
@@ -245,3 +245,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-17 (mock
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-16 | STEP-1.4 | Initial draft from the data-model session |
 | v0.2.0 | 2026-08-17 | STEP-1.5 | Shared **Container** / **Card**; both feeds are `Container[]` with `resources`; variants `hero` and `progress`. Title/Carousel/`items` renamed. ADR-0007. |
+| v0.2.1 | 2026-08-17 | STEP-1.6 | Privacy session still Deferred; security posture now in doc 06 (abbreviated, Done). |

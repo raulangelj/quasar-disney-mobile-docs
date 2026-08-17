@@ -1,8 +1,8 @@
 # Doc 15 — Native App Architecture
 
-**Version:** v0.2.1
+**Version:** v0.2.2
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.5)
+**Last updated:** 2026-08-17 (STEP-1.6)
 **Audience:** Mobile developers, QA
 
 > Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
@@ -108,7 +108,7 @@ Demo-grade. No real PII, no TLS host (I/O is in-process mocks).
 | Logging | Tokens never logged | same |
 | Extra encrypted DB | None | only if a later phase stores more than the auth slice |
 
-See RISK-0007. Security session 1.6 still runs abbreviated; it does not redo token storage.
+See RISK-0007. Security session 1.6 is **Done** (abbreviated) in `architecture/06-security-threat-model.md`; it does not redo token storage.
 
 **Forecloses:** MITM defenses and compromised-device lockout on 18 Aug.
 
@@ -184,3 +184,4 @@ Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-
 | v0.1.0 | 2026-08-16 | STEP-1.3a | Initial draft from the native-app session |
 | v0.2.0 | 2026-08-16 | STEP-1.4 | User slice memory-only; `nextCursor`; two feed endpoints. Closed OQ-19 / OQ-20 (partial). |
 | v0.2.1 | 2026-08-17 | STEP-1.5 | Feeds are `Container[]` / `resources: Card[]`; CW `progress` variant. |
+| v0.2.2 | 2026-08-17 | STEP-1.6 | Device-security deferrals indexed from doc 06 (ADR-0008); token storage unchanged. |

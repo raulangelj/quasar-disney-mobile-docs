@@ -164,7 +164,65 @@ risks:
     revisit_trigger: "Phase 3 backend integration (pinning), or any store/TestFlight submission (compromised-device policy)."
     refs:
       - "architecture/15-native-app-architecture.md#6-device-security"
+      - "architecture/06-security-threat-model.md#3-threats--mitigations"
       - "adr/ADR-0004-online-only-connectivity-gate.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0008
+    status: open
+    title: "Shared demo login is the identity model"
+    category: security
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/06-security-threat-model.md"
+    description: "Anyone with DEMO_EMAIL / DEMO_PASSWORD is the user. No accounts, MFA, or per-user secrets."
+    impact: "Impersonation of the demo session. Bounded while the app is internal and unpublished."
+    mitigation: "Auth still goes through the mock adapter; credentials live in gitignored .env, not the screen or git."
+    revisit_trigger: "Phase 3 real accounts / real JWT — designed in session 1.6a."
+    refs:
+      - "architecture/06-security-threat-model.md#4-authn--authz-posture"
+      - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0009
+    status: open
+    title: "No server-side or network security controls until a real host exists"
+    category: security
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/06-security-threat-model.md"
+    description: "B4 (API module ↔ backend) is not live. Rate limiting, TLS-in-transit, MITM, injection, and replay-vs-server are deferred."
+    impact: "None until Phase 3 exposes a host. Then an unauthenticated or MITM-able client would be a real incident class."
+    mitigation: "HTTPS-only + ATS when B4 ships; pinning remains RISK-0007. Mock adapter owns auth until then."
+    revisit_trigger: "Phase 3 backend integration — before the API module talks to a real host."
+    refs:
+      - "architecture/06-security-threat-model.md#3-threats--mitigations"
+      - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0010
+    status: open
+    title: "Dependency vulnerability audit is not a CI gate yet"
+    category: dependency
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/06-security-threat-model.md"
+    description: "Lockfile + vet-before-add + check-in-cadence npm audit apply; there is no Bitrise job that fails a build on audit findings."
+    impact: "An unpatched advisory can sit until someone runs audit locally or at a check-in."
+    mitigation: "Commit the lockfile; runbooks/dependency-supply-chain.md on add and at check-in."
+    revisit_trigger: "Bitrise implementation (session 1.8 / Phase 2) — decide fail vs warn (OQ-27)."
+    refs:
+      - "architecture/06-security-threat-model.md#6-web--client-risk-posture"
+      - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
     closed:
       date:
       reason:
