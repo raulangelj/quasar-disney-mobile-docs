@@ -48,7 +48,7 @@
 
 | Input | Part | Status | Covered by / note |
 |-------|------|--------|-------------------|
-| `ui/disney-plus-reference-screens.md` | Screen inventory & flow order | Live | UI reference transcription (STEP-1.2); feeds 1.3 nav, 1.7 design system |
+| `ui/disney-plus-reference-screens.md` | Screen inventory & flow order | Live | UI reference transcription (STEP-1.2); 1.3 used flow order for key flows; still feeds 1.7 design system |
 | `ui/disney-plus-reference-screens.md` | §1–4 Auth screens (welcome, email, password, error) | Live | expands doc 01's single "login screen" scope item |
 | `ui/disney-plus-reference-screens.md` | §5–6 Home screens (hero + row stack) | Live | source for the carousel-variant set |
 | `ui/disney-plus-reference-screens.md` | Patterns to extract | Live | atoms/molecules + two-theme finding for 1.7 |

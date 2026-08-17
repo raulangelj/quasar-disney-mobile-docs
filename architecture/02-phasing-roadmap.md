@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.2.0
+**Version:** v0.2.1
 **Status:** Draft
-**Last updated:** 2026-08-14 (STEP-1.2)
+**Last updated:** 2026-08-16 (STEP-1.3)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -186,11 +186,11 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 
 | # | Constraint | What it forbids in Phase 1a |
 |---|------------|------------------------------|
-| DF1 | **Backend swap** | No component or hook calls `fetch`. All I/O goes through the API client and middleware. Mocks carry the *exact* shape expected of the real backend — field names, enums, response envelope, error shape |
+| DF1 | **Backend swap** | No component or hook calls `fetch` or `axios`. All I/O goes through the API client and middleware (single axios instance inside the API module). Mocks carry the *exact* shape expected of the real backend — field names, enums, response envelope, error shape |
 | DF2 | **Simulated fetches, not local data** | The mock layer returns Promises with artificial latency and can fail on demand, so loading and error states are real code paths |
-| DF3 | **JWT** | The auth slice holds an opaque token from day one, even though it's fake. Secure storage and refresh must plug in without touching screens |
+| DF3 | **JWT** | The auth slice holds an opaque token from day one, even though it's fake. Persist that slice only, into Keychain/Keystore from day one (not AsyncStorage). Refresh still plugs in without touching screens |
 | DF4 | **Re-skin by tokens** | Two surface modes live in the theme structure itself, not as per-screen exceptions |
-| DF5 | **Feature extraction to repos** | No feature imports from another feature — only from `shared/` |
+| DF5 | **Feature extraction to repos** | No feature imports from another feature — only from `shared/`. The app shell is the composition root and may import features |
 | DF6 | **Carousel variants** | The carousel is config-driven from the first commit. Adding hero, live, and landscape must be adding configuration, not components — even though 1a ships only 2 of 5 |
 | DF7 | **Details navigation** | The alert lives behind the same handler that will later navigate; the swap must not touch the tile components |
 | DF8 | **i18n** | No loose hardcoded strings, even with no multi-language support in 1a. The reference material is Spanish |
@@ -375,3 +375,4 @@ migration timeline) is unchanged and unblocking.
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-14 | STEP-1.2 | Initial draft from architecture session |
 | v0.2.0 | 2026-08-14 | STEP-1.2 | Second senior dev confirmed → added §9 two-developer split (four disjoint STEPs, two sync points, collision mitigations) and recovered two 1b items into 1a. Added §10 placeholder brand ("Dinsey-" + placeholder art). Closed OQ-07/08/09; opened OQ-12/13. Schedule table updated for parallel work. |
+| v0.2.1 | 2026-08-16 | STEP-1.3 | DF1: axios (not fetch) inside the API module only. DF3: Keychain/Keystore persist of the auth slice from day one. DF5: shell is the composition root. |

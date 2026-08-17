@@ -39,7 +39,9 @@ e.g. "tech lead", "consensus of maintainers", "ADR review on PR". -->
 
 | ADR | Title | Status | Date |
 |------|-------|--------|------|
-| _(add a row per ADR)_ | | | |
+| ADR-0001 | Modular monolith with a composition-root shell | Accepted | 2026-08-16 |
+| ADR-0002 | In-app API module with axios; no backend component | Accepted | 2026-08-16 |
+| ADR-0003 | Persist the auth slice to platform secure storage from day one | Accepted | 2026-08-16 |
 
 <!-- Example row shape (indented so it isn't picked up by the scan / `max + 1`; a real row
      starts at the line's left margin with no leading spaces):
