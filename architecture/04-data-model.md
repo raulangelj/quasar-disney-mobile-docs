@@ -1,8 +1,8 @@
 # Doc 04 — Data Model, Ownership & Retention
 
-**Version:** v0.2.1
+**Version:** v0.2.2
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6)
+**Last updated:** 2026-08-17 (STEP-1.6a)
 **Audience:** Mobile developers, backend team, QA
 
 > Entities the React Native client models, who owns each one, where it lives on device, how long it is kept, and which of it is sensitive — with no server database in this project.
@@ -103,10 +103,12 @@ Continue Watching: **`Container[]`** (typically length 1), each with `variant: "
 |-------|------|--------|
 | User.`id` | UUID | JWT `sub`; not shown in UI |
 | User.`userName` | string | The only profile field the UI shows. Comes from `/me`, not from login |
-| Session.`accessToken` | string | Mock JWT |
+| Session.`accessToken` | string | Mock JWT (`sub` + `exp` + `iat`; doc 16) |
 | Session.`expiresAt` | number | Unix `exp`. Mock TTL **7 days** from each successful login |
 
 Login body: `{ email, password }` — request DTO, never stored.
+
+**`GET /me` body (OQ-25 closed):** `{ id, userName }`. No email, no roles. JSON names → 1.11 (OQ-22).
 
 ---
 
@@ -235,9 +237,9 @@ Phase 3 replaces the mock adapter (including mock `exp` reminting). Client stora
 | OQ-26 | Remaining **Card** fields beyond content name, and which are `progress`-only | Mobile | 1.11; 1.7 |
 | OQ-23 | Cards per container horizontal page (first-page size for `resources` inside a row) | Mobile | 1.11; storefront STEP |
 | OQ-24 | Does Phase 1a render full hero chrome (peeking neighbors, title art, CTA) or a 3:4 stand-in? Data composition already includes hero | Mobile / 1.7 | 1.7 UI / Design System; planning session |
-| OQ-25 | Exact mock `/me` payload beyond `id` + `userName` (claims vs body) | Mobile | 1.6a Identity & Auth; 1.11 |
+| ~~OQ-25~~ | ~~Exact mock `/me` payload beyond `id` + `userName` (claims vs body)~~ **Resolved (1.6a):** mock JWT claims = `sub` + `exp` + `iat`; `/me` = `{ id, userName }`. JSON names → OQ-22 | — | closed |
 
-Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-17 (mock strategy → 1.11). **OQ-02** (card schema), **OQ-19** (cursor vs offset), and HomeFeed first-page size from **OQ-20** (hero + 15; CW separate) are **closed** here. Horizontal **card** page size remains as OQ-23. Extra Card fields → OQ-26.
+Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-17 (mock strategy → 1.11). **OQ-02** (card schema), **OQ-19** (cursor vs offset), and HomeFeed first-page size from **OQ-20** (hero + 15; CW separate) are **closed** here. Horizontal **card** page size remains as OQ-23. Extra Card fields → OQ-26. Identity living doc is `architecture/16-identity-auth.md`.
 
 ## Version Log
 
@@ -246,3 +248,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-17 (mock
 | v0.1.0 | 2026-08-16 | STEP-1.4 | Initial draft from the data-model session |
 | v0.2.0 | 2026-08-17 | STEP-1.5 | Shared **Container** / **Card**; both feeds are `Container[]` with `resources`; variants `hero` and `progress`. Title/Carousel/`items` renamed. ADR-0007. |
 | v0.2.1 | 2026-08-17 | STEP-1.6 | Privacy session still Deferred; security posture now in doc 06 (abbreviated, Done). |
+| v0.2.2 | 2026-08-17 | STEP-1.6a | Closed OQ-25 (`/me` = `{ id, userName }`; JWT claims `sub`/`exp`/`iat`). Doc 16. |

@@ -1,8 +1,8 @@
 # Doc 15 — Native App Architecture
 
-**Version:** v0.2.2
+**Version:** v0.2.3
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6)
+**Last updated:** 2026-08-17 (STEP-1.6a)
 **Audience:** Mobile developers, QA
 
 > Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
@@ -91,7 +91,7 @@ Revisit when a later phase actually sends notifications. Do not add Firebase “
 | Android | `INTERNET`, `ACCESS_NETWORK_STATE` (manifest, not runtime) |
 | iOS | No usage-description strings for camera, location, contacts, mic, photos, Face ID, local network, or photo library |
 
-Cast and downloads chrome stays inert (doc 02). Biometrics wait for real JWT (1.6a / Phase 3). Denied-permission degradation is N/A until a later phase adds a capability.
+Cast and downloads chrome stays inert (doc 02). Biometrics wait for real JWT (**Phase 3**; doc 16 deferred Face ID). Denied-permission degradation is N/A until a later phase adds a capability.
 
 **Forecloses:** Face ID, AirPlay/cast, downloads, camera, location in Phase 1.
 
@@ -185,3 +185,4 @@ Carried forward: OQ-17 (mock strategy → 1.11). **OQ-16** is closed (encrypted-
 | v0.2.0 | 2026-08-16 | STEP-1.4 | User slice memory-only; `nextCursor`; two feed endpoints. Closed OQ-19 / OQ-20 (partial). |
 | v0.2.1 | 2026-08-17 | STEP-1.5 | Feeds are `Container[]` / `resources: Card[]`; CW `progress` variant. |
 | v0.2.2 | 2026-08-17 | STEP-1.6 | Device-security deferrals indexed from doc 06 (ADR-0008); token storage unchanged. |
+| v0.2.3 | 2026-08-17 | STEP-1.6a | Biometrics stay Phase 3 (doc 16); no Face ID in Phase 1. |

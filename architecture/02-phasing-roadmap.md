@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.2
+**Version:** v0.3.3
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.5)
+**Last updated:** 2026-08-17 (STEP-1.6a)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -169,7 +169,7 @@ Criteria A1–A5 trace directly to doc 01 §3's *API swap readiness*, *theme swa
 **We never build a backend.** This phase integrates the API the backend team delivers, against the
 contract we authored in Phase 1a.
 - Real endpoints replace the mock adapter; base URL swap plus adapter removal.
-- Real JWT — secure token storage and refresh plug into the auth slice.
+- Real JWT — same client shape (access token in the auth slice). Refresh, if the IdP issues it, plugs into the API module / interceptor, not screens (doc 16). No mock refresh in Phase 1.
 - Search and the "novedades" tab. *Both need real content data; mocks would make them theatre.*
 - Real analytics behind the existing hook signature.
 
@@ -225,9 +225,13 @@ cannot proceed without run before the build: **1.3** (component boundaries), **1
 — theme tokens and atomic inventory), **1.4** (content card schema), **1.11** (interface contracts —
 promoted back into 1a because the contract now *defines* the mocks), and **1.12** (test strategy,
 short, since tests are in the gate). Sessions **1.5** Scaling, **1.6a** Identity & Auth, **1.8**
-Infrastructure, **1.9** Environments, and **1.10** Observability are **Deferred** — none informs a
-1a decision. **1.6** Security (no real PII), **1.13** Glossary, and **1.14** Cross-Cutting Review run
-abbreviated.
+Infrastructure, **1.9** Environments, and **1.10** Observability were originally **Deferred** — none
+informs a 1a decision. **1.6** Security (no real PII), **1.13** Glossary, and **1.14** Cross-Cutting
+Review run abbreviated.
+
+*Amendment (2026-08-17):* **1.5** and **1.6a** subsequently ran (`architecture/05-scaling-performance.md`,
+`architecture/16-identity-auth.md`). Remaining originally-deferred sessions still in the STEP-1
+queue: **1.8**, **1.9**, **1.10**. RISK-0002 tracks that list.
 
 ## 8. Schedule and schedule risk
 
@@ -370,8 +374,8 @@ Two things carried forward:
 | OQ-13 | Who outlines the wordmark text before 18 Aug? (~30 min; see §10) | Mobile dev | Phase 1a assets |
 | ~~OQ-19~~ | ~~Pagination wire format (cursor vs offset) and first-page sizes~~ **Resolved (1.4):** opaque `nextCursor`; HomeFeed first page = hero + 15; CW is a separate endpoint. Envelope JSON names → 1.11 (OQ-22); tile page size → OQ-23 | — | closed |
 
-Carried forward from doc 01 and still open: OQ-03 (JWT claims →
-Phase 3 / 1.6a), OQ-05 (Bitrise setup → Phase 2), OQ-06 (budget). **OQ-01** (final login/storefront UI) is
+Carried forward from doc 01 and still open: OQ-03 (production JWT claims / IdP vendor →
+1.11 / Phase 3; mock claims closed in 1.6a), OQ-05 (Bitrise setup → Phase 2), OQ-06 (budget). **OQ-01** (final login/storefront UI) is
 now **resolved** by `inputs/ui/disney-plus-reference-screens.md`. **OQ-04** (real streaming app
 migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is **resolved** by
 1.3a: `react-native-encrypted-storage`. **OQ-02** (card schema) is **resolved** by 1.4.
@@ -386,3 +390,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.0 | 2026-08-16 | STEP-1.3a | DF3 names `react-native-encrypted-storage`. Added DF11 (connectivity gate) and DF12 (storefront pagination). |
 | v0.3.1 | 2026-08-16 | STEP-1.4 | DF12: opaque `nextCursor` (doc 04). Hero is in the Phase-1 feed contract/composition (ADR-0006); full chrome still OQ-24. Closed OQ-19. |
 | v0.3.2 | 2026-08-17 | STEP-1.5 | DF6/DF12: Container variants include `progress`; both feeds are `Container[]` + `resources` (ADR-0007). |
+| v0.3.3 | 2026-08-17 | STEP-1.6a | §7 amendment: 1.5 and 1.6a ran. Phase 3 JWT/refresh per doc 16. OQ-03 → 1.11 / Phase 3. |

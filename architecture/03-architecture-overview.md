@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.3.1
+**Version:** v0.3.2
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.5)
+**Last updated:** 2026-08-17 (STEP-1.6a)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -120,7 +120,7 @@ Phase 1 is a mobile demo with mocks. Almost everything is built in-app; we only 
 
 | Capability | Build / buy | Notes |
 |------------|-------------|--------|
-| Auth (demo credentials, session slice) | **Build** | No Auth0 / Firebase / Cognito. A real JWT later is a swap at the API module |
+| Auth (demo credentials, session slice) | **Build** (Phase 1 mock) | No Auth0 / Firebase / Cognito SDK. Phase 3 **buys** a managed IdP **behind our API** (ADR-0009); a real JWT is still a swap at the API module |
 | Content / home feed | **Build** (fixtures + mock adapter) | No CMS, no mock HTTP server |
 | Storefront UI, theme, atoms | **Build** | Styled Components + tokens |
 | HTTP + persistence + connectivity | **Buy (OSS)** | axios, Redux Toolkit, redux-persist, **`react-native-encrypted-storage`**, `@react-native-community/netinfo` |
@@ -156,7 +156,7 @@ Redux: **Redux Toolkit** for slices plus **explicit async middleware** so the AP
 | 6 | HTTP client | axios, API module only | Single instance, interceptors, swap-ready | `fetch`/`axios` from screens or hooks |
 | 7 | Session persistence | redux-persist, auth slice, **`react-native-encrypted-storage`** (Keychain / EncryptedSharedPreferences) | Real JWT later is a payload change, not a storage rewrite (OQ-16 closed) | AsyncStorage for tokens; persisting the whole store; custom Keychain module |
 | 8 | State libraries | RTK + explicit async middleware + React Navigation | Teaching pattern stays visible; stack already locked | Zustand/MobX, Expo Router, Expo |
-| 9 | Build vs. buy | Build app + mocks; buy OSS libs only; no BaaS | Phase 1 has no real backend | Auth0/Firebase/CMS as Phase-1 dependencies |
+| 9 | Build vs. buy | Build app + mocks; buy OSS libs only; no BaaS in Phase 1. Phase 3 IdP is buy-behind-API (ADR-0009) | Phase 1 has no real backend | Auth0/Firebase/CMS as Phase-1 dependencies |
 | 10 | Connectivity | Shell-owned NetInfo overlay | One gate matching the reference; restore by auth state | Per-feature offline screens; last-known-home cache |
 | 11 | Storefront paging | Feature hooks + paginated mocks | Organized loadMore; contract can page in Phase 3 | One-shot full-catalog payload |
 | 12 | User profile | Memory-only user slice; `/me` with JWT on every cold start | Matches production; persist stays auth-only (ADR-0003) | Persisting `userName`; profile inside the auth slice |
@@ -181,3 +181,4 @@ Carried forward: OQ-10 (backend team accepts the contract → 1.11), OQ-12 (who 
 | v0.2.0 | 2026-08-16 | STEP-1.3a | Shell owns NetInfo connectivity overlay; storefront pagination hooks; persist engine locked to `react-native-encrypted-storage`. Closed OQ-16; opened OQ-19. |
 | v0.3.0 | 2026-08-16 | STEP-1.4 | User slice + `/me`; two feed endpoints + boot loader; closed OQ-19. |
 | v0.3.1 | 2026-08-17 | STEP-1.5 | HomeFeed/CW are `Container[]` + `resources: Card[]`; CW variant `progress` (ADR-0007). |
+| v0.3.2 | 2026-08-17 | STEP-1.6a | Phase 3 IdP is buy-behind-API (ADR-0009); Phase 1 mock auth unchanged. |

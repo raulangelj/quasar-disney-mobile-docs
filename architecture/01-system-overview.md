@@ -1,8 +1,8 @@
 # Doc 01 — System Overview, Requirements & Non-Goals
 
-**Version:** v0.1.3
+**Version:** v0.1.4
 **Status:** Draft
-**Last updated:** 2026-08-16 (STEP-1.4)
+**Last updated:** 2026-08-17 (STEP-1.6a)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > What quasar-disney-mobile is building in v1, who it serves, how success is measured, and what is deliberately out of scope.
@@ -78,7 +78,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | 2 | **Bare React Native** (no Expo) is acceptable for iOS + Android | Revisit toolchain, native module setup, or CI complexity |
 | 3 | **Dummy API + frontend mocks** are enough for the stakeholder demo | Need a real backend sooner than planned |
 | 4 | **Stakeholder reference images** for login/storefront arrive in time (or dev can proceed with placeholders) | UI polish blocked; demo looks unfinished |
-| 5 | **Hardcoded demo credentials** suffice for v1; no real user accounts | Identity & auth session (1.6a) gets pulled forward |
+| 5 | **Hardcoded demo credentials** suffice for v1; no real user accounts | Confirmed in 1.6a (doc 16). Phase 3 buys an IdP behind our API |
 | 6 | **No regulated data** in v1 — fake credentials only | Privacy/compliance session (1.7a) becomes mandatory earlier |
 | 7 | **Backend team** will own a separate API repo and adopt the mobile app's contract later | Interface-contracts session (1.11) must lock shapes now |
 | 8 | **Theme token swap** is sufficient for re-skinning future projects | May need multi-theme runtime switching or white-label build variants |
@@ -119,7 +119,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 |----|----------|-------|------------|
 | OQ-01 | Final login and storefront UI from stakeholder reference images | Stakeholders / design | 1.7 UI / Design System; `inputs/` |
 | ~~OQ-02~~ | ~~Exact carousel card metadata schema~~ **Resolved (1.4):** Title fields + artwork map + CW progress fields in `architecture/04-data-model.md`. JSON names → 1.11 | — | closed |
-| OQ-03 | Production backend contract and JWT claims shape | Backend team | 1.6a Identity & Auth; 1.11 Interface Contracts |
+| OQ-03 | Production backend contract and JWT claims shape | Backend team | 1.11 Interface Contracts; Phase 3 |
 | OQ-04 | Real streaming app migration timeline and which modules move first | Product / eng leadership | 1.2 Phasing & Roadmap |
 | OQ-05 | Bitrise project setup and signing credentials | DevOps / mobile | 1.8 Infrastructure & Deployment |
 | OQ-06 | Budget and tooling approvals | Management | 1.8 Infrastructure |
@@ -132,3 +132,4 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | v0.1.1 | 2026-08-14 | STEP-1.2 | §5 timeline and work-split constraints superseded by doc 02 (fixed 2026-08-18 sign-off; Phase 1 split into 1a/1b). OQ-01 resolved by `inputs/ui/disney-plus-reference-screens.md`. |
 | v0.1.2 | 2026-08-16 | STEP-1.3a | Storefront scope: paginated feed/carousels via feature hooks (doc 15 / ADR-0005). |
 | v0.1.3 | 2026-08-16 | STEP-1.4 | Closed OQ-02 (Title / CW / artwork schema in doc 04). |
+| v0.1.4 | 2026-08-17 | STEP-1.6a | Assumption 5 confirmed (demo credentials). OQ-03 now 1.11 / Phase 3; mock claims closed in doc 16. |

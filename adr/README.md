@@ -47,6 +47,8 @@ e.g. "tech lead", "consensus of maintainers", "ADR review on PR". -->
 | ADR-0006 | Two authenticated storefront GETs composed on the client | Accepted | 2026-08-16 |
 | ADR-0007 | Shared Container and Card types on both storefront GETs | Accepted | 2026-08-17 |
 | ADR-0008 | Abbreviated Phase-1 threat model with recorded deferrals | Accepted | 2026-08-17 |
+| ADR-0009 | Phase-1 mock auth; Phase-3 managed IdP behind our API | Accepted | 2026-08-17 |
+| ADR-0010 | Binary session gate; no roles or entitlements in Phase 1 | Accepted | 2026-08-17 |
 
 <!-- Example row shape (indented so it isn't picked up by the scan / `max + 1`; a real row
      starts at the line's left margin with no leading spaces):

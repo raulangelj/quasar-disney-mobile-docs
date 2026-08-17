@@ -64,10 +64,10 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Sessions 1.5 Scaling, 1.6a Identity & Auth, 1.8 Infrastructure, 1.9 Environments, and 1.10 Observability are deferred; 1.6, 1.13, and 1.14 run abbreviated."
-    impact: "Design posture in those areas is undecided; a later phase may find Phase-1a choices constrain it."
-    mitigation: "Each deferred session carries a revisit trigger in prompts/STEP-index.md; none informs a Phase-1a decision."
-    revisit_trigger: "Per-session triggers in prompts/STEP-index.md, or the next periodic check-in — whichever comes first."
+    description: "Sessions 1.8 Infrastructure, 1.9 Environments, and 1.10 Observability remain in the STEP-1 queue after 1.5 and 1.6a ran. 1.6, 1.13, and 1.14 run abbreviated."
+    impact: "Design posture in those remaining areas is undecided; a later phase may find Phase-1a choices constrain it."
+    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5 and 1.6a are Done (docs 05 and 16)."
+    revisit_trigger: "After 1.8–1.10 run, or the next periodic check-in — whichever comes first."
     refs:
       - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
       - "../../prompts/STEP-index.md"
@@ -181,10 +181,12 @@ risks:
     description: "Anyone with DEMO_EMAIL / DEMO_PASSWORD is the user. No accounts, MFA, or per-user secrets."
     impact: "Impersonation of the demo session. Bounded while the app is internal and unpublished."
     mitigation: "Auth still goes through the mock adapter; credentials live in gitignored .env, not the screen or git."
-    revisit_trigger: "Phase 3 real accounts / real JWT — designed in session 1.6a."
+    revisit_trigger: "Phase 3 real accounts / real JWT — swap designed in architecture/16-identity-auth.md (ADR-0009)."
     refs:
       - "architecture/06-security-threat-model.md#4-authn--authz-posture"
+      - "architecture/16-identity-auth.md"
       - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
+      - "adr/ADR-0009-idp-buy-behind-api.md"
     closed:
       date:
       reason:

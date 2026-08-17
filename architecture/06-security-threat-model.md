@@ -1,13 +1,13 @@
 # Doc 06 — Security & Threat Model
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6)
+**Last updated:** 2026-08-17 (STEP-1.6a)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > What this React Native demo must protect, where trust is crossed, which threats we mitigate in Phase 1, and which we accept until a real host, real accounts, or Bitrise exists.
 
-This is an **abbreviated** threat model matched to an internal USB-installed POC with in-process mocks and fake fixtures — not a skipped one. Session 1.6 is **Done**. Network-grade controls wait for Phase 3; dependency CI waits for Bitrise (1.8). Identity deep-design is **1.6a**. Privacy/compliance stays **Deferred** until Phase 3 real accounts (doc 04).
+This is an **abbreviated** threat model matched to an internal USB-installed POC with in-process mocks and fake fixtures — not a skipped one. Session 1.6 is **Done**. Network-grade controls wait for Phase 3; dependency CI waits for Bitrise (1.8). Identity deep-design is **Done** in `architecture/16-identity-auth.md`. Privacy/compliance stays **Deferred** until Phase 3 real accounts (doc 04).
 
 ## Table of Contents
 
@@ -84,7 +84,7 @@ STRIDE-lite. Privilege escalation is **out** until there are roles. Insider misu
 
 | Threat | Boundary | Mitigation | Deferred / blast radius |
 |--------|----------|------------|-------------------------|
-| Spoofing — anyone with the shared demo login is “the user” | B1 | **Accept.** One demo account is the design. Auth still goes through the mock adapter, not a screen `if`. | Radius: internal demo. Trigger: Phase 3 real accounts (1.6a designs the swap). **RISK-0008** |
+| Spoofing — anyone with the shared demo login is “the user” | B1 | **Accept.** One demo account is the design. Auth still goes through the mock adapter, not a screen `if`. | Radius: internal demo. Trigger: Phase 3 real accounts (swap designed in doc 16 / ADR-0009). **RISK-0008** |
 | Tampering — garbage email/password | B1 | UX validation (email format, non-empty password). **Auth decision is the mock adapter**; same error shape as the future API. Password field uses secure text. | — |
 | Disclosure — on-screen `userName`, titles | B1 | Intended. Do not log them from analytics stubs. | — |
 | Disclosure — leftover JWT after uninstall | B2 | **Accept** OS Keychain survival. `/me` 401 / `exp` still clears the session when the app runs. | Radius: leftover mock JWT on reinstall. Trigger: real JWT / store release. |
@@ -104,21 +104,20 @@ XSS, CSRF, clickjacking, CORS: **N/A** (native client, JWT on an axios header wh
 
 ## 4. AuthN / AuthZ posture
 
-High-level stance. Deep design is **1.6a** (`architecture/16-identity-auth.md`).
+High-level stance. Deep design is **`architecture/16-identity-auth.md`** (1.6a **Done**).
 
 **AuthN — who you are**
 
-- Email + password against the **mock adapter**.
-- Success mints a **mock JWT** (7-day `exp`, remint on next login). **No refresh token.**
+- Email + password against the **mock adapter** (`DEMO_EMAIL` / `DEMO_PASSWORD` from `.env`).
+- Success mints a **mock JWT** (`sub` + `exp` + `iat`; 7-day `exp`, remint on next login). **No refresh token.**
 - Session restore from encrypted persist; cold start always **`/me`**. 401 / expiry → clear auth + user + content → Welcome.
 - One shared demo account. No signup, verification, recovery, MFA, or SSO in Phase 1.
+- Phase 3: **buy** a managed IdP **behind our API** (ADR-0009). Vendor TBD (OQ-03).
 
 **AuthZ — what you may do**
 
-- **Binary:** session present or not. Unauthenticated navigator vs app navigator.
-- JWT on `/me`, HomeFeed, and Continue Watching. No roles, no admin, no household profiles, no per-title entitlements.
-
-**1.6a:** **Included** (login is Phase 1a). Owns credential source details, JWT claims, `/me` payload (OQ-25), and the Phase 3 IdP / build-vs-buy call.
+- **Binary:** session present or not. Unauthenticated navigator vs app navigator (ADR-0010).
+- JWT on `/me`, HomeFeed, and Continue Watching. `/me` body is `{ id, userName }`. No roles, no admin, no household profiles, no per-title entitlements.
 
 **Forecloses:** Auth0/Firebase on 18 Aug; RBAC now; treating “hardcoded password in the screen” as the auth design.
 
@@ -174,7 +173,7 @@ Operational runbooks: `runbooks/secrets-rotation.md`, `runbooks/dependency-suppl
 | 1 | Assets | Credentials, JWT, PII-shaped `userName`, CW progress, fixtures/contract, demo availability, source as template | Matches docs 03/04/15; no real PII or money | Treating Disney-lookalike art as a legal asset here (that’s RISK-0005) |
 | 2 | Trust boundaries | B1–B6; B4 named but not live; no admin/third-party/s2s | Threats live on lines of trust; B3/B4 share the contract | Inventing a mock HTTP server just to have a network edge |
 | 3 | STRIDE map | Spoofing/disclosure/tampering/replay as in §3; no priv-esc; insider = B6 only | Realistic for an internal mock client | Generic web STRIDE dump |
-| 4 | AuthN/AuthZ | Binary mock JWT gate; 1.6a still runs; privacy stays Deferred | Login is Phase 1a; no roles yet | IdP or RBAC on 18 Aug |
+| 4 | AuthN/AuthZ | Binary mock JWT gate; 1.6a Done (doc 16); privacy stays Deferred | Login is Phase 1a; no roles yet | IdP or RBAC on 18 Aug |
 | 5 | Secrets | `.env` / `.env.example`; encrypted JWT at rest; TLS when B4 exists; no secrets manager yet | Train the migration template; blast radius is still a USB demo | Committing the demo password in fixtures |
 | 6 | Client risks | Validate UX-only; no XSS/CSRF; lockfile + vet now; CI audit at Bitrise | RN is not a browser; no public endpoint | WAF/rate-limit for 18 Aug |
 | 7 | Mitigate vs defer | Now = logging/storage/import rules/`.env`/lockfile. Defer = B4 STRIDE, rate limit, CI audit, pinning. Accept = shared login, Keychain uninstall, device theft | Fortress ≠ this blast radius; deferral is recorded | Skipping 1.6 entirely |
@@ -185,13 +184,14 @@ Operational runbooks: `runbooks/secrets-rotation.md`, `runbooks/dependency-suppl
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
 | OQ-27 | Exact dependency-audit gates once Bitrise exists (`npm audit` fail vs warn, lockfile check, cadence) | Mobile | 1.8 Infrastructure & Deployment; Phase 2 CI |
-| OQ-25 | Exact mock `/me` payload beyond `id` + `userName` (claims vs body) | Mobile | 1.6a Identity & Auth; 1.11 |
-| OQ-03 | Production backend contract and JWT claims shape | Backend team | 1.6a; 1.11; Phase 3 |
+| ~~OQ-25~~ | ~~Exact mock `/me` payload beyond `id` + `userName` (claims vs body)~~ **Resolved (1.6a):** mock JWT = `sub` + `exp` + `iat`; `/me` = `{ id, userName }`. JSON names → OQ-22 | — | closed |
+| OQ-03 | Production backend contract and JWT claims shape | Backend team | 1.11 Interface Contracts; Phase 3 |
 
-Carried: privacy session remains Deferred (doc 04). Pinning / root detection remain **RISK-0007**.
+Carried: privacy session remains Deferred (doc 04). Pinning / root detection remain **RISK-0007**. Identity living doc is `architecture/16-identity-auth.md`.
 
 ## Version Log
 
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.6 | Initial abbreviated threat model. ADR-0008. RISK-0008–0010. |
+| v0.1.1 | 2026-08-17 | STEP-1.6a | Identity deep-design Done (doc 16). Closed OQ-25. OQ-03 now 1.11 / Phase 3. |
