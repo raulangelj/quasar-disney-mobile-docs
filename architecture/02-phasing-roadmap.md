@@ -1,6 +1,6 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.4.1
+**Version:** v0.4.2
 **Status:** Draft
 **Last updated:** 2026-08-17 (planning session)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
@@ -335,10 +335,10 @@ Two things carried forward:
 - **Trademark exposure.** "Dinsey-" is one letter from "Disney"; confusing similarity is precisely
   what trademark law targets. Accepted for an internal, unpublished POC — **rename before any public
   release, store submission, public site, or marketing material** (RISK-0005).
-- **Text is not outlined.** The wordmarks use SVG `<text>` with a font stack that resolves on iOS and
-  falls back on Android, so the brand renders differently per platform. On a demo whose subject is
-  visual fidelity that is a real defect. ~30 minutes to convert to outlines or ship PNGs; do it
-  before 18 Aug.
+- **Wordmarks outlined (OQ-13 closed, STEP-2.4).** Runtime copies in
+  `quasar-disney-mobile-app` `src/shared/assets/brand/` have `<text>` converted to paths so
+  letterforms match on iOS and Android. Hub originals in `architecture/assets/brand/` remain
+  provenance.
 
 ## Decision Summary
 
@@ -373,7 +373,7 @@ Two things carried forward:
 | ~~OQ-10~~ | ~~Does the backend team accept a contract they did not draft, and who reviews it?~~ **Superseded (1.11):** the contract now exists (`architecture/11-interface-contracts.md`); the question becomes **OQ-34**, and doc 11 §14 lists the eight items to settle with them | — | closed |
 | OQ-11 | Who attends the 18 Aug sign-off, and what constitutes "passed"? | Stakeholders | P1 launch criterion |
 | ~~OQ-12~~ | ~~Which dev is A and which is B?~~ **Resolved (planning session):** Dev A = **Raul Angel** (STEP-2, STEP-4, STEP-6); Dev B = **Andres Montoya** (STEP-3, STEP-5, STEP-7) | — | closed |
-| OQ-13 | Who outlines the wordmark text before 18 Aug? (~30 min; see §10) | Mobile dev | Phase 1a assets |
+| ~~OQ-13~~ | ~~Who outlines the wordmark text before 18 Aug?~~ **Resolved (STEP-2.4):** outlined SVG paths shipped in app `src/shared/assets/brand/` | — | closed |
 | ~~OQ-19~~ | ~~Pagination wire format (cursor vs offset) and first-page sizes~~ **Resolved (1.4):** opaque `nextCursor`; HomeFeed first page = hero + 15; CW is a separate endpoint. Envelope JSON names → 1.11 (OQ-22); tile page size → OQ-23 | — | closed |
 
 Carried forward from doc 01 and still open: OQ-03 (production JWT claims / IdP vendor →
@@ -400,3 +400,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.8 | 2026-08-17 | STEP-1.14 | DF1/A3: I/O is RTK Query `baseApi` + axios interceptors; Phase 1 mocks are `axios-mock-adapter` on the same instance (ADR-0020). Goal sentence names Emotion + RTK Query (ADR-0019). |
 | v0.4.0 | 2026-08-17 | STEP-1.14 | Cross-cutting: two-step auth in 1a; live stays 1b; hero 3:4 stand-in (OQ-24 closed); Decision 10/15 reconciled. STEP-1 sessions complete. |
 | v0.4.1 | 2026-08-17 | planning session | Closed OQ-12: Dev A = Raul Angel, Dev B = Andres Montoya. §9 assignment table named. |
+| v0.4.2 | 2026-08-18 | STEP-2.4 | Closed OQ-13: brand wordmark/strip SVG text outlined to paths in the app repo. §10 updated. |

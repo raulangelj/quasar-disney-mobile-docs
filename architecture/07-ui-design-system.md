@@ -1,6 +1,6 @@
 # Doc 07 — UI / Design System
 
-**Version:** v0.2.1
+**Version:** v0.2.2
 **Status:** Draft
 **Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, QA, stakeholders reviewing the 2026-08-18 demo
@@ -453,7 +453,7 @@ const Title = styled.Text`
 | ~~OQ-38~~ | ~~No Phase-1a screen exposes logout — add a hidden affordance, or expiry-only?~~ **Resolved (1.14):** logout in 1a is **expiry-only** (Perfil is ComingSoon; no hidden logout). **Not OQ-29** (that ID is the reachability probe). | — | closed |
 | OQ-30 | Confirm the real API returns row `name` localized to the request's locale (and how locale is conveyed) | Backend team | Phase 3 / OQ-34 |
 
-Carried forward: **OQ-13** (wordmark outlining / PNG export — now also the wordmark half of ADR-0013). **OQ-24** is closed (1.14): 1a ships a 3:4 hero stand-in. **OQ-22** is closed (1.11) — wire names are in `architecture/11-interface-contracts.md` §7; note that **`Card.name` is now `Card.title`**, and that doc 11 §7.3 records why `Container.name` is rendered verbatim while `error.message` never is.
+**OQ-24** is closed (1.14): 1a ships a 3:4 hero stand-in. **OQ-22** is closed (1.11) — wire names are in `architecture/11-interface-contracts.md` §7; note that **`Card.name` is now `Card.title`**, and that doc 11 §7.3 records why `Container.name` is rendered verbatim while `error.message` never is.
 
 ## Version Log
 
@@ -463,3 +463,4 @@ Carried forward: **OQ-13** (wordmark outlining / PNG export — now also the wor
 | v0.1.1 | 2026-08-17 | STEP-1.11 | Closed OQ-22: wire names live in doc 11 §7 (`Card.name` → `Card.title`). Doc 11 §7.3 records the rendered-verbatim vs never-rendered rule for server strings; §8.2 keys all error copy off `error.code`, not server prose. |
 | v0.2.0 | 2026-08-17 | STEP-1.14 | §12: **Emotion** (`@emotion/native` + `@emotion/react` ThemeProvider) replaces styled-components (**ADR-0019**). Token model unchanged. |
 | v0.2.1 | 2026-08-17 | STEP-1.14 | Closed OQ-24 (3:4 hero stand-in). `visibleCount` is client-side (**OQ-37**). Logout in 1a is expiry-only (**OQ-38**). Those questions were mis-numbered as OQ-28/29. |
+| v0.2.2 | 2026-08-18 | STEP-2.4 | Closed **OQ-13**: brand SVG `<text>` converted to paths in `quasar-disney-mobile-app` `src/shared/assets/brand/` (runtime source); hub `architecture/assets/brand/` remains provenance. |
