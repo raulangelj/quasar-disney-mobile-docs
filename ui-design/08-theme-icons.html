@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decisions 8–9 — Theme &amp; iconography · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face { font-family:"InterVar"; src:url("fonts/inter-latin.woff2") format("woff2");
+               font-weight:400 800; font-style:normal; font-display:block; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 24px 64px; background:#16161a; color:#e7e7ea;
+         font:15px/1.55 "InterVar",-apple-system,sans-serif; }
+  h1 { font-size:22px; margin:0 0 6px; } h2 { font-size:17px; margin:0 0 2px; }
+  .lede { max-width:78ch; color:#b0b0b8; margin:0 0 8px; } .lede strong { color:#e7e7ea; }
+  .hold { max-width:78ch; margin:18px 0 26px; padding:12px 14px; border-left:3px solid #52525b;
+          background:#1d1d22; border-radius:0 6px 6px 0; color:#b0b0b8; font-size:13.5px; }
+  .warn { border-left-color:#FBBF24; }
+  .sec { border-top:1px solid #2c2c33; padding:24px 0 8px; }
+  .sec-head { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:baseline; margin-bottom:4px; }
+  .tag { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+         padding:5px 9px; border-radius:5px; background:#2c2c33; color:#b0b0b8; }
+  .rec { background:#14532d; color:#a7f3d0; } .flag { background:#4a3410; color:#fde68a; }
+  .char { color:#b0b0b8; max-width:82ch; margin:2px 0 0; font-size:14px; }
+  .char em { color:#e7e7ea; font-style:normal; font-weight:600; }
+  .cap { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.09em; text-transform:uppercase;
+         color:#8a8a93; margin:0 0 10px; }
+  .row { display:flex; gap:22px; align-items:flex-start; overflow-x:auto; padding:16px 2px 6px; }
+  table { border-collapse:collapse; font-size:12.5px; width:100%; }
+  th,td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid #26262c; vertical-align:top; }
+  th { color:#8a8a93; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; }
+  code,.mono { font-family:ui-monospace,Menlo,monospace; color:#d4d4d8; }
+  td.mono { white-space:nowrap; }
+  .note { background:#1d1d22; border:1px solid #2c2c33; border-radius:10px; padding:14px 16px; }
+  pre { background:#0E0E12; border:1px solid #2c2c33; border-radius:10px; padding:16px;
+        overflow-x:auto; font:12.5px/1.6 ui-monospace,Menlo,monospace; color:#d4d4d8; }
+  pre .k { color:#38BDF8; } pre .s { color:#a7f3d0; } pre .c { color:#71717A; }
+
+  /* ---------- two theme token sets × two surface modes ---------- */
+  .dinsey {
+    --app-base:#0E0E12; --app-raised:#17171D; --app-chrome:rgba(255,255,255,.07);
+    --app-border:rgba(255,255,255,.12); --app-text:#FFFFFF; --app-text2:#A1A1AA; --app-text3:#8A8A93;
+    --app-accent:#38BDF8; --app-live:#FF4D63; --app-chipFill:#3F3F46; --app-chipText:#D4D4D8;
+    --auth-gradTop:#0F3C46; --auth-gradBot:#0A0A0E; --auth-sheet:#FFFFFF; --auth-text:#111114;
+    --auth-text2:#52525B; --auth-field:#E9E9EB; --auth-ph:#5F5F68; --auth-cta:#0E0E12;
+    --auth-link:#1D4ED8; --auth-err:#C81E1E;
+  }
+  .ember {
+    --app-base:#14100C; --app-raised:#1F1A14; --app-chrome:rgba(255,240,220,.07);
+    --app-border:rgba(255,240,220,.14); --app-text:#FFFFFF; --app-text2:#B5AEA3; --app-text3:#948C81;
+    --app-accent:#FBBF24; --app-live:#FF6B4D; --app-chipFill:#443C30; --app-chipText:#E7DFD3;
+    --auth-gradTop:#4A2C10; --auth-gradBot:#0C0A08; --auth-sheet:#FFFFFF; --auth-text:#1C1917;
+    --auth-text2:#57534E; --auth-field:#EDE9E3; --auth-ph:#5C554D; --auth-cta:#14100C;
+    --auth-link:#B45309; --auth-err:#C81E1E;
+  }
+
+  .phone { width:238px; flex:0 0 238px; height:412px; border-radius:24px; overflow:hidden;
+           border:1px solid #35353d; position:relative; font-size:13px; }
+  .app { background:var(--app-base); display:flex; flex-direction:column; }
+  .app-hd { display:flex; align-items:center; justify-content:space-between; padding:18px 16px 10px; }
+  .app-hd .ttl { color:var(--app-text); font-size:20px; font-weight:700; letter-spacing:-.01em; }
+  .ic { width:19px; height:19px; stroke:var(--app-text2); fill:none; stroke-width:1.7;
+        stroke-linecap:round; stroke-linejoin:round; }
+  .pills { display:flex; gap:7px; padding:0 16px 12px; }
+  .pill { font-size:10.5px; font-weight:600; color:var(--app-text); padding:6px 10px; border-radius:999px;
+          background:var(--app-chrome); border:1px solid var(--app-border); }
+  .sect { color:var(--app-text); font-size:16px; font-weight:700; padding:0 16px 8px; }
+  .rowx { display:flex; gap:8px; padding:0 16px; margin-bottom:18px; }
+  .tile { border-radius:10px; overflow:hidden; position:relative; flex:0 0 auto; }
+  .tile.wide { width:142px; } .tile.port { width:74px; }
+  .tile svg.art { display:block; width:100%; height:auto; }
+  .play { position:absolute; inset:0; margin:auto; width:26px; height:26px; border-radius:999px;
+          background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.5); }
+  .play::after { content:""; position:absolute; inset:0; margin:auto; width:0; height:0;
+          border-left:8px solid #fff; border-top:5px solid transparent; border-bottom:5px solid transparent; }
+  .bar { position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,.28); }
+  .bar i { display:block; height:100%; width:62%; background:var(--app-accent); }
+  .meta { padding:0 16px; margin-top:-12px; margin-bottom:16px; }
+  .meta .sub { color:var(--app-text3); font-size:11.5px; display:flex; justify-content:space-between; }
+  .meta .nm { color:var(--app-text); font-size:15px; font-weight:700; margin:4px 0 3px; }
+  .meta .ep { color:var(--app-text2); font-size:11.5px; display:flex; gap:6px; align-items:center; }
+  .chip { font-size:9px; font-weight:700; padding:2px 5px; border-radius:4px;
+          background:var(--app-chipFill); color:var(--app-chipText); }
+  .tabs { margin-top:auto; display:flex; justify-content:space-around; align-items:center;
+          padding:11px 0 15px; background:var(--app-chrome); border-top:1px solid var(--app-border); }
+  .tabs .ic { stroke:var(--app-text3); }
+  .tabs .on .ic { stroke:var(--app-text); }
+  .avatar { width:19px; height:19px; border-radius:999px; background:var(--app-accent); opacity:.85; }
+
+  .auth { background:linear-gradient(var(--auth-gradTop),var(--auth-gradBot)); position:relative; }
+  .wm { position:absolute; top:28px; left:0; right:0; text-align:center; color:#fff;
+        font-weight:800; letter-spacing:.06em; font-size:13px; }
+  .sheet { position:absolute; left:0; right:0; bottom:0; top:78px; background:var(--auth-sheet);
+           border-radius:24px 24px 0 0; padding:18px; }
+  .sheet .brand { color:var(--auth-text); font-weight:800; font-size:11px; }
+  .sheet .hd { color:var(--auth-text); font-size:21px; font-weight:800; letter-spacing:-.015em; margin:8px 0 5px; }
+  .sheet .bd { color:var(--auth-text2); font-size:12.5px; margin:0 0 11px; }
+  .fld { background:var(--auth-field); border-radius:8px 8px 2px 2px; height:46px; padding:0 11px;
+         display:flex; align-items:center; justify-content:space-between; color:var(--auth-text);
+         font-size:12.5px; border-bottom:2px solid var(--auth-err); }
+  .err { color:var(--auth-err); font-size:11.5px; line-height:15px; margin:6px 0 4px; }
+  .hint { color:var(--auth-text2); font-size:11px; margin:0 0 11px; }
+  .cta { background:var(--auth-cta); color:#fff; height:46px; border-radius:999px; display:flex;
+         align-items:center; justify-content:center; font-weight:700; font-size:14px; margin-bottom:10px; }
+  .llnk { color:var(--auth-link); font-weight:600; font-size:11.5px; }
+
+  /* icon grid */
+  .icons { display:flex; flex-wrap:wrap; gap:8px; }
+  .icell { width:78px; background:#0E0E12; border:1px solid #26262c; border-radius:10px;
+           padding:12px 6px 9px; text-align:center; }
+  .icell svg { width:24px; height:24px; stroke:#fff; fill:none; stroke-width:1.7;
+               stroke-linecap:round; stroke-linejoin:round; }
+  .icell svg.filled { fill:#fff; stroke:none; }
+  .icell span { display:block; font:500 9.5px/1.3 ui-monospace,Menlo,monospace; color:#8a8a93; margin-top:8px; }
+</style>
+</head>
+<body>
+
+<h1>Decisions 8–9 — Theme support &amp; iconography</h1>
+<p class="lede">
+  Two system-level decisions on one page. They share a root cause: both are places where a
+  reasonable-looking default would quietly break something already decided.
+</p>
+
+<div class="hold">
+  <strong>The theme trap.</strong> This app has two surface modes, and it is tempting to call them
+  <em>light</em> and <em>dark</em> — at which point the next developer wires them to
+  <code>useColorScheme()</code>, and the auth flow turns dark on a phone in dark mode. That is wrong:
+  the auth sheet is light <em>because MyDisney's sheet is light</em>, not because the device asked.
+  The modes are <strong>surface roles</strong>, not appearance preferences, and naming them for their
+  role is what stops that bug from ever being written.
+</div>
+
+<!-- ================= 8 · STRUCTURE ================= -->
+<section class="sec">
+  <div class="sec-head"><h2>8 · Theme structure — two axes</h2><span class="tag rec">recommended</span></div>
+  <p class="char">
+    A <strong>theme</strong> (the brand's token values) times a <strong>surface mode</strong>
+    (<code>app</code> or <code>auth</code>). Criterion A1 asks for a second theme that re-skins
+    <em>both</em> modes without touching a component — which only works if the mode axis lives
+    <em>inside</em> the theme rather than beside it.
+  </p>
+  <div class="row"><div style="flex:1;min-width:520px">
+<pre><span class="c">// shared/theme/types.ts</span>
+<span class="k">type</span> SurfaceMode = <span class="s">'app'</span> | <span class="s">'auth'</span>;   <span class="c">// role, NOT 'light' | 'dark'</span>
+
+<span class="k">interface</span> Theme {
+  name: <span class="k">string</span>;                        <span class="c">// 'dinsey' | 'ember'</span>
+  modes: Record&lt;SurfaceMode, ModeTokens&gt;;  <span class="c">// every mode, same shape</span>
+  type: TypeScale;                        <span class="c">// mode-independent</span>
+  space: SpaceScale;                      <span class="c">// mode-independent</span>
+  radius: RadiusScale;                    <span class="c">// mode-independent</span>
+  motion: MotionTokens;
+}
+
+<span class="c">// The shell provides the theme once; each navigator provides its mode.</span>
+&lt;ThemeProvider theme={themes[active]}&gt;        <span class="c">// root — brand axis</span>
+  &lt;ModeProvider mode=<span class="s">"auth"</span>&gt; …AuthNavigator…  <span class="c">// light sheet, always</span>
+  &lt;ModeProvider mode=<span class="s">"app"</span>&gt;  …AppTabs…        <span class="c">// dark chrome, always</span>
+&lt;/ThemeProvider&gt;</pre>
+    <p class="char" style="margin-top:12px">
+      Consequences worth stating in the doc: <code>useColorScheme()</code> is <strong>never called</strong>
+      in Phase 1 — a device in light mode sees the identical app. Mode is fixed at the navigator boundary,
+      so it cannot drift out of sync with the route, and no Redux state holds it. And because every mode
+      exposes <em>the same token keys</em>, a component reads <code>colors.text.secondary</code> without
+      knowing which surface it's on — that is what makes A1 mechanical rather than aspirational.
+    </p>
+  </div></div>
+</section>
+
+<!-- ================= 8 · A1 PROOF ================= -->
+<section class="sec">
+  <div class="sec-head"><h2>8 · The A1 test theme, rendered</h2><span class="tag">criterion A1</span></div>
+  <p class="char">
+    Left: the <code>dinsey</code> theme you selected. Right: an <code>ember</code> test theme — the same
+    four screens, the same markup, <em>only the token values swapped</em>. This is the artefact criterion
+    A1 asks for, and it exists here so the foundation STEP has something concrete to build against rather
+    than inventing a second palette under deadline. Every <code>ember</code> value was contrast-checked to
+    the same AA floor (lowest pair: 5.0:1).
+  </p>
+  <div class="row">
+    <div class="dinsey"><p class="cap">theme: dinsey · mode: app</p>
+      <div class="phone app">
+        <div class="app-hd"><span class="ttl">Para ti</span><span style="display:flex;gap:12px">
+          <svg class="ic" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+          <svg class="ic" viewBox="0 0 24 24"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg></span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span></div>
+        <div class="sect">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide"><svg class="art" viewBox="0 0 160 90"><defs><linearGradient id="a1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="sc" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></linearGradient><linearGradient id="a2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient><linearGradient id="a3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><rect width="160" height="90" fill="url(#a1)"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+          <div class="tile wide"><svg class="art" viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a2)"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+        </div>
+        <div class="meta"><div class="sub"><span>11 min restantes</span><span>⋮</span></div>
+          <div class="nm">El Umbral de Orión</div>
+          <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red</span></div></div>
+        <div class="sect">Recomendaciones</div>
+        <div class="rowx">
+          <div class="tile port"><svg class="art" viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a3)"/></svg></div>
+          <div class="tile port"><svg class="art" viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a2)"/></svg></div>
+          <div class="tile port"><svg class="art" viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a1)"/></svg></div>
+        </div>
+        <div class="tabs">
+          <div class="on"><svg class="ic filled" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg></div>
+          <div><svg class="ic" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></div>
+          <div><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+          <div><div class="avatar"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="dinsey"><p class="cap">theme: dinsey · mode: auth</p>
+      <div class="phone auth">
+        <div class="wm">DINSEY-</div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd">Escribir contraseña</div>
+          <div class="bd">Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></div>
+          <div class="fld"><span>••••••••</span><span style="opacity:.55">👁</span></div>
+          <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta.</div>
+          <div class="hint">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta">Iniciar sesión</div>
+          <div class="llnk">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="ember"><p class="cap">theme: ember · mode: app</p>
+      <div class="phone app">
+        <div class="app-hd"><span class="ttl">Para ti</span><span style="display:flex;gap:12px">
+          <svg class="ic" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+          <svg class="ic" viewBox="0 0 24 24"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg></span>
+        </div>
+        <div class="pills"><span class="pill">PIXL</span><span class="pill">NOVA</span></div>
+        <div class="sect">Continuar viendo</div>
+        <div class="rowx">
+          <div class="tile wide"><svg class="art" viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a1)"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+          <div class="tile wide"><svg class="art" viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#a2)"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+        </div>
+        <div class="meta"><div class="sub"><span>11 min restantes</span><span>⋮</span></div>
+          <div class="nm">El Umbral de Orión</div>
+          <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red</span></div></div>
+        <div class="sect">Recomendaciones</div>
+        <div class="rowx">
+          <div class="tile port"><svg class="art" viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a3)"/></svg></div>
+          <div class="tile port"><svg class="art" viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a2)"/></svg></div>
+          <div class="tile port"><svg class="art" viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#a1)"/></svg></div>
+        </div>
+        <div class="tabs">
+          <div class="on"><svg class="ic filled" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg></div>
+          <div><svg class="ic" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg></div>
+          <div><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+          <div><div class="avatar"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="ember"><p class="cap">theme: ember · mode: auth</p>
+      <div class="phone auth">
+        <div class="wm">DINSEY-</div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd">Escribir contraseña</div>
+          <div class="bd">Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></div>
+          <div class="fld"><span>••••••••</span><span style="opacity:.55">👁</span></div>
+          <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta.</div>
+          <div class="hint">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta">Iniciar sesión</div>
+          <div class="llnk">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="char" style="margin-top:8px">
+    Note what did <em>not</em> change: the artwork. Placeholder art is content, not chrome, so it is not
+    themed — which is the correct boundary, since real key art won't be either.
+  </p>
+</section>
+
+<!-- ================= 8 · SWITCHING ================= -->
+<section class="sec">
+  <div class="sec-head"><h2>8 · How the swap is triggered</h2><span class="tag">choose</span></div>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Option</th><th>Mechanism</th><th>Consequence</th></tr>
+    <tr>
+      <td><strong>A</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
+      <td>Dev affordance in the running app: long-press the wordmark on Welcome → cycles theme. Not exposed as a user setting.</td>
+      <td>A1 becomes <em>demonstrable live at sign-off</em> rather than a claim backed by a diff — you re-skin both surface modes in front of the stakeholders in two seconds. Costs one <code>onLongPress</code> and a <code>ui.theme</code> value. Must be visibly a dev affordance, not a half-built settings feature.</td>
+    </tr>
+    <tr><td><strong>B</strong></td><td>Build-time constant / env flag</td><td>Zero UI surface, but verification means a rebuild — and nobody will do it a second time after Saturday.</td></tr>
+    <tr><td><strong>C</strong></td><td>Real user-facing theme setting</td><td>Implies a settings screen, which doc 01 explicitly defers, and implies persistence, which contradicts persist-auth-slice-only (ADR-0003).</td></tr>
+  </table></div></div>
+</section>
+
+<!-- ================= 9 · ICONS ================= -->
+<section class="sec">
+  <div class="sec-head"><h2>9 · Iconography</h2><span class="tag rec">recommended: hand-authored SVG set</span></div>
+  <p class="char">
+    The whole app needs <strong>13 icons</strong>. All of them are simple geometry at a single 1.7&nbsp;px
+    stroke weight on a 24&nbsp;pt grid, plus two filled forms for active tab states.
+  </p>
+  <div class="row"><div class="icons">
+    <div class="icell"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg><span>cast</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg><span>download</span></div>
+    <div class="icell"><svg class="filled" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg><span>home·on</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg><span>home·off</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg><span>bolt</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><span>search</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.4-3.6 4.1-5.4 7.5-5.4s6.1 1.8 7.5 5.4"/></svg><span>profile</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span>chevron-l</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7"/></svg><span>chevron-d</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/></svg><span>eye</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="3"/><path d="M4 20L20 4"/></svg><span>eye-off</span></div>
+    <div class="icell"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="#fff" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="#fff" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="#fff" stroke="none"/></svg><span>overflow</span></div>
+    <div class="icell"><svg class="filled" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7z"/></svg><span>play</span></div>
+  </div></div>
+
+  <div class="hold warn" style="max-width:none; margin-top:20px">
+    <span class="tag flag">doc-drift found</span>
+    <p class="char" style="margin:10px 0 0">
+      <strong><code>react-native-svg</code> is already a hard dependency, and doc 03 doesn't list it.</strong>
+      Every placeholder-art file in <code>architecture/assets/placeholder-art/</code> is an
+      <code>.svg</code>, and so is every brand wordmark — but React Native cannot render SVG without
+      <code>react-native-svg</code>. Doc 03 §7's hard-dependency list (RN, RTK, React Navigation, Styled
+      Components, axios, redux-persist, encrypted-storage, netinfo) omits it, so as written the assets
+      decided in STEP-1.2 cannot be displayed by the stack decided in STEP-1.3.
+    </p>
+    <p class="char" style="margin:10px 0 0">
+      Two ways out, and the choice belongs to you: <strong>(i)</strong> add
+      <code>react-native-svg</code> — one well-maintained library, autolinked, and it makes this icon set
+      free plus renders the wordmarks and art directly; or <strong>(ii)</strong> export every asset to
+      <code>@1x/@2x/@3x</code> PNG and keep the dependency list as-is, which also happens to resolve the
+      un-outlined-wordmark defect (OQ-13 / doc 02 §10) since PNGs carry no font dependency at all. I lean
+      <strong>(i)</strong> plus PNG export for the <em>wordmarks only</em>: SVG for art and icons that must
+      scale and re-tint, PNG for the one asset whose text rendering is already a known platform hazard.
+      Either way doc 03 needs updating — that is a real find, not a formality.
+    </p>
+  </div>
+
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Option</th><th>Approach</th><th>Consequence</th></tr>
+    <tr>
+      <td><strong>A</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
+      <td>Hand-authored 13-icon set as RN components over <code>react-native-svg</code>, in <code>shared/ui/icons/</code></td>
+      <td>13 icons is small enough to author in an hour, and each one accepts <code>color</code> from theme tokens so active/inactive tab states and both surface modes come free. No native font linking. Adds nothing beyond the dependency the assets already require.</td>
+    </tr>
+    <tr>
+      <td><strong>B</strong></td>
+      <td><code>react-native-vector-icons</code> (Material or Ionicons)</td>
+      <td>Thousands of icons, none of which match the reference's specific cast/downloads/bolt glyphs; needs per-platform native font linking (Info.plist + gradle), and ships a whole icon font to use 13 glyphs.</td>
+    </tr>
+    <tr>
+      <td><strong>C</strong></td>
+      <td>PNG icon assets</td>
+      <td>No dependency at all, but tinting per state and per theme means shipping variants of each file — which breaks A1's "swap tokens, touch nothing else" the moment a theme changes icon color.</td>
+    </tr>
+  </table></div></div>
+</section>
+
+</body>
+</html>

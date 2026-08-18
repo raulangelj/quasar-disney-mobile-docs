@@ -36,7 +36,340 @@
 # - medium: meaningful but bounded blast radius.
 # - low: local nuisance, cleanup, or small maintainability drag.
 
-risks: []
+risks:
+  - id: RISK-0001
+    status: open
+    title: "UI/component rendering tests deferred out of Phase 1a"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Phase 1a tests every reducer, middleware, hook, and the API layer, but ships no rendering tests. Session 1.12 confirmed this as tier T3, deferred to 1b."
+    impact: "No regression safety net on the screens whose visual fidelity is itself a sign-off criterion."
+    mitigation: "Logic layers fully tested per doc 12 §3's must-cover list; the theme token-parity test (doc 12 §3.4) covers criterion A1's structural half without a renderer; manual smoke on both platforms before the 2026-08-18 sign-off."
+    revisit_trigger: "Start of Phase 1b, or the first visual regression reported after sign-off."
+    refs:
+      - "architecture/02-phasing-roadmap.md#2-phase-1a-the-2026-08-18-demo-cut"
+      - "architecture/02-phasing-roadmap.md#4-launch-criteria"
+      - "architecture/12-test-strategy.md#2-test-tiers"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0002
+    status: closed
+    title: "Five architecture sessions deferred to fit the fixed sign-off date"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Originally only 1.13 Glossary and 1.14 Cross-Cutting Review remained; every deferred session subsequently ran. STEP-1.14 closed the architecture STEP."
+    impact: "Design posture in those remaining areas is undecided; a later phase may find Phase-1a choices constrain it."
+    mitigation: "All core sessions and included conditionals are Done. Remaining OQs are planning / Phase-2 / Phase-3 carry-forward, not missing architecture sessions."
+    revisit_trigger: "—"
+    refs:
+      - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
+      - "../../prompts/STEP-index.md"
+    closed:
+      date: "2026-08-17"
+      reason: "STEP-1.14 Cross-Cutting Review completed. All core and included-conditional architecture sessions ran."
+
+  - id: RISK-0003
+    status: open
+    title: "Bare React Native scaffold on two platforms is the critical-path schedule risk"
+    category: reliability
+    severity: high
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Pods, signing, emulators, and Xcode version drift can consume half a day of a ~3.5-day window with no warning. Session 1.8 chose lockfiles-only reproducibility (no authored pin files, no toolchain table), so Xcode version drift between the two laptops stays explicitly unmitigated inside this risk."
+    impact: "If the scaffold slips, the Sunday auth-flow plan no longer closes before the immovable 2026-08-18 sign-off."
+    mitigation: "Pre-agreed fallback: if no app runs on both platforms by Saturday midday, drop Android for Saturday, pursue iOS only, bring Android up Monday. Commit every lockfile the RN scaffold generates."
+    revisit_trigger: "Foundation / scaffold STEP — Saturday midday checkpoint in doc 02 §8. The original 2026-08-15 date has passed; the scaffold has not started because STEP-1 was still in flight."
+    refs:
+      - "architecture/02-phasing-roadmap.md#8-schedule-and-schedule-risk"
+      - "architecture/08-infrastructure-deployment.md#4-infrastructure-as-code--lockfiles-only"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0005
+    status: open
+    title: "Placeholder brand \"Dinsey-\" is confusingly similar to Disney"
+    category: compliance
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "The POC's fictional brand is one letter from Disney; confusing similarity is the core trademark-infringement test."
+    impact: "Low while the app is internal and unpublished; a trademark complaint becomes plausible the moment it is shown publicly or submitted to a store."
+    mitigation: "Internal, unpublished POC only. Sub-brands in the strip are deliberately NOT lookalikes of the real studios."
+    revisit_trigger: "Any public release, app store submission, public website, or marketing use — rename before, not after."
+    refs:
+      - "architecture/02-phasing-roadmap.md#10-placeholder-brand"
+      - "architecture/assets/README.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0006
+    status: open
+    title: "Brand wordmark text is not outlined — renders differently on iOS and Android"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/assets/README.md"
+    description: "Wordmark SVGs use <text> with a font stack; Avenir Next resolves on iOS, Android falls back to a different face."
+    impact: "The brand looks different per platform in a demo whose explicit sign-off criterion is visual fidelity."
+    mitigation: "Convert text to outlines (~30 min in Figma/Inkscape) or ship @1x/@2x/@3x PNGs. Geometry is already platform-independent."
+    revisit_trigger: "Before the 2026-08-18 sign-off (open question OQ-13)."
+    refs:
+      - "architecture/assets/README.md#known-limitation-text-is-not-outlined"
+      - "architecture/02-phasing-roadmap.md#10-placeholder-brand"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0004
+    status: open
+    title: "Backend team inherits an API contract they did not draft"
+    category: other
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-14"
+    source: "architecture/02-phasing-roadmap.md"
+    description: "Phase 1a authors the contract that defines the mock shapes; the backend team implements against it later without having participated."
+    impact: "If they reject or materially change it, Phase 3 becomes a rewrite rather than a base-URL swap — the exact outcome the contract exists to prevent."
+    mitigation: "Deliver the contract document as a Phase-1a artifact and seek review before Phase 3 starts."
+    revisit_trigger: "First contact with the backend team about the contract (open question OQ-34)."
+    refs:
+      - "architecture/02-phasing-roadmap.md#5-later-phases"
+      - "architecture/02-phasing-roadmap.md#open-questions"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0007
+    status: open
+    title: "Device security controls deferred (pinning, jailbreak/root detection)"
+    category: security
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-16"
+    source: "architecture/15-native-app-architecture.md"
+    description: "Phase 1 ships tokens in Keychain/EncryptedSharedPreferences but no certificate pinning and no jailbreak/root detection."
+    impact: "No MITM defense and no compromised-device lockout. Bounded while I/O is in-process mocks and the app is an internal local demo."
+    mitigation: "Pinning as an axios interceptor when a real host exists (Phase 3). Root detection only if a store-bound release needs it."
+    revisit_trigger: "Phase 3 backend integration (pinning), or any store/TestFlight submission (compromised-device policy)."
+    refs:
+      - "architecture/15-native-app-architecture.md#6-device-security"
+      - "architecture/06-security-threat-model.md#3-threats--mitigations"
+      - "adr/ADR-0004-online-only-connectivity-gate.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0008
+    status: open
+    title: "Shared demo login is the identity model"
+    category: security
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/06-security-threat-model.md"
+    description: "Anyone with DEMO_EMAIL / DEMO_PASSWORD is the user. No accounts, MFA, or per-user secrets."
+    impact: "Impersonation of the demo session. Bounded while the app is internal and unpublished."
+    mitigation: "Auth still goes through the mock adapter; credentials live in gitignored .env, not the screen or git."
+    revisit_trigger: "Phase 3 real accounts / real JWT — swap designed in architecture/16-identity-auth.md (ADR-0009)."
+    refs:
+      - "architecture/06-security-threat-model.md#4-authn--authz-posture"
+      - "architecture/16-identity-auth.md"
+      - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
+      - "adr/ADR-0009-idp-buy-behind-api.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0009
+    status: open
+    title: "No server-side or network security controls until a real host exists"
+    category: security
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/06-security-threat-model.md"
+    description: "B4 (API module ↔ backend) is not live. Rate limiting, TLS-in-transit, MITM, injection, and replay-vs-server are deferred."
+    impact: "None until Phase 3 exposes a host. Then an unauthenticated or MITM-able client would be a real incident class."
+    mitigation: "HTTPS-only + ATS when B4 ships; pinning remains RISK-0007. Mock adapter owns auth until then."
+    revisit_trigger: "Phase 3 backend integration — before the API module talks to a real host."
+    refs:
+      - "architecture/06-security-threat-model.md#3-threats--mitigations"
+      - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0010
+    status: open
+    title: "Dependency vulnerability audit is not a CI gate yet"
+    category: dependency
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/06-security-threat-model.md"
+    description: "Lockfile + vet-before-add + check-in-cadence npm audit apply; there is no Bitrise job that fails a build on audit findings. Session 1.8 closed OQ-27 as deferred. Phase 1a has a JS GitHub Actions gate (ADR-0018) that does not run npm audit — fail vs warn is still meaningless until Bitrise."
+    impact: "An unpatched advisory can sit until someone runs audit locally or at a check-in."
+    mitigation: "Commit the lockfile; runbooks/dependency-supply-chain.md on add and at check-in."
+    revisit_trigger: "Bitrise implementation (Phase 2) — decide fail vs warn then, in the STEP that builds the pipeline."
+    refs:
+      - "architecture/06-security-threat-model.md#6-web--client-risk-posture"
+      - "architecture/08-infrastructure-deployment.md#5-networking-tls-secrets"
+      - "adr/ADR-0008-abbreviated-phase-1-threat-model.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0011
+    status: open
+    title: "Accessibility is verified only by a manual pass in Phase 1a"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/07-ui-design-system.md"
+    description: "The design system targets WCAG 2.1 AA and specifies labels, grouping, live-region errors, and reduced-motion mapping, but UI tests are deferred to 1b (RISK-0001), so nothing asserts any of it."
+    impact: "A missing accessibilityLabel or an ungrouped tile ships silently. The live-region auth error is the sharpest case: without it a failed login is inaudible to a screen-reader user, so criterion F2 fails for them while appearing to pass."
+    mitigation: "A11y props are written as each atom is written, not retrofitted; a 10-minute VoiceOver + TalkBack pass is added to the Tuesday-AM smoke checklist (doc 02 §8)."
+    revisit_trigger: "Phase 1b UI tests — add a11y assertions to the component test suite."
+    refs:
+      - "architecture/07-ui-design-system.md#8-accessibility"
+      - "architecture/02-phasing-roadmap.md#2-phase-1a-the-2026-08-18-demo-cut"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0012
+    status: open
+    title: "Decisions can imply dependencies that no doc records"
+    category: tech-debt
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "adr/ADR-0013-svg-rendering-dependency.md"
+    description: "STEP-1.2 chose SVG assets; STEP-1.3 listed hard dependencies without react-native-svg, so for three days two accepted docs described a stack that could not render its own assets. React Navigation's required peers were missing for the same reason."
+    impact: "A gap of this kind surfaces during the scaffold — the window RISK-0003 already names as the top schedule risk — rather than during design."
+    mitigation: "ADR-0013 completes doc 03's list and sets the rule: a session that decides an asset format also names the dependency that renders it. The check-in sweep re-reconciles doc 03 §7 against what the design and asset docs assume."
+    revisit_trigger: "Next check-in, and any session that introduces a new asset format or rendering surface."
+    refs:
+      - "adr/ADR-0013-svg-rendering-dependency.md"
+      - "architecture/03-architecture-overview.md#7-build-vs-buy"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0013
+    status: open
+    title: "Deployment and recovery posture is a manual procedure, a spare binary, and a git push"
+    category: operations
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/08-infrastructure-deployment.md"
+    description: "Session 1.8 deliberately scoped to a showcase with no QA or deployment tier: no native CI, no IaC beyond committed lockfiles, no secret manager, no availability target. A JavaScript GitHub Actions gate exists from 1.12 (ADR-0018) but does not produce binaries. Session 1.9 confirmed environments are two build configurations rather than deployment tiers, and no staging or sandbox tier exists. Recovery is reinstalling the previous known-good .ipa/.apk (RTO ~1 min, RPO = last git push)."
+    impact: "Correct for an internal POC and negligent for a product with users. The gap surfaces the moment anyone other than the two devs depends on a build, or real data exists."
+    mitigation: "The manual procedure is written down and repeatable (runbooks/release-deploy.md); build on two machines and install on two devices; keep the previous binary. Session 1.9 hardened the procedure: trunk-only builds, clean-state install verified at the welcome screen, .env key-completeness check, and a release-build smoke at every sync point."
+    revisit_trigger: "Bitrise implementation (Phase 2), Phase 3 backend integration (when a staging tier becomes meaningful — OQ-31), or any real users / real data / store submission — whichever comes first."
+    refs:
+      - "architecture/08-infrastructure-deployment.md#3-deploy-pipeline--build--install--roll-back"
+      - "architecture/08-infrastructure-deployment.md#7-backups--dr--artifact-and-code-survival"
+      - "architecture/09-environments.md#7-promotion-flow"
+      - "runbooks/release-deploy.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0014
+    status: open
+    title: "The app ships no telemetry — no metrics, tracing, crash reporting, or release-build logs"
+    category: operations
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/10-observability.md"
+    description: "Session 1.10 consciously declined metrics, distributed tracing, health checks, correlation IDs, dashboards, alerting, and any error-tracking vendor, and left the release configuration's console.* strip in place. Logging is bare console.* in development only, and request/response bodies are never logged at all."
+    impact: "If the sign-off binary misbehaves in a way that is not visible on screen there is no signal at all, and diagnosis means reproducing it on a development build. Correct for an internal POC held by its own authors; negligent for a product with users."
+    mitigation: "One shell-root React error boundary ships in both configurations so a render exception degrades to a recoverable screen rather than a white one. Release build is smoked at every sync point (doc 09 §6.1) and the previous known-good binary reinstalls in ~1 minute (doc 08 §7)."
+    revisit_trigger: "The first time anyone outside the two developers depends on a running build, any real user data, Phase 3 backend integration (correlation IDs, health checks), or a store submission — whichever comes first."
+    refs:
+      - "architecture/10-observability.md#9-what-this-accepts"
+      - "architecture/10-observability.md#2-logging"
+      - "architecture/10-observability.md#5-error-tracking--one-boundary-no-vendor"
+      - "architecture/09-environments.md#6-parity--the-release-only-failure-class"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0015
+    status: open
+    title: "No automated end-to-end or device-level test; system verification is a manual smoke"
+    category: tech-debt
+    severity: medium
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/12-test-strategy.md"
+    description: "Session 1.12 declined tier T4 (Detox/Maestro) for Phase 1: it needs a stable build and a runner, and no CI can build native artifacts until Bitrise (OQ-05). The only whole-system verification is the manual release smoke in runbooks/release-deploy.md Part 3."
+    impact: "Nothing automatically proves that welcome -> credentials -> home works end to end on a device. A regression in the assembled app that unit and integration tests both miss is caught only if a human runs the smoke sequence."
+    mitigation: "The smoke sequence is written down, traces criteria F1/F2/F3 + A1 + a11y, and doc 09 §6.1 requires it at every sync point rather than once. The T2 integration tier exercises store + middleware + adapter together, so the assembled data path is covered below the UI."
+    revisit_trigger: "Bitrise landing in Phase 2 (OQ-05) — a runner plus installable builds is what makes an e2e tier affordable."
+    refs:
+      - "architecture/12-test-strategy.md#2-test-tiers"
+      - "architecture/12-test-strategy.md#6-system--end-to-end-testing"
+      - "runbooks/release-deploy.md"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0016
+    status: open
+    title: "Coverage is reported but not gated in Phase 1a"
+    category: tech-debt
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/12-test-strategy.md"
+    description: "Jest coverage runs on every CI job and its summary is visible on every PR, but there is no numeric threshold, no changed-lines gate, and no coverage service. Per-path thresholds (src/api/**, src/features/*/state/** at ~80%) are deferred to Phase 1b."
+    impact: "Coverage can regress without failing a build. Bounded because doc 12 §3's named must-cover list is enforced by review and by the specific tests it requires, which a percentage would not guarantee."
+    mitigation: "A global threshold was rejected on purpose: UI tests are deferred by decision (RISK-0001), so any aggregate number is either meaningless or punishes a deliberate architectural choice. Coverage is treated as a trend signal; the must-cover list is the real gate."
+    revisit_trigger: "Phase 1b, once UI/component tests exist and make an aggregate figure honest — introduce per-path thresholds then."
+    refs:
+      - "architecture/12-test-strategy.md#81-no-numeric-threshold-in-phase-1a"
+      - "architecture/12-test-strategy.md#3-coverage-priorities"
+    closed:
+      date:
+      reason:
+
+  - id: RISK-0017
+    status: open
+    title: "Criterion A2 is enforced by a pattern-matching lint rule that cannot catch computed values"
+    category: tech-debt
+    severity: low
+    owner: "TBD"
+    opened: "2026-08-17"
+    source: "architecture/12-test-strategy.md"
+    description: "Launch criterion A2 (zero hardcoded colors, typography, or spacing outside the theme) is gated by an ESLint no-restricted-syntax rule matching hex/rgb() literals and raw px values outside src/shared/theme/. It catches literals; it cannot catch a color or dimension computed at runtime."
+    impact: "A hardcoded design value can reach the demo through a computed expression while CI shows green, weakening the theme-swap argument (criterion A1) that the POC exists to demonstrate."
+    mitigation: "The 90% rule ships rather than relying on review alone, and doc 12 §7.1 states its reach explicitly instead of implying A2 is fully automated. The theme token-parity test (doc 12 §3.4) and the A1 smoke step (runbooks/release-deploy.md Part 3) catch the visible consequences."
+    revisit_trigger: "Phase 1b UI tests — a rendered-output assertion can catch what static analysis cannot; or the first time a hardcoded value is found in review despite a green gate."
+    refs:
+      - "architecture/12-test-strategy.md#71-what-blocks-merge"
+      - "architecture/02-phasing-roadmap.md#4-launch-criteria"
+      - "adr/ADR-0018-two-tier-ci-js-gate-before-bitrise.md"
+    closed:
+      date:
+      reason:
 
 # Example:
 # risks:

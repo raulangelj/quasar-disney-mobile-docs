@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" width="640" height="360" role="img" aria-label="Placeholder key art">
+  <defs>
+    <linearGradient id="p169aBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E2C63"/><stop offset="1" stop-color="#070A1C"/>
+    </linearGradient>
+    <radialGradient id="p169aGlow" cx="0.24" cy="0.34" r="0.62">
+      <stop offset="0" stop-color="#6366F1" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#6366F1" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="p169aScrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.7"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#p169aBg)"/>
+  <rect width="640" height="360" fill="url(#p169aGlow)"/>
+  <g fill="none" stroke="#C7D2FE" stroke-opacity="0.2" stroke-width="2">
+    <ellipse cx="470" cy="150" rx="150" ry="52"/>
+    <ellipse cx="470" cy="150" rx="150" ry="52" transform="rotate(58 470 150)"/>
+    <ellipse cx="470" cy="150" rx="150" ry="52" transform="rotate(116 470 150)"/>
+  </g>
+  <circle cx="470" cy="150" r="26" fill="#A5B4FC" fill-opacity="0.7"/>
+  <path d="M0 268 L184 214 L352 274 L640 196 L640 360 L0 360 Z" fill="#050818" fill-opacity="0.85"/>
+  <rect y="180" width="640" height="180" fill="url(#p169aScrim)"/>
+</svg>

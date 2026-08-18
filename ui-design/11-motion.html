@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision 13 — Motion &amp; transitions · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face { font-family:"InterVar"; src:url("fonts/inter-latin.woff2") format("woff2");
+               font-weight:400 800; font-style:normal; font-display:block; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 24px 64px; background:#16161a; color:#e7e7ea;
+         font:15px/1.55 "InterVar",-apple-system,sans-serif; }
+  h1 { font-size:22px; margin:0 0 6px; } h2 { font-size:17px; margin:0 0 2px; }
+  .lede { max-width:78ch; color:#b0b0b8; margin:0 0 8px; } .lede strong { color:#e7e7ea; }
+  .hold { max-width:78ch; margin:18px 0 26px; padding:12px 14px; border-left:3px solid #52525b;
+          background:#1d1d22; border-radius:0 6px 6px 0; color:#b0b0b8; font-size:13.5px; }
+  .sec { border-top:1px solid #2c2c33; padding:24px 0 8px; }
+  .sec-head { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:baseline; margin-bottom:4px; }
+  .tag { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+         padding:5px 9px; border-radius:5px; background:#2c2c33; color:#b0b0b8; }
+  .rec { background:#14532d; color:#a7f3d0; }
+  .char { color:#b0b0b8; max-width:82ch; margin:2px 0 0; font-size:14px; }
+  .char em { color:#e7e7ea; font-style:normal; font-weight:600; }
+  .cap { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.09em; text-transform:uppercase;
+         color:#8a8a93; margin:0 0 10px; }
+  .row { display:flex; gap:22px; align-items:flex-start; overflow-x:auto; padding:16px 2px 6px; }
+  table { border-collapse:collapse; font-size:12.5px; width:100%; }
+  th,td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid #26262c; vertical-align:top; }
+  th { color:#8a8a93; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; }
+  code,.mono { font-family:ui-monospace,Menlo,monospace; color:#d4d4d8; }
+  .note { background:#1d1d22; border:1px solid #2c2c33; border-radius:10px; padding:14px 16px; }
+  .demo { background:#0E0E12; border:1px solid #26262c; border-radius:12px; padding:18px; }
+  .lbl { font:500 10.5px/1.4 ui-monospace,Menlo,monospace; color:#8a8a93; margin-top:10px; max-width:190px; }
+
+  /* ---------- animated specimens ---------- */
+  .tile { width:150px; border-radius:10px; overflow:hidden; position:relative; }
+  .tile svg { display:block; width:100%; height:auto; }
+  .press-loop { animation: pressLoop 2.4s ease-in-out infinite; }
+  @keyframes pressLoop {
+    0%,42% { transform:scale(1); } 50%,62% { transform:scale(.965); } 74%,100% { transform:scale(1); }
+  }
+  .press-op { animation: opLoop 2.4s ease-in-out infinite; }
+  @keyframes opLoop { 0%,42% { opacity:1; } 50%,62% { opacity:.7; } 74%,100% { opacity:1; } }
+
+  .screen { width:150px; height:250px; border-radius:14px; border:1px solid #35353d;
+            overflow:hidden; position:relative; background:#0E0E12; }
+  .layer { position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+           font-size:12px; font-weight:700; }
+  .l-auth { background:linear-gradient(#0F3C46,#0A0A0E); color:#fff; }
+  .l-auth::after { content:""; position:absolute; left:0; right:0; bottom:0; top:64px;
+                   background:#fff; border-radius:16px 16px 0 0; }
+  .l-app { background:#0E0E12; color:#fff; }
+  .l-app .g { position:absolute; left:12px; right:12px; top:40px; height:52px; background:#17171D; border-radius:8px; }
+  .l-app .g2 { position:absolute; left:12px; right:12px; top:100px; height:78px; background:#17171D; border-radius:8px; }
+  .xfade .l-app { animation: xfade 3.4s ease-in-out infinite; }
+  @keyframes xfade { 0%,38% { opacity:0; } 52%,88% { opacity:1; } 100% { opacity:0; } }
+  .cut .l-app { animation: cut 3.4s steps(1,end) infinite; }
+  @keyframes cut { 0%,45% { opacity:0; } 46%,88% { opacity:1; } 100% { opacity:0; } }
+  .fadeblack .l-app { animation: fb 3.4s ease-in-out infinite; }
+  .fadeblack .blk { position:absolute; inset:0; background:#000; animation: blk 3.4s ease-in-out infinite; }
+  @keyframes fb { 0%,50% { opacity:0; } 62%,88% { opacity:1; } 100% { opacity:0; } }
+  @keyframes blk { 0%,32% { opacity:0; } 45%,55% { opacity:1; } 70%,100% { opacity:0; } }
+
+  .slidein { animation: slide 3s ease-in-out infinite; }
+  @keyframes slide { 0%,10% { transform:translateX(100%); } 30%,80% { transform:translateX(0); } 100% { transform:translateX(100%); } }
+  .fadethru { animation: ft 3s ease-in-out infinite; }
+  @keyframes ft { 0%,10% { opacity:0; transform:scale(.94); } 30%,80% { opacity:1; transform:scale(1); } 100% { opacity:0; transform:scale(.94); } }
+
+  .skel { width:150px; height:84px; border-radius:10px;
+          background:linear-gradient(90deg,#17171D 25%,#23232B 50%,#17171D 75%);
+          background-size:200% 100%; animation: sh 1.4s linear infinite; }
+  @keyframes sh { to { background-position:-200% 0; } }
+  .skel.still { animation:none; background:#17171D; }
+
+  .pbar { width:150px; height:4px; background:rgba(255,255,255,.28); border-radius:2px; overflow:hidden; }
+  .pbar i { display:block; height:100%; background:#38BDF8; width:0; animation: fill 3s ease-out infinite; }
+  @keyframes fill { 0% { width:0; } 45%,100% { width:62%; } }
+
+  .ovl { width:150px; height:120px; border-radius:12px; position:relative; overflow:hidden; background:#17171D; }
+  .ovl .cover { position:absolute; inset:0; background:#0E0E12; display:flex; align-items:center;
+                justify-content:center; color:#fff; font-size:11px; text-align:center; padding:12px;
+                animation: ovin 3.2s ease-in-out infinite; }
+  @keyframes ovin { 0%,20% { opacity:0; } 35%,80% { opacity:1; } 95%,100% { opacity:0; } }
+
+  .btnspin { width:130px; height:44px; border-radius:999px; background:#fff; color:#0E0E12;
+             display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;
+             position:relative; }
+  .btnspin::after { content:""; width:16px; height:16px; border:2px solid rgba(14,14,18,.25);
+             border-top-color:#0E0E12; border-radius:999px; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<h1>Decision 13 — Motion &amp; transitions</h1>
+<p class="lede">
+  Everything below is animating at its proposed real duration, so the timings are judged rather than
+  imagined. Motion is the last visual decision — and the one that most easily turns a fidelity demo into
+  something that feels either cheap or sluggish on a device.
+</p>
+
+<div class="hold">
+  <strong>Data visualization: not applicable.</strong> The session brief pairs motion with data-viz; this
+  app has no charts. The only quantitative display is the continue-watching progress bar, which is a token'd
+  atom (decision 6), not a chart. <strong>No charting library, no viz palette</strong> — recorded so a later
+  reader knows it was considered and dismissed rather than forgotten.
+</div>
+
+<!-- ============== TIMING SCALE ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>The motion scale</h2><span class="tag rec">recommended</span></div>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Token</th><th>Duration</th><th>Easing</th><th>Used by</th></tr>
+    <tr><td class="mono">motion.instant</td><td class="mono">100 ms</td><td class="mono">ease-out</td><td>press in/out, toggle states</td></tr>
+    <tr><td class="mono">motion.quick</td><td class="mono">180 ms</td><td class="mono">ease-out</td><td>overlay fade, error appear, skeleton→content</td></tr>
+    <tr><td class="mono">motion.base</td><td class="mono">260 ms</td><td class="mono">ease-in-out</td><td>navigator cross-fade, sheet motion</td></tr>
+    <tr><td class="mono">motion.slow</td><td class="mono">400 ms</td><td class="mono">ease-in-out</td><td>reserved — nothing in Phase 1 should need it</td></tr>
+    <tr><td class="mono">motion.shimmer</td><td class="mono">1400 ms</td><td class="mono">linear, loop</td><td>skeleton sweep</td></tr>
+  </table>
+  <p class="char" style="margin-top:12px">
+    Four steps, one reserved. Anything that wants a duration not on this list is a signal that the
+    interaction is wrong, not that the scale is short.
+  </p></div></div>
+</section>
+
+<!-- ============== PRESS ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>Press feedback — as chosen in decision 6, now timed</h2></div>
+  <div class="row">
+    <div class="demo"><div class="tile press-loop"><svg viewBox="0 0 160 90"><defs><linearGradient id="m1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="m2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient></defs><rect width="160" height="90" fill="url(#m1)"/></svg></div>
+      <div class="lbl">tile · scale .965 over <b>100 ms</b><br>native driver, no layout pass</div></div>
+    <div class="demo"><div class="tile press-op"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#m2)"/></svg></div>
+      <div class="lbl">reduced-motion fallback · opacity .7<br>same 100 ms, no transform</div></div>
+    <div class="demo"><div class="btnspin">&nbsp;</div>
+      <div class="lbl">submit · spinner replaces label,<br>button width held (no reflow)</div></div>
+    <div class="note" style="max-width:340px">
+      <p class="char" style="margin:0">
+        Both press animations run on <code>useNativeDriver: true</code> — <code>transform</code> and
+        <code>opacity</code> qualify, which is precisely why those two were chosen in decision 6 and not,
+        say, an animated border or background color. Anything animating layout would run on the JS thread
+        and stutter exactly when the carousel is scrolling.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ROOT TRANSITION ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>The login transition — auth → app</h2><span class="tag">choose</span></div>
+  <p class="char">
+    The single most-watched moment of the demo: a successful login swaps the <em>entire navigator</em> and
+    the <em>surface mode</em> at once — a white sheet becomes a near-black storefront. Each frame below loops
+    at its real duration.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">A · hard cut</p>
+      <div class="screen cut"><div class="layer l-auth">auth</div><div class="layer l-app"><div class="g"></div><div class="g2"></div></div></div>
+      <div class="lbl">0 ms. White→black flash reads as a glitch, not a transition.</div>
+    </div>
+    <div>
+      <p class="cap">B · cross-fade <span class="tag rec" style="padding:3px 6px">recommended</span></p>
+      <div class="screen xfade"><div class="layer l-auth">auth</div><div class="layer l-app"><div class="g"></div><div class="g2"></div></div></div>
+      <div class="lbl"><b>260 ms</b> cross-fade. Reads as one app changing state. Cheap: opacity only, native driver.</div>
+    </div>
+    <div>
+      <p class="cap">C · fade through black</p>
+      <div class="screen fadeblack"><div class="layer l-auth">auth</div><div class="layer l-app"><div class="g"></div><div class="g2"></div></div><div class="blk"></div></div>
+      <div class="lbl">2×260 ms. More cinematic, but doubles the wait right after the loading gate the user already sat through.</div>
+    </div>
+    <div class="note" style="max-width:320px">
+      <p class="char" style="margin:0">
+        B, and note <em>where</em> it sits: the cross-fade happens <strong>after</strong> the boot gate
+        resolves <code>/me</code> + HomeFeed + CW (doc 04 §6), so it fades from the auth sheet to a
+        <em>painted</em> storefront — never to a spinner. Fading into a loading state would make the app feel
+        slower than the hard cut.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== STACK TRANSITIONS ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>Within the auth stack</h2><span class="tag rec">platform defaults</span></div>
+  <div class="row">
+    <div class="demo"><div class="screen" style="width:120px;height:180px"><div class="layer l-auth slidein" style="font-size:11px">password</div></div>
+      <div class="lbl">iOS · slide from right (React Navigation default)</div></div>
+    <div class="demo"><div class="screen" style="width:120px;height:180px"><div class="layer l-auth fadethru" style="font-size:11px">password</div></div>
+      <div class="lbl">Android · fade-through (React Navigation default)</div></div>
+    <div class="note" style="max-width:460px">
+      <p class="char" style="margin:0 0 10px">
+        These differ per platform, and that is <strong>correct</strong> — screen transitions are the
+        behavior half of decision 15's rule, not the appearance half. They pair with the platform back
+        gestures chosen in decision 7: an iOS edge-swipe must drag the screen it is dismissing, which only
+        happens if the transition is the native slide.
+      </p>
+      <p class="char" style="margin:0">
+        This is the one place the demo deliberately looks different on the two devices. Worth saying out loud
+        at sign-off, so it reads as a decision rather than an inconsistency.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FEEDBACK MOTION ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>Loading, progress, overlay</h2></div>
+  <div class="row">
+    <div class="demo"><div class="skel"></div><div class="lbl">skeleton sweep · 1400 ms linear loop</div></div>
+    <div class="demo"><div class="skel still"></div><div class="lbl">reduced motion · static fill, no sweep</div></div>
+    <div class="demo"><div class="pbar"><i></i></div><div class="lbl">progress bar · animates to value over <b>260 ms</b> on mount, then only on data change</div></div>
+    <div class="demo"><div class="ovl"><div class="cover">Es necesario revisar tu conexión a internet.</div></div>
+      <div class="lbl">no-internet overlay · <b>180 ms</b> fade in and out</div></div>
+  </div>
+  <p class="char" style="margin-top:10px">
+    The overlay fades rather than cutting for a specific reason: connectivity flaps. A hard-cut overlay on a
+    flaky network strobes; a fade makes a brief drop read as a soft state change. It still appears fast
+    enough (180 ms) that it never looks delayed.
+  </p>
+</section>
+
+<!-- ============== REDUCED MOTION ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>Reduced motion — the complete mapping</h2><span class="tag">AA requirement</span></div>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Animation</th><th>Normal</th><th>Reduce Motion on</th></tr>
+    <tr><td>Tile press</td><td>scale .965, 100 ms</td><td>opacity .7, 100 ms — <em>feedback is kept</em>, only the transform is dropped</td></tr>
+    <tr><td>Login transition</td><td>cross-fade 260 ms</td><td>cross-fade 100 ms (a fade is not vestibular motion; it is only shortened)</td></tr>
+    <tr><td>Stack transitions</td><td>platform slide / fade-through</td><td><code>animation: 'fade'</code> — no lateral movement</td></tr>
+    <tr><td>Skeleton shimmer</td><td>1400 ms sweep</td><td>static <code>surface.raised</code> fill</td></tr>
+    <tr><td>Progress bar fill</td><td>animates to value</td><td>renders at value immediately</td></tr>
+    <tr><td>Overlay</td><td>fade 180 ms</td><td>unchanged</td></tr>
+  </table>
+  <p class="char" style="margin-top:12px">
+    Read once at boot via <code>AccessibilityInfo.isReduceMotionEnabled()</code>, plus a change listener,
+    exposed as a <code>useReducedMotion()</code> hook in <code>shared/</code>. Components never query the
+    API directly — same discipline as tokens. <strong>The rule is "shorten or substitute, never remove"</strong>:
+    stripping press feedback entirely would leave a user with no confirmation their tap registered, which is
+    a worse accessibility outcome than the animation was.
+  </p></div></div>
+</section>
+
+</body>
+</html>

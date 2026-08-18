@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision 4 — Spacing &amp; layout · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face {
+    font-family: "InterVar"; src: url("fonts/inter-latin.woff2") format("woff2");
+    font-weight: 400 800; font-style: normal; font-display: block;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 24px 64px; background: #16161a; color: #e7e7ea;
+    font: 15px/1.55 "InterVar", -apple-system, sans-serif;
+  }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  h2 { font-size: 17px; margin: 0 0 2px; }
+  .lede { max-width: 76ch; color: #b0b0b8; margin: 0 0 8px; }
+  .lede strong { color: #e7e7ea; }
+  .hold {
+    max-width: 76ch; margin: 18px 0 30px; padding: 12px 14px;
+    border-left: 3px solid #52525b; background: #1d1d22; border-radius: 0 6px 6px 0;
+    color: #b0b0b8; font-size: 13.5px;
+  }
+  .opt { border-top: 1px solid #2c2c33; padding: 26px 0 8px; }
+  .opt-head { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: baseline; margin-bottom: 4px; }
+  .tag { font: 600 11px/1 "InterVar", sans-serif; letter-spacing: .1em; text-transform: uppercase;
+         padding: 5px 9px; border-radius: 5px; background: #2c2c33; color: #b0b0b8; }
+  .rec { background: #14532d; color: #a7f3d0; }
+  .char { color: #b0b0b8; max-width: 80ch; margin: 2px 0 0; font-size: 14px; }
+  .char em { color: #e7e7ea; font-style: normal; font-weight: 600; }
+  .row { display: flex; gap: 22px; align-items: flex-start; overflow-x: auto; padding: 18px 2px 6px; }
+  .cap { font: 600 11px/1 "InterVar", sans-serif; letter-spacing: .09em; text-transform: uppercase; color: #8a8a93; margin: 0 0 8px; }
+  table { border-collapse: collapse; font-size: 12.5px; }
+  th, td { text-align: left; padding: 5px 12px 5px 0; border-bottom: 1px solid #26262c; white-space: nowrap; }
+  th { color: #8a8a93; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; }
+  td.mono, .mono { font-family: ui-monospace, Menlo, monospace; color: #d4d4d8; }
+
+  /* ================================================================
+     Palette locked (decision 2 / A) · typeface locked (Inter).
+     Only the SPACING custom properties differ between options:
+     --gut (screen gutter) · --tg (tile gap) · --sg (section gap)
+     --mg (meta line gap) · --pad (auth sheet padding) · --fld (field height)
+     ================================================================ */
+  .phone {
+    width: 264px; flex: 0 0 264px; height: 528px; border-radius: 26px; overflow: hidden;
+    position: relative; border: 1px solid #35353d; font-family: "InterVar", sans-serif;
+    --base:#0E0E12; --chrome:rgba(255,255,255,.07); --border:rgba(255,255,255,.12);
+    --text:#FFFFFF; --text2:#A1A1AA; --text3:#8A8A93; --accent:#38BDF8;
+    --chipFill:#3F3F46; --chipText:#D4D4D8;
+    --gradTop:#0F3C46; --gradBot:#0A0A0E; --sheet:#FFFFFF; --ltext:#111114; --ltext2:#52525B;
+    --field:#E9E9EB; --ph:#5F5F68; --ctaBg:#0E0E12; --link:#1D4ED8; --err:#C81E1E;
+  }
+  /* --- type ladder, locked --- */
+  .t-h1 { font-size:26px; line-height:31px; font-weight:800; letter-spacing:-.015em; }
+  .t-h2 { font-size:21px; line-height:26px; font-weight:700; letter-spacing:-.01em; }
+  .t-h3 { font-size:16px; line-height:21px; font-weight:700; }
+  .t-body { font-size:14px; line-height:20px; font-weight:400; }
+  .t-cap { font-size:12px; line-height:16px; font-weight:400; }
+  .t-mic { font-size:10px; line-height:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+
+  /* --- storefront --- */
+  .app { background: var(--base); display:flex; flex-direction:column; }
+  .app-hd { display:flex; align-items:center; justify-content:space-between;
+            padding: var(--sg) var(--gut) calc(var(--sg) * .55); }
+  .app-hd .ttl { color: var(--text); }
+  .icn { width:19px; height:19px; }
+  .icn path, .icn rect { stroke: var(--text2); }
+  .sect { color: var(--text); padding: 0 var(--gut) calc(var(--sg) * .4); }
+  .rowx { display:flex; gap: var(--tg); padding: 0 var(--gut); }
+  .tile { border-radius:10px; overflow:hidden; position:relative; flex:0 0 auto; }
+  .tile.wide { width:150px; } .tile.port { width:78px; }
+  .tile svg { display:block; width:100%; height:auto; }
+  .play { position:absolute; inset:0; margin:auto; width:28px; height:28px; border-radius:999px;
+          background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.5); }
+  .play::after { content:""; position:absolute; inset:0; margin:auto; width:0; height:0;
+          border-left:8px solid #fff; border-top:5px solid transparent; border-bottom:5px solid transparent; }
+  .bar { position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,.28); }
+  .bar i { display:block; height:100%; width:62%; background: var(--accent); }
+  .meta { padding: var(--mg) var(--gut) 0; }
+  .meta .sub { color: var(--text3); display:flex; justify-content:space-between; align-items:center; }
+  .meta .nm { color: var(--text); margin: var(--mg) 0 calc(var(--mg) * .6); }
+  .meta .ep { color: var(--text2); display:flex; align-items:center; gap: calc(var(--tg) * .75); }
+  .chip { font-size:9.5px; font-weight:700; padding:2px 5px; border-radius:4px; background:var(--chipFill); color:var(--chipText); }
+  .group { margin-bottom: var(--sg); }
+  .tabs { margin-top:auto; display:flex; justify-content:space-around; align-items:center;
+          padding: 11px 0 15px; background:var(--chrome); border-top:1px solid var(--border); }
+  .tabs span { width:19px; height:19px; border-radius:4px; background:var(--text3); }
+  .tabs span.on { background:var(--text); }
+  .tabs span.av { border-radius:999px; background:var(--accent); opacity:.85; }
+
+  /* 44pt hit-area overlay */
+  .hit { position: relative; display: inline-flex; align-items: center; justify-content: center;
+         width: 22px; height: 22px; color: var(--text2); font-size: 14px; }
+  .hit::before {
+    content: ""; position: absolute; width: 44px; height: 44px; border-radius: 6px;
+    border: 1px dashed #38BDF8; background: rgba(56,189,248,.10);
+  }
+
+  /* --- auth sheet --- */
+  .auth { background: linear-gradient(var(--gradTop), var(--gradBot)); display:flex; flex-direction:column; }
+  .auth-top { height:84px; display:flex; align-items:center; justify-content:center; position:relative; }
+  .auth-top .wm { color:#fff; letter-spacing:.06em; font-weight:800; font-size:14px; }
+  .sheet { flex:1; background:var(--sheet); border-radius:22px 22px 0 0; padding: var(--pad); }
+  .sheet .brand { color:var(--ltext); font-weight:800; font-size:12px; letter-spacing:.02em; }
+  .sheet .hd { color:var(--ltext); margin: calc(var(--pad) * .5) 0 calc(var(--pad) * .3); }
+  .sheet .bd { color:var(--ltext2); margin: 0 0 calc(var(--pad) * .6); }
+  .field { background:var(--field); border-radius:8px; height: var(--fld); padding: 0 12px; color:var(--ltext);
+           display:flex; justify-content:space-between; align-items:center;
+           border-bottom:2px solid var(--err); border-radius:8px 8px 2px 2px; }
+  .err { color:var(--err); margin: calc(var(--pad) * .35) 0 calc(var(--pad) * .25); }
+  .hint { color:var(--ltext2); margin: 0 0 calc(var(--pad) * .65); }
+  .cta { background:var(--ctaBg); color:#fff; text-align:center; height: var(--fld);
+         display:flex; align-items:center; justify-content:center; border-radius:999px; margin-bottom: calc(var(--pad) * .6); }
+  .llnk { color:var(--link); font-weight:600; }
+
+  /* option spacing sets */
+  .S1 { --gut:16px; --tg:8px;  --sg:20px; --mg:6px;  --pad:20px; --fld:48px; }
+  .S2 { --gut:24px; --tg:12px; --sg:32px; --mg:8px;  --pad:28px; --fld:56px; }
+  .S3 { --gut:20px; --tg:12px; --sg:24px; --mg:8px;  --pad:24px; --fld:52px; }
+
+  /* spacing scale strip */
+  .scale { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; }
+  .scale div { text-align:center; }
+  .scale i { display:block; background:#38BDF8; height:14px; border-radius:2px; margin-bottom:5px; opacity:.85; }
+  .scale span { font: 500 10px/1 ui-monospace, Menlo, monospace; color:#8a8a93; }
+  .note { background:#1d1d22; border:1px solid #2c2c33; border-radius:10px; padding:14px 16px; max-width:420px; }
+</style>
+</head>
+<body>
+
+<h1>Decision 4 — Spacing &amp; layout</h1>
+<p class="lede">
+  Palette (A) and typeface (Inter, locked ladder) are identical in all three mocks. <strong>Only the
+  spacing values change.</strong> Each phone renders the same content — two continue-watching tiles, a
+  metadata block, and a portrait row — so what you're comparing is <strong>how much of the storefront
+  survives one viewport</strong>, which is the practical meaning of density in a carousel app.
+</p>
+
+<div class="hold">
+  <strong>The finding that constrains all three.</strong> Density is a visual choice; touch targets are
+  not. The reference's <code>⋮</code> overflow glyph and the password eye toggle are ~20&nbsp;pt of ink,
+  well under the <strong>44×44&nbsp;pt</strong> iOS HIG / <strong>48×48&nbsp;dp</strong> Android minimum
+  that WCAG 2.1 AA also expects. The dashed cyan squares in each mock are that 44&nbsp;pt box drawn to
+  scale. Note it stays the same size in the tight option and the airy one: <em>visual</em> density and
+  <em>hit</em> density are separate, and the fix is <code>hitSlop</code> / a padded pressable wrapper, not
+  a bigger icon. This is a component-spec rule (decision 6), recorded here because it is what stops the
+  tight option from being an accessibility problem.
+</div>
+
+<!-- ===================== OPTION 1 ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option 1 — Reference-tight</h2>
+    <span class="tag rec">recommended</span>
+    <span class="tag">4 pt base · gutter 16</span>
+  </div>
+  <p class="char">
+    The transcribed reference values: <em>16&nbsp;pt</em> screen gutter, <em>8&nbsp;pt</em> between tiles,
+    <em>20&nbsp;pt</em> between row groups. Roughly <em>2.5 rows per viewport</em> — a storefront that
+    reads as full, which is the whole visual argument of a carousel home. <em>Tradeoff:</em> tight
+    vertical rhythm leaves less margin for error when Spanish strings run long, and it depends entirely
+    on the hit-area rule above being honored.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Storefront · ~2.5 rows visible</p>
+      <div class="phone app S1">
+        <div class="app-hd"><span class="ttl t-h2">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Continuar viendo</div>
+          <div class="rowx">
+            <div class="tile wide">
+              <svg viewBox="0 0 160 90"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="sc" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></linearGradient><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg>
+              <div class="play"></div><div class="bar"><i></i></div>
+            </div>
+            <div class="tile wide">
+              <svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#sc)"/></svg>
+              <div class="play"></div><div class="bar"><i style="width:22%"></i></div>
+            </div>
+          </div>
+          <div class="meta">
+            <div class="sub t-cap"><span>11 min restantes</span><span class="hit">⋮</span></div>
+            <div class="nm t-h3">El Umbral de Orión</div>
+            <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red</span></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Recomendaciones</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Series</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/></svg></div>
+          </div>
+        </div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Auth sheet · padding 20, field 48</p>
+      <div class="phone auth S1">
+        <div class="auth-top"><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="field t-body"><span>••••••••</span><span class="hit">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <p class="cap">Values</p>
+      <table>
+        <tr><td>screen gutter</td><td class="mono">16</td></tr>
+        <tr><td>tile gap</td><td class="mono">8</td></tr>
+        <tr><td>row-group gap</td><td class="mono">20</td></tr>
+        <tr><td>metadata line gap</td><td class="mono">6</td></tr>
+        <tr><td>sheet padding</td><td class="mono">20</td></tr>
+        <tr><td>field / CTA height</td><td class="mono">48</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPTION 2 ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option 2 — Comfortable</h2>
+    <span class="tag">8 pt base · gutter 24</span>
+  </div>
+  <p class="char">
+    An 8-pt rhythm throughout: <em>24&nbsp;pt</em> gutter, <em>12&nbsp;pt</em> tile gap,
+    <em>32&nbsp;pt</em> between groups, taller 56&nbsp;pt fields. Calmer, more premium, and the most
+    forgiving of long translated strings. <em>Tradeoff:</em> under two rows survive the viewport, so the
+    storefront reads as a list of things rather than a wall of content — and on a demo whose subject is
+    a Disney+-like storefront, that reads as a different product.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Storefront · &lt;2 rows visible</p>
+      <div class="phone app S2">
+        <div class="app-hd"><span class="ttl t-h2">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Continuar viendo</div>
+          <div class="rowx">
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+          </div>
+          <div class="meta">
+            <div class="sub t-cap"><span>11 min restantes</span><span class="hit">⋮</span></div>
+            <div class="nm t-h3">El Umbral de Orión</div>
+            <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red</span></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Recomendaciones</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Series</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/></svg></div>
+          </div>
+        </div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Auth sheet · padding 28, field 56</p>
+      <div class="phone auth S2">
+        <div class="auth-top"><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="field t-body"><span>••••••••</span><span class="hit">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <p class="cap">Values</p>
+      <table>
+        <tr><td>screen gutter</td><td class="mono">24</td></tr>
+        <tr><td>tile gap</td><td class="mono">12</td></tr>
+        <tr><td>row-group gap</td><td class="mono">32</td></tr>
+        <tr><td>metadata line gap</td><td class="mono">8</td></tr>
+        <tr><td>sheet padding</td><td class="mono">28</td></tr>
+        <tr><td>field / CTA height</td><td class="mono">56</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OPTION 3 ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>Option 3 — Middle</h2>
+    <span class="tag">4 pt base · gutter 20</span>
+  </div>
+  <p class="char">
+    Splits the difference: <em>20&nbsp;pt</em> gutter, <em>12&nbsp;pt</em> tile gap, <em>24&nbsp;pt</em>
+    groups, 52&nbsp;pt fields. Slightly more air than the reference without losing the third row.
+    <em>Tradeoff:</em> it is a compromise nobody asked for — it neither matches the reference values a
+    stakeholder could hold up side by side, nor gains the clear breathing room of option 2. Included
+    because it is the honest middle, not because I'd pick it.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">Storefront · ~2.2 rows visible</p>
+      <div class="phone app S3">
+        <div class="app-hd"><span class="ttl t-h2">Para ti</span>
+          <span style="display:flex;gap:12px">
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
+            <svg class="icn" viewBox="0 0 24 24" fill="none" stroke-width="1.7"><path d="M12 4v10m0 0l-4-4m4 4l4-4M4 18h16"/></svg>
+          </span>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Continuar viendo</div>
+          <div class="rowx">
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+            <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g2)"/><circle cx="40" cy="60" r="34" fill="#f472b6" opacity=".2"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="bar"><i style="width:22%"></i></div></div>
+          </div>
+          <div class="meta">
+            <div class="sub t-cap"><span>11 min restantes</span><span class="hit">⋮</span></div>
+            <div class="nm t-h3">El Umbral de Orión</div>
+            <div class="ep t-cap"><span class="chip">13+</span><span>T3:E12 La Red</span></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Recomendaciones</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/><circle cx="24" cy="34" r="22" fill="#34d399" opacity=".25"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+          </div>
+        </div>
+        <div class="group">
+          <div class="sect t-h2">Series</div>
+          <div class="rowx">
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g1)"/></svg></div>
+            <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g3)"/></svg></div>
+          </div>
+        </div>
+        <div class="tabs"><span class="on"></span><span></span><span></span><span class="av"></span></div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">Auth sheet · padding 24, field 52</p>
+      <div class="phone auth S3">
+        <div class="auth-top"><span class="wm">DINSEY-</span></div>
+        <div class="sheet">
+          <div class="brand">MiDinsey</div>
+          <div class="hd t-h1">Escribir contraseña</div>
+          <div class="bd t-body">Ingresa la contraseña de <b>ana@ejemplo.com</b></div>
+          <div class="field t-body"><span>••••••••</span><span class="hit">👁</span></div>
+          <div class="err t-cap">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+          <div class="hint t-cap">Distingue mayúsculas y minúsculas.</div>
+          <div class="cta t-h3">Iniciar sesión</div>
+          <div class="llnk t-cap">Más información sobre MiDinsey ▾</div>
+        </div>
+      </div>
+    </div>
+    <div class="note">
+      <p class="cap">Values</p>
+      <table>
+        <tr><td>screen gutter</td><td class="mono">20</td></tr>
+        <tr><td>tile gap</td><td class="mono">12</td></tr>
+        <tr><td>row-group gap</td><td class="mono">24</td></tr>
+        <tr><td>metadata line gap</td><td class="mono">8</td></tr>
+        <tr><td>sheet padding</td><td class="mono">24</td></tr>
+        <tr><td>field / CTA height</td><td class="mono">52</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE SCALE ===================== -->
+<section class="opt">
+  <div class="opt-head">
+    <h2>The spacing scale — same in every option</h2>
+    <span class="tag">confirm, don't choose</span>
+  </div>
+  <p class="char">
+    A <strong>4&nbsp;pt base scale</strong> with named steps, regardless of which density you pick. The
+    density options above differ in <em>which steps they use</em>, not in the ladder itself: option 1
+    reaches for <code>space.4</code>/<code>space.5</code> where option 2 reaches for
+    <code>space.6</code>/<code>space.8</code>. A strict 8-pt-only scale was rejected because the
+    reference's real values include 8, 12, and 20 — an 8-only grid would force rounding every one of them.
+  </p>
+  <div class="row">
+    <div class="note" style="max-width:none">
+      <div class="scale">
+        <div><i style="width:4px"></i><span>1 · 4</span></div>
+        <div><i style="width:8px"></i><span>2 · 8</span></div>
+        <div><i style="width:12px"></i><span>3 · 12</span></div>
+        <div><i style="width:16px"></i><span>4 · 16</span></div>
+        <div><i style="width:20px"></i><span>5 · 20</span></div>
+        <div><i style="width:24px"></i><span>6 · 24</span></div>
+        <div><i style="width:32px"></i><span>8 · 32</span></div>
+        <div><i style="width:40px"></i><span>10 · 40</span></div>
+        <div><i style="width:48px"></i><span>12 · 48</span></div>
+        <div><i style="width:64px"></i><span>16 · 64</span></div>
+      </div>
+      <p class="char" style="margin-top:16px">
+        <em>Naming.</em> Steps are named by multiplier (<code>space[4] === 16</code>), not by role
+        (<code>space.gutter</code>). Role aliases get added on top for the three values a component
+        author should never re-derive: <code>layout.gutter</code>, <code>layout.tileGap</code>,
+        <code>layout.rowGap</code>. That keeps criterion A2 ("zero hardcoded spacing") checkable — any
+        raw number in a component is a violation, with no argument about whether it "counts".
+      </p>
+      <p class="char" style="margin-top:10px">
+        <em>Not in this decision:</em> safe-area insets (notch, home indicator) and orientation are
+        decision 10; the 44&nbsp;pt minimum target and focus rings are decision 11. The tab bar's own
+        height is fixed by platform convention, not by this scale (decision 15).
+      </p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decisions 10 &amp; 15 — Device strategy &amp; platform conventions · 1.7</title>
+<style>
+  @font-face { font-family:"InterVar"; src:url("fonts/inter-latin.woff2") format("woff2");
+               font-weight:400 800; font-style:normal; font-display:block; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 24px 64px; background:#16161a; color:#e7e7ea;
+         font:15px/1.55 "InterVar",-apple-system,sans-serif; }
+  h1 { font-size:22px; margin:0 0 6px; } h2 { font-size:17px; margin:0 0 2px; }
+  .lede { max-width:78ch; color:#b0b0b8; margin:0 0 8px; } .lede strong { color:#e7e7ea; }
+  .hold { max-width:78ch; margin:18px 0 26px; padding:12px 14px; border-left:3px solid #52525b;
+          background:#1d1d22; border-radius:0 6px 6px 0; color:#b0b0b8; font-size:13.5px; }
+  .warn { border-left-color:#FBBF24; }
+  .sec { border-top:1px solid #2c2c33; padding:24px 0 8px; }
+  .sec-head { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:baseline; margin-bottom:4px; }
+  .tag { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+         padding:5px 9px; border-radius:5px; background:#2c2c33; color:#b0b0b8; }
+  .rec { background:#14532d; color:#a7f3d0; } .flag { background:#4a3410; color:#fde68a; }
+  .bad { background:#4c1d1d; color:#fecaca; }
+  .char { color:#b0b0b8; max-width:82ch; margin:2px 0 0; font-size:14px; }
+  .char em { color:#e7e7ea; font-style:normal; font-weight:600; }
+  .cap { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.09em; text-transform:uppercase;
+         color:#8a8a93; margin:0 0 10px; }
+  .row { display:flex; gap:20px; align-items:flex-start; overflow-x:auto; padding:16px 2px 6px; }
+  table { border-collapse:collapse; font-size:12.5px; width:100%; }
+  th,td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid #26262c; vertical-align:top; }
+  th { color:#8a8a93; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; }
+  code,.mono { font-family:ui-monospace,Menlo,monospace; color:#d4d4d8; }
+  .note { background:#1d1d22; border:1px solid #2c2c33; border-radius:10px; padding:14px 16px; }
+
+  /* device frames — width is to scale (0.62×), content uses the strategy under test */
+  .dev { border:1px solid #35353d; border-radius:20px; overflow:hidden; background:#0E0E12;
+         position:relative; height:340px; }
+  .w375 { width:233px; } /* iPhone SE / small Android, 375pt */
+  .w440 { width:273px; } /* iPhone 16 Pro Max, 440pt */
+  .devlbl { font:500 10.5px/1.3 ui-monospace,Menlo,monospace; color:#8a8a93; margin-top:8px; }
+  .hd { color:#fff; font-size:17px; font-weight:700; padding:14px 10px 8px; }
+  .sect { color:#fff; font-size:13px; font-weight:700; padding:0 10px 6px; }
+  .strip { display:flex; gap:5px; padding:0 10px; margin-bottom:14px; overflow:hidden; }
+  .tl { border-radius:7px; overflow:hidden; flex:0 0 auto; position:relative; }
+  .tl svg { display:block; width:100%; height:auto; }
+  .safe-top { position:absolute; top:0; left:0; right:0; height:26px;
+              background:repeating-linear-gradient(45deg,rgba(255,77,99,.16) 0 6px,transparent 6px 12px);
+              border-bottom:1px dashed rgba(255,77,99,.5); }
+  .safe-bot { position:absolute; bottom:0; left:0; right:0; height:14px;
+              background:repeating-linear-gradient(45deg,rgba(255,77,99,.16) 0 6px,transparent 6px 12px);
+              border-top:1px dashed rgba(255,77,99,.5); }
+  .notch { position:absolute; top:5px; left:50%; transform:translateX(-50%); width:66px; height:15px;
+           background:#000; border-radius:999px; }
+
+  /* strategy A: fixed pt widths (scaled 0.62) */
+  .A .tl.wide { width:98px; } .A .tl.port { width:55px; }
+  /* strategy C: columns-visible — widths differ per device */
+  .w375.C .tl.wide { width:109px; } .w375.C .tl.port { width:58px; }
+  .w440.C .tl.wide { width:129px; } .w440.C .tl.port { width:69px; }
+</style>
+</head>
+<body>
+
+<h1>Decisions 10 &amp; 15 — Device strategy &amp; platform conventions</h1>
+<p class="lede">
+  One surface (RN phone, iOS + Android), so "responsive" here means <strong>device width</strong>,
+  <strong>safe areas</strong>, <strong>orientation</strong>, and <strong>OS font scaling</strong> — and then
+  the places the two platforms genuinely differ. Grouped because they answer the same question: what has to
+  be true for the same screenshot to be defensible on both devices at sign-off.
+</p>
+
+<!-- ============== 10 · TILE SIZING ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>10 · How tiles get their width</h2><span class="tag">choose</span></div>
+  <p class="char">
+    The reference's storefront depends on <em>peek</em>: the next tile is partly visible, which is what tells
+    you the row scrolls. Whether that peek survives a 375&nbsp;pt phone and a 440&nbsp;pt phone is entirely a
+    function of how tile width is computed. Both frames below are drawn to scale against each other.
+  </p>
+  <div class="row">
+    <div>
+      <p class="cap">A · fixed widths (158 / 88)</p>
+      <div style="display:flex; gap:16px; align-items:flex-start">
+        <div>
+          <div class="dev w375 A">
+            <div class="safe-top"></div><div class="notch"></div>
+            <div class="hd" style="padding-top:30px">Para ti</div>
+            <div class="sect">Continuar viendo</div>
+            <div class="strip">
+              <div class="tl wide"><svg viewBox="0 0 160 90"><defs><linearGradient id="p1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="p2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient><linearGradient id="p3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><rect width="160" height="90" fill="url(#p1)"/></svg></div>
+              <div class="tl wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#p2)"/></svg></div>
+            </div>
+            <div class="sect">Recomendaciones</div>
+            <div class="strip">
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p3)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p2)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+            </div>
+            <div class="safe-bot"></div>
+          </div>
+          <div class="devlbl">375 pt — 2nd wide tile nearly flush;<br>almost no peek</div>
+        </div>
+        <div>
+          <div class="dev w440 A">
+            <div class="safe-top"></div><div class="notch"></div>
+            <div class="hd" style="padding-top:30px">Para ti</div>
+            <div class="sect">Continuar viendo</div>
+            <div class="strip">
+              <div class="tl wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#p1)"/></svg></div>
+              <div class="tl wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#p2)"/></svg></div>
+            </div>
+            <div class="sect">Recomendaciones</div>
+            <div class="strip">
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p3)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p2)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+            </div>
+            <div class="safe-bot"></div>
+          </div>
+          <div class="devlbl">440 pt — same tiles, dead space;<br>art looks small</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="cap">C · columns-visible constant <span class="tag rec" style="padding:3px 6px">recommended</span></p>
+      <div style="display:flex; gap:16px; align-items:flex-start">
+        <div>
+          <div class="dev w375 C">
+            <div class="safe-top"></div><div class="notch"></div>
+            <div class="hd" style="padding-top:30px">Para ti</div>
+            <div class="sect">Continuar viendo</div>
+            <div class="strip">
+              <div class="tl wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#p1)"/></svg></div>
+              <div class="tl wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#p2)"/></svg></div>
+            </div>
+            <div class="sect">Recomendaciones</div>
+            <div class="strip">
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p3)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p2)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+            </div>
+            <div class="safe-bot"></div>
+          </div>
+          <div class="devlbl">375 pt — 1.9 wide / 3.6 portrait visible</div>
+        </div>
+        <div>
+          <div class="dev w440 C">
+            <div class="safe-top"></div><div class="notch"></div>
+            <div class="hd" style="padding-top:30px">Para ti</div>
+            <div class="sect">Continuar viendo</div>
+            <div class="strip">
+              <div class="tl wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#p1)"/></svg></div>
+              <div class="tl wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#p2)"/></svg></div>
+            </div>
+            <div class="sect">Recomendaciones</div>
+            <div class="strip">
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p3)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p2)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+              <div class="tl port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#p1)"/></svg></div>
+            </div>
+            <div class="safe-bot"></div>
+          </div>
+          <div class="devlbl">440 pt — same 1.9 / 3.6 visible, bigger art</div>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="max-width:330px">
+      <table>
+        <tr><th>Option</th><th>Rule</th></tr>
+        <tr><td><strong>A</strong></td><td>Fixed pt widths. Simple; peek is accidental and differs per device.</td></tr>
+        <tr><td><strong>B</strong></td><td><code>width = W × 0.42</code>. Responsive, but the magic fraction encodes no intent and rounds badly.</td></tr>
+        <tr><td><strong>C</strong></td><td><code>width = (W − gutter − gap×(v−1)) / v</code> with <em>v = tiles visible</em> per variant: <code>1.9</code> landscape, <code>3.6</code> portrait, <code>1.15</code> hero. The <em>peek is the spec</em>, so it holds at every width.</td></tr>
+      </table>
+      <p class="char" style="margin-top:12px">
+        C also gives the <code>Container</code> config a natural home for the number — one more field beside
+        <code>variant</code>, which is what DF6 asks for anyway. Heights follow from the locked aspect ratios,
+        so nothing else needs measuring.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============== 10 · SAFE AREAS / ORIENTATION / SCALING ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>10 · Safe areas, orientation, font scaling</h2><span class="tag rec">recommended</span></div>
+  <p class="char">
+    The hatched red bands in the frames above are the unsafe regions. Because decision 7 chose
+    <code>headerShown: false</code>, <strong>these insets are ours</strong> — nothing else will pad for the
+    Dynamic Island or the home indicator.
+  </p>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Topic</th><th>Decision</th><th>Why / consequence</th></tr>
+    <tr><td>Device range</td><td><strong>375–440 pt wide phones</strong>, iOS and Android. No tablet layout, no foldables.</td><td>375 is the narrowest current phone; the strategy above degrades gracefully below it rather than breaking. Tablets would need a second grid nobody will show on 18 Aug.</td></tr>
+    <tr><td>Safe areas</td><td><code>SafeAreaProvider</code> + <code>useSafeAreaInsets()</code>; top inset padded by <code>AppHeader</code> and <code>AuthSheetLayout</code>, bottom by the custom tab bar.</td><td>Applied at those three components only — not sprinkled per screen — so a screen never double-pads. The overlay and loading gate use the same provider.</td></tr>
+    <tr><td>Orientation</td><td><strong>Portrait locked</strong> both platforms (plist <code>UISupportedInterfaceOrientations</code>, manifest <code>screenOrientation="portrait"</code>).</td><td>Every reference screen is portrait, and landscape carousels are a different grid. Locking it is one line per platform; supporting it is a second design.</td></tr>
+    <tr><td>OS font scaling</td><td>Honored, with <code>maxFontSizeMultiplier</code> caps: <strong>1.6</strong> on body and above, <strong>1.3</strong> on <code>caption</code>, <strong>1.2</strong> on <code>micro</code>.</td><td>Uncapped, a 200% accessibility text size turns the tile metadata block taller than its artwork. Caps keep chrome legible without ignoring the setting outright — see decision 11.</td></tr>
+    <tr><td>Pixel density</td><td>SVG art and icons scale freely; PNG wordmarks ship <code>@1x/@2x/@3x</code>.</td><td>Follows from the <code>react-native-svg</code> decision.</td></tr>
+  </table></div></div>
+</section>
+
+<!-- ============== 15 · PLATFORM CONVENTIONS ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>15 · Platform conventions — where we follow, and where we deliberately don't</h2></div>
+  <p class="char">
+    A visual-fidelity demo has a standing tension with platform convention: iOS HIG and Material disagree,
+    and the reference is an iOS app. The rule I'd apply: <strong>follow platform convention for
+    behavior, follow the reference for appearance.</strong> Behavior is what users' hands expect and what
+    breaks if you fight it; appearance is what the demo is being judged on.
+  </p>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Area</th><th>Call</th><th>Detail</th></tr>
+    <tr><td>Back navigation</td><td><span class="tag" style="padding:3px 6px">follow platform</span></td><td>Android hardware/gesture back and iOS edge-swipe both pop the stack (decision 7). Non-negotiable on Android.</td></tr>
+    <tr><td>Press feedback</td><td><span class="tag bad" style="padding:3px 6px">deviate</span></td><td>Material expects a <em>ripple</em>; we use scale + opacity uniformly (decision 6) so the two platforms match in the side-by-side. Recorded as a deliberate deviation, not an oversight.</td></tr>
+    <tr><td>Typography</td><td><span class="tag bad" style="padding:3px 6px">deviate</span></td><td>Bundled Inter on both rather than SF Pro / Roboto (decision 3) — same reason.</td></tr>
+    <tr><td>Status bar</td><td><span class="tag" style="padding:3px 6px">follow platform</span></td><td><code>light-content</code> in both modes: the app is near-black, and the auth sheet sits <em>below</em> a dark gradient, so the bar is over dark pixels on every screen. Translucent on Android.</td></tr>
+    <tr><td>Keyboard</td><td><span class="tag" style="padding:3px 6px">follow platform</span></td><td><code>KeyboardAvoidingView</code> with <code>behavior="padding"</code> on iOS and <code>"height"</code> on Android — they genuinely need different values. The auth sheet must keep the CTA reachable with the keyboard up; that is the one layout the keyboard can break.</td></tr>
+    <tr><td>Tab bar</td><td><span class="tag" style="padding:3px 6px">follow platform</span></td><td>Bottom tabs are native to both. Unlabeled icons match the reference; Material would prefer labels, but iOS tolerates icon-only and the reference is icon-only.</td></tr>
+    <tr><td>Alert on card tap</td><td><span class="tag" style="padding:3px 6px">follow platform</span></td><td>RN <code>Alert</code> renders each OS's native dialog. Since it is a placeholder for navigation (DF7), native is exactly right — no custom modal to throw away in Phase 2.</td></tr>
+    <tr><td>Splash / app icon</td><td><span class="tag" style="padding:3px 6px">follow platform</span></td><td>Static launch screen from <code>dinsey-mark</code> on both; no animated splash library. Icon from the same mark.</td></tr>
+    <tr><td>Haptics</td><td><span class="tag" style="padding:3px 6px">skip</span></td><td>Nothing in Phase 1 warrants it; adding a haptics dependency for a tap would be noise.</td></tr>
+  </table></div></div>
+
+  <div class="hold warn" style="max-width:none">
+    <span class="tag flag">flagged for the doc</span>
+    <p class="char" style="margin:10px 0 0">
+      <strong>Android 15 (targetSdk 35) enforces edge-to-edge.</strong> System bars become transparent and
+      content draws underneath them whether or not the app opts in — so the safe-area handling above is not
+      polish on Android, it is the difference between a correct screen and a title sitting under the status
+      bar. Worth knowing before Saturday, since RISK-0003 already flags the scaffold as the top schedule
+      risk and this is exactly the kind of thing that eats an hour at the wrong moment.
+    </p>
+    <p class="char" style="margin:10px 0 0">
+      <strong>Two more dependencies are already implied.</strong> React Navigation requires
+      <code>react-native-screens</code> and <code>react-native-safe-area-context</code>; doc 03 lists
+      React Navigation but not those. Same class as the <code>react-native-svg</code> gap — I'll fold all
+      three into the doc-03 update rather than raising them separately.
+    </p>
+  </div>
+</section>
+
+</body>
+</html>

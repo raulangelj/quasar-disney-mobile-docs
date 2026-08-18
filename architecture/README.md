@@ -23,4 +23,18 @@ Most of these are produced by the **architecture sessions** during STEP-1
 
 | # | Doc | Version | Status |
 |---|-----|---------|--------|
-| _(filled in by the Cross-Cutting Review)_ | | | |
+| 01 | [System Overview, Requirements & Non-Goals](01-system-overview.md) | v0.1.6 | Draft |
+| 02 | [Phasing & Roadmap](02-phasing-roadmap.md) | v0.4.0 | Draft |
+| 03 | [Architecture Overview & Component Boundaries](03-architecture-overview.md) | v0.4.0 | Draft |
+| 04 | [Data Model, Ownership & Retention](04-data-model.md) | v0.2.6 | Draft |
+| 05 | [Scaling & Performance](05-scaling-performance.md) | v0.1.3 | Draft |
+| 06 | [Security & Threat Model](06-security-threat-model.md) | v0.1.2 | Draft |
+| 07 | [UI / Design System](07-ui-design-system.md) | v0.2.1 | Draft |
+| 08 | [Infrastructure & Deployment](08-infrastructure-deployment.md) | v0.1.2 | Draft |
+| 09 | [Environments](09-environments.md) | v0.1.1 | Draft |
+| 10 | [Observability](10-observability.md) | v0.1.1 | Draft |
+| 11 | [Interface Contracts](11-interface-contracts.md) | v0.3.1 | Draft |
+| 12 | [Test Strategy](12-test-strategy.md) | v0.1.1 | Draft |
+| 13 | [Glossary](13-glossary.md) | v0.2.1 | Draft |
+| 15 | [Native App Architecture](15-native-app-architecture.md) | v0.2.6 | Draft |
+| 16 | [Identity & Auth](16-identity-auth.md) | v0.2.0 | Draft |

@@ -39,7 +39,26 @@ e.g. "tech lead", "consensus of maintainers", "ADR review on PR". -->
 
 | ADR | Title | Status | Date |
 |------|-------|--------|------|
-| _(add a row per ADR)_ | | | |
+| ADR-0001 | Modular monolith with a composition-root shell | Accepted | 2026-08-16 |
+| ADR-0002 | In-app API module with axios; no backend component | Accepted | 2026-08-16 |
+| ADR-0003 | Persist the auth slice to platform secure storage from day one | Accepted | 2026-08-16 |
+| ADR-0004 | Online-only client with a shell-level connectivity gate | Accepted | 2026-08-16 |
+| ADR-0005 | Storefront pagination owned by feature hooks | Accepted | 2026-08-16 |
+| ADR-0006 | Two authenticated storefront GETs composed on the client | Accepted | 2026-08-16 |
+| ADR-0007 | Shared Container and Card types on both storefront GETs | Accepted | 2026-08-17 |
+| ADR-0008 | Abbreviated Phase-1 threat model with recorded deferrals | Accepted | 2026-08-17 |
+| ADR-0009 | Phase-1 mock auth; Phase-3 managed IdP behind our API | Accepted | 2026-08-17 |
+| ADR-0010 | Binary session gate; no roles or entitlements in Phase 1 | Accepted | 2026-08-17 |
+| ADR-0011 | Theme is brand × surface mode, and modes are named by role | Accepted | 2026-08-17 |
+| ADR-0012 | Bundle Inter rather than use the platform system font stack | Accepted | 2026-08-17 |
+| ADR-0013 | Adopt `react-native-svg`, and complete doc 03's dependency list | Accepted | 2026-08-17 |
+| ADR-0014 | The connectivity gate keys on interface state, not internet reachability | Accepted | 2026-08-17 |
+| ADR-0015 | Config reaches the app through a Babel transform, not native build config | Accepted | 2026-08-17 |
+| ADR-0016 | TypeScript interfaces are the contract now; OpenAPI at backend engagement | Accepted | 2026-08-17 |
+| ADR-0017 | The session-clearing 401 policy lives above the transport, not in the interceptor | Accepted | 2026-08-17 |
+| ADR-0018 | A JavaScript CI gate from day one; Bitrise remains the native-build tier | Accepted | 2026-08-17 |
+| ADR-0019 | Emotion for ThemeProvider, palette, and styled components | Accepted | 2026-08-17 |
+| ADR-0020 | RTK Query baseApi; axios interceptors attach headers | Accepted | 2026-08-17 |
 
 <!-- Example row shape (indented so it isn't picked up by the scan / `max + 1`; a real row
      starts at the line's left margin with no leading spaces):

@@ -5,21 +5,21 @@ logging, documentation, and testing conventions. Code substeps should reference 
 standard so the codebase stays consistent regardless of who (or which agent) writes it.
 
 ## How this works
-- Default standards for common languages ship with Throughstone (e.g. `python.md`,
-  `typescript.md`, `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`), plus cross-cutting
-  `sql.md` (SQL in migrations, queries, and embedded in app code), `shell.md` (Bash scripts —
-  CI glue, dev scripts, entrypoints), and `api.md` (the house style for REST/HTTP APIs —
-  timestamps, pagination, errors, versioning). **These are starting points — review and
-  customize them** to match your stack, tooling, and team conventions. Nothing here is
-  fixed law; treat the shipped contents as a draft to edit, not a rule to obey.
-- You only need the file(s) for the language(s) you actually use. The **Test Strategy session**
-  reconciles this directory to the languages chosen in the Architecture Overview architecture doc and records
-  the result in the Test Strategy architecture doc: for each language it either has you *review*
-  the standard that ships, or *create* a new one from an existing file's pattern if there's no
-  default — then prunes the rest. (See the "Coding standards per language" decision in that
-  session.)
-- If a standard reflects a decision (e.g. "we use X error-handling pattern because…"),
-  link the ADR that records why.
+- **This directory has been reconciled to this project** in STEP-1.12. Doc 03's stack is
+  **TypeScript, only**, so the seven unused language defaults that shipped with Throughstone
+  (`python.md`, `go.md`, `rust.md`, `dart.md`, `java.md`, `csharp.md`) and cross-cutting `sql.md`
+  were **pruned** — doc 04 §3 records that there is no relational database, no SQLite/MMKV, and no
+  server datastore. What remains is the three files in the table below.
+- The remaining files are **no longer generic starting points** — each has been amended to match
+  decisions already recorded in `architecture/` and `adr/`. `typescript.md` and `api.md` in
+  particular reverse several shipped defaults. The reasoning is in
+  [`../architecture/12-test-strategy.md`](../architecture/12-test-strategy.md) §10; read that before
+  changing a rule back.
+- **Where a rule here and an `architecture/` doc disagree, the architecture doc wins** and this file
+  has drifted. `api.md` is subordinate to `architecture/11-interface-contracts.md`, which is the
+  contract of record.
+-   If a standard reflects a decision, link the ADR that records why — several rules here link
+  ADR-0002, ADR-0003, ADR-0010, ADR-0016, ADR-0017, ADR-0018, ADR-0019, and ADR-0020.
 
 ## Documentation & comments  (all languages)
 A project-wide rule; each language file shows the idiomatic *form* and the lint that
@@ -37,18 +37,15 @@ enforces it.
 - **Keep comments and docstrings true** as the code changes — a stale one is worse than none.
 
 ## Files
-Defaults that ship with Throughstone. Keep the file(s) for the language(s) you use, prune
-the rest, and customize the contents to match your team.
+Reconciled to this project's stack in STEP-1.12 (doc 12 §10).
 
-| Language | File | Status |
-|----------|------|--------|
-| Python | [`python.md`](python.md) | Default — customize |
-| TypeScript | [`typescript.md`](typescript.md) | Default — customize |
-| Go | [`go.md`](go.md) | Default — customize |
-| Rust | [`rust.md`](rust.md) | Default — customize |
-| Dart / Flutter | [`dart.md`](dart.md) | Default — customize |
-| Java | [`java.md`](java.md) | Default — customize |
-| C# | [`csharp.md`](csharp.md) | Default — customize |
-| SQL (cross-cutting) | [`sql.md`](sql.md) | Default — customize; secondary to the language docs |
-| Shell / Bash (cross-cutting) | [`shell.md`](shell.md) | Default — customize |
-| API design (cross-cutting) | [`api.md`](api.md) | Default — customize; keep only if the project exposes/consumes an HTTP API |
+| Language / area | File | Status | Applies because |
+|-----------------|------|--------|-----------------|
+| TypeScript | [`typescript.md`](typescript.md) | **Active — project-specific** | The one implementation language (doc 03) |
+| Shell / Bash (cross-cutting) | [`shell.md`](shell.md) | **Active — lightly amended** | The hub ships `scripts/*.sh` and root `doctor.sh`; doc 09 §7.2 contemplates a `.env` completeness script |
+| API design (cross-cutting) | [`api.md`](api.md) | **Active — substantially amended**; subordinate to `architecture/11-interface-contracts.md` | Doc 11's contract is REST-shaped and is delivered to a backend team (criterion A4); boundary B-B becomes real HTTP at Phase 3 |
+
+**Pruned in STEP-1.12** — not used at any phase in the roadmap: `python.md`, `go.md`, `rust.md`,
+`dart.md`, `java.md`, `csharp.md`, and `sql.md` (no relational database — doc 04 §3). If a later
+phase introduces one of these languages, recreate the file from an existing standard's structure
+rather than reaching for the deleted default.

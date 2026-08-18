@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600" role="img" aria-label="Placeholder key art">
+  <defs>
+    <linearGradient id="p23aBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3B1D5E"/><stop offset="1" stop-color="#0D0716"/>
+    </linearGradient>
+    <radialGradient id="p23aGlow" cx="0.7" cy="0.28" r="0.6">
+      <stop offset="0" stop-color="#C64BE8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#C64BE8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="p23aScrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.75"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#p23aBg)"/>
+  <rect width="400" height="600" fill="url(#p23aGlow)"/>
+  <g fill="none" stroke="#F0D4FF" stroke-opacity="0.22" stroke-width="2">
+    <circle cx="278" cy="176" r="96"/><circle cx="278" cy="176" r="146"/><circle cx="278" cy="176" r="200"/>
+  </g>
+  <path d="M0 430 L400 300 L400 600 L0 600 Z" fill="#120A22" fill-opacity="0.7"/>
+  <path d="M0 486 L400 372 L400 600 L0 600 Z" fill="#0A0514" fill-opacity="0.8"/>
+  <rect y="360" width="400" height="240" fill="url(#p23aScrim)"/>
+</svg>

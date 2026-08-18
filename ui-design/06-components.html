@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision 6 — Core components · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face { font-family:"InterVar"; src:url("fonts/inter-latin.woff2") format("woff2");
+               font-weight:400 800; font-style:normal; font-display:block; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 24px 64px; background:#16161a; color:#e7e7ea;
+         font:15px/1.55 "InterVar",-apple-system,sans-serif; }
+  h1 { font-size:22px; margin:0 0 6px; } h2 { font-size:17px; margin:0 0 2px; }
+  h3 { font-size:14px; margin:22px 0 10px; color:#e7e7ea; }
+  .lede { max-width:78ch; color:#b0b0b8; margin:0 0 8px; } .lede strong { color:#e7e7ea; }
+  .hold { max-width:78ch; margin:18px 0 26px; padding:12px 14px; border-left:3px solid #52525b;
+          background:#1d1d22; border-radius:0 6px 6px 0; color:#b0b0b8; font-size:13.5px; }
+  .sec { border-top:1px solid #2c2c33; padding:24px 0 8px; }
+  .sec-head { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:baseline; margin-bottom:4px; }
+  .tag { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+         padding:5px 9px; border-radius:5px; background:#2c2c33; color:#b0b0b8; }
+  .rec { background:#14532d; color:#a7f3d0; } .own { background:#1e3a5f; color:#bfdbfe; }
+  .char { color:#b0b0b8; max-width:82ch; margin:2px 0 0; font-size:14px; }
+  .char em { color:#e7e7ea; font-style:normal; font-weight:600; }
+  .cap { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.09em; text-transform:uppercase;
+         color:#8a8a93; margin:0 0 10px; }
+  table { border-collapse:collapse; font-size:12.5px; width:100%; }
+  th,td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid #26262c; vertical-align:top; }
+  th { color:#8a8a93; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; }
+  .mono,td.mono { font-family:ui-monospace,Menlo,monospace; color:#d4d4d8; white-space:nowrap; }
+  code { font-family:ui-monospace,Menlo,monospace; font-size:.92em; color:#d4d4d8; }
+
+  /* --- locked tokens --- */
+  .dark, .light {
+    --text:#FFFFFF; --text2:#A1A1AA; --text3:#8A8A93; --accent:#38BDF8; --live:#FF4D63;
+    --chipFill:#3F3F46; --chipText:#D4D4D8; --border:rgba(255,255,255,.12); --chrome:rgba(255,255,255,.07);
+    --raised:#17171D; --ltext:#111114; --ltext2:#52525B; --field:#E9E9EB; --ph:#5F5F68;
+    --link:#1D4ED8; --err:#C81E1E;
+  }
+  .dark { background:#0E0E12; }
+  .light { background:#FFFFFF; }
+  .stage { border:1px solid #2c2c33; border-radius:12px; padding:20px; margin-bottom:14px; }
+  .grid { display:flex; flex-wrap:wrap; gap:26px; align-items:flex-start; }
+  .item { }
+  .item .lbl { font:500 10px/1.3 ui-monospace,Menlo,monospace; color:#8a8a93; margin-top:8px; max-width:170px; }
+  .light .item .lbl { color:#71717A; }
+
+  .t-h1 { font-size:26px; line-height:31px; font-weight:800; letter-spacing:-.015em; }
+  .t-h2 { font-size:21px; line-height:26px; font-weight:700; letter-spacing:-.01em; }
+  .t-h3 { font-size:16px; line-height:21px; font-weight:700; }
+  .t-body { font-size:14px; line-height:20px; }
+  .t-cap { font-size:12px; line-height:16px; }
+  .t-mic { font-size:10px; line-height:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+
+  /* --- atoms --- */
+  .btn { border-radius:999px; height:48px; padding:0 22px; display:inline-flex; align-items:center;
+         justify-content:center; font-size:16px; font-weight:700; }
+  .btn-onDark { background:#fff; color:#0E0E12; }
+  .btn-onLight { background:#0E0E12; color:#fff; }
+  .btn-ghostDark { background:transparent; color:#fff; border:1px solid var(--border); }
+  .btn-disabled { background:#3F3F46; color:#8A8A93; }
+  .btn-sm { height:36px; font-size:14px; padding:0 16px; }
+  .btn-loading { position:relative; color:transparent; }
+  .btn-loading::after { content:""; position:absolute; inset:0; margin:auto; width:16px; height:16px;
+    border:2px solid rgba(14,14,18,.25); border-top-color:#0E0E12; border-radius:999px; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .iconbtn { width:36px; height:36px; border-radius:999px; background:rgba(255,255,255,.18);
+             border:1px solid rgba(255,255,255,.28); color:#fff; display:inline-flex;
+             align-items:center; justify-content:center; font-size:15px; position:relative; }
+  .iconbtn::before { content:""; position:absolute; width:44px; height:44px; border-radius:8px;
+             border:1px dashed rgba(56,189,248,.75); }
+  .chip { font-size:9.5px; font-weight:700; padding:3px 6px; border-radius:4px;
+          background:var(--chipFill); color:var(--chipText); display:inline-block; }
+  .badge { font-size:9.5px; font-weight:800; letter-spacing:.06em; padding:3px 7px; border-radius:4px;
+           display:inline-block; text-transform:uppercase; }
+  .badge-live { background:var(--live); color:#0E0E12; }
+  .badge-label { background:#fff; color:#0E0E12; border-radius:999px; padding:4px 9px; letter-spacing:0; text-transform:none; font-weight:700; }
+  .badge-provider { background:rgba(0,0,0,.55); color:#fff; border:1px solid rgba(255,255,255,.25); }
+  .pbar { width:150px; height:3px; border-radius:2px; background:rgba(255,255,255,.28); }
+  .pbar i { display:block; height:100%; border-radius:2px; background:var(--accent); }
+  .pbar.live i { background:var(--live); }
+  .fpill { font-size:12px; font-weight:600; color:#fff; padding:7px 13px; border-radius:999px;
+           background:var(--chrome); border:1px solid var(--border); display:inline-flex; gap:6px; align-items:center; }
+  .fpill.on { background:#fff; color:#0E0E12; border-color:#fff; }
+  .fld { width:230px; background:var(--field); border-radius:8px; height:48px; padding:0 12px;
+         display:flex; align-items:center; justify-content:space-between; color:var(--ltext); font-size:14px; }
+  .fld.ph { color:var(--ph); }
+  .fld.focus { box-shadow:0 0 0 2px #1D4ED8; }
+  .fld.bad { border-bottom:2px solid var(--err); border-radius:8px 8px 2px 2px; }
+  .errtext { color:var(--err); font-size:12px; line-height:16px; max-width:230px; margin-top:6px; }
+  .hinttext { color:var(--ltext2); font-size:12px; margin-top:4px; }
+  .lnk-dark { color:var(--accent); font-weight:600; font-size:14px; }
+  .lnk-light { color:var(--link); font-weight:600; font-size:14px; }
+  .divider { width:200px; height:1px; background:var(--border); }
+  .light .divider { background:#E4E4E7; }
+  .skel { background:linear-gradient(90deg,#17171D 25%,#22222A 50%,#17171D 75%);
+          background-size:200% 100%; animation:sh 1.4s linear infinite; border-radius:10px; }
+  @keyframes sh { to { background-position:-200% 0; } }
+  .spinner { width:26px; height:26px; border:2.5px solid rgba(255,255,255,.2); border-top-color:#fff;
+             border-radius:999px; animation:spin .8s linear infinite; }
+
+  /* --- molecules --- */
+  .tile { border-radius:10px; overflow:hidden; position:relative; }
+  .tile.port { width:88px; } .tile.wide { width:158px; }
+  .tile svg { display:block; width:100%; height:auto; }
+  .play { position:absolute; inset:0; margin:auto; width:30px; height:30px; border-radius:999px;
+          background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.5); }
+  .play::after { content:""; position:absolute; inset:0; margin:auto; width:0; height:0;
+          border-left:9px solid #fff; border-top:5.5px solid transparent; border-bottom:5.5px solid transparent; }
+  .tbar { position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,.28); }
+  .tbar i { display:block; height:100%; background:var(--accent); }
+  .tbar.live i { background:var(--live); }
+  .tmeta { width:158px; margin-top:6px; }
+  .tmeta .sub { color:var(--text3); font-size:12px; display:flex; justify-content:space-between; }
+  .tmeta .nm { color:#fff; font-size:16px; font-weight:700; margin:5px 0 4px; }
+  .tmeta .ep { color:var(--text2); font-size:12px; display:flex; gap:6px; align-items:center; }
+  .press-o { opacity:.7; } .press-s { transform:scale(.965); }
+
+  /* --- organisms --- */
+  .phone { width:250px; height:430px; border-radius:24px; overflow:hidden; border:1px solid #35353d;
+           position:relative; background:#0E0E12; }
+  .ov { position:absolute; inset:0; background:#0E0E12; display:flex; flex-direction:column;
+        align-items:center; justify-content:center; padding:26px; text-align:center; gap:18px; }
+  .ov p { color:#fff; font-size:14px; line-height:20px; margin:0; }
+  .ov .cta { background:#fff; color:#0E0E12; border-radius:999px; height:48px; width:100%;
+             display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;
+             letter-spacing:.06em; text-transform:uppercase; }
+</style>
+</head>
+<body>
+
+<h1>Decision 6 — Core components</h1>
+<p class="lede">
+  Every token is now locked, so this page is a <strong>rendered inventory</strong>, not a set of visual
+  alternatives: it is the atom / molecule / organism list the foundation STEP builds from, with each
+  component shown in <em>all</em> its variants and states. Doc 02 §9 lists "both devs need a shared atom
+  the foundation didn't build" as a collision hazard, and names this session as the mitigation — so the
+  point of this page is that the list is <strong>complete</strong> and that <strong>ownership is
+  unambiguous</strong>.
+</p>
+<p class="lede">
+  Three genuine choices <em>are</em> embedded below, each marked <span class="tag">choose</span>:
+  <strong>press feedback</strong>, <strong>loading treatment</strong>, and the
+  <strong>button API shape</strong>. Everything else follows from the reference and the locked tokens.
+</p>
+
+<div class="hold">
+  <strong>Ownership rule (the collision mitigation).</strong> A component lives in
+  <code>shared/ui/</code> if <em>two or more</em> of {auth, storefront, shell} render it. Otherwise it
+  lives with its feature. That makes the foundation STEP's deliverable a closed list rather than a
+  judgement call, and it means neither dev is ever blocked waiting for the other to publish an atom.
+  <br><br>
+  The dashed cyan squares on icon buttons are the 44&nbsp;pt hit area from decision 4 — drawn to scale,
+  and larger than the visual control in every case. In RN this is <code>hitSlop</code> on the
+  <code>Pressable</code>, not padding on the view, so it does not disturb the tight layout.
+</div>
+
+<!-- ============================ ATOMS ============================ -->
+<section class="sec">
+  <div class="sec-head">
+    <h2>Atoms</h2>
+    <span class="tag own">shared/ui/atoms · foundation STEP · Dev A</span>
+  </div>
+  <p class="char">
+    14 atoms. Every one is used by at least two of the three consumers, so all of them are shared —
+    this is exactly the set the foundation STEP must land by Saturday EOD for the two features to proceed
+    in parallel.
+  </p>
+
+  <h3>Button — <code>&lt;Button&gt;</code></h3>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item"><div class="btn btn-onDark">Iniciar sesión</div><div class="lbl">tone="onDark" · the welcome + no-internet CTA</div></div>
+      <div class="item"><div class="btn btn-onDark press-o">Iniciar sesión</div><div class="lbl">:pressed (opacity .7)</div></div>
+      <div class="item"><div class="btn btn-ghostDark">Ver más</div><div class="lbl">variant="ghost" · hairline, no fill</div></div>
+      <div class="item"><div class="btn btn-disabled">Continuar</div><div class="lbl">disabled</div></div>
+      <div class="item"><div class="btn btn-onDark btn-loading">Continuar</div><div class="lbl">loading · label hidden, width held</div></div>
+      <div class="item"><div class="btn btn-onDark btn-sm">Reintentar</div><div class="lbl">size="sm" (36) — chrome actions</div></div>
+    </div>
+  </div>
+  <div class="stage light">
+    <div class="grid">
+      <div class="item"><div class="btn btn-onLight">Iniciar sesión</div><div class="lbl">tone="onLight" · every auth CTA</div></div>
+      <div class="item"><div class="btn btn-onLight press-o">Iniciar sesión</div><div class="lbl">:pressed</div></div>
+      <div class="item"><div class="btn btn-disabled">Continuar</div><div class="lbl">disabled — same token both modes</div></div>
+      <div class="item"><div class="btn btn-onLight btn-loading" style="--x:0">Continuar</div><div class="lbl">loading</div></div>
+    </div>
+  </div>
+  <p class="char" style="margin-bottom:6px"><span class="tag">choose</span> <strong>Button API.</strong></p>
+  <table>
+    <tr><th>Option</th><th>Shape</th><th>Consequence</th></tr>
+    <tr>
+      <td><strong>A</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
+      <td class="mono">&lt;Button tone="onDark|onLight" variant="solid|ghost" size="md|sm" loading disabled /&gt;</td>
+      <td>One component, one test file, one place the pill geometry lives. <code>tone</code> is explicit rather than read from theme mode, because the welcome screen puts an <em>onDark</em> button on a gradient while the sheet below it is light — a mode-derived tone would get that wrong.</td>
+    </tr>
+    <tr>
+      <td><strong>B</strong></td>
+      <td class="mono">&lt;PrimaryButton /&gt; &lt;SecondaryButton /&gt; &lt;GhostButton /&gt;</td>
+      <td>Reads more explicitly at the call site; duplicates geometry and press behavior three times, and "primary" has no fixed color here since it inverts per surface.</td>
+    </tr>
+  </table>
+
+  <h3>Icon button · overflow · play</h3>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item"><div class="iconbtn">‹</div><div class="lbl">IconButton · auth back chevron</div></div>
+      <div class="item"><div class="iconbtn">⋮</div><div class="lbl">IconButton · CW overflow (44pt slop)</div></div>
+      <div class="item"><div class="play" style="position:relative;margin:3px 0"></div><div class="lbl">PlayOverlay · centered on progress art</div></div>
+    </div>
+  </div>
+
+  <h3>Chip · badges</h3>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item"><span class="chip">13+</span><div class="lbl">RatingChip · 7+ / 13+ / 16+ / ATP</div></div>
+      <div class="item"><span class="badge badge-live">⚡ Vivo</span><div class="lbl">Badge tone="live" (1b)</div></div>
+      <div class="item"><span class="badge badge-label">Nueva película</span><div class="lbl">Badge tone="label" · hero pill (Ph2)</div></div>
+      <div class="item"><span class="badge badge-provider">PIXL</span><div class="lbl">Badge tone="provider" · tile corner</div></div>
+    </div>
+  </div>
+
+  <h3>Progress bar</h3>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item"><div class="pbar"><i style="width:62%"></i></div><div class="lbl">tone="watched" · accent · value 0..1</div></div>
+      <div class="item"><div class="pbar live"><i style="width:34%"></i></div><div class="lbl">tone="live" · live token (1b)</div></div>
+      <div class="item"><div class="pbar"><i style="width:0%"></i></div><div class="lbl">value 0 — track only, never absent</div></div>
+    </div>
+  </div>
+
+  <h3>Filter pill (Phase 2, atom built now)</h3>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item"><span class="fpill">PIXL</span><div class="lbl">form="logo"</div></div>
+      <div class="item"><span class="fpill">🎬 Películas</span><div class="lbl">form="iconLabel"</div></div>
+      <div class="item"><span class="fpill on">Series</span><div class="lbl">selected</div></div>
+    </div>
+  </div>
+
+  <h3>Text field · password field</h3>
+  <div class="stage light">
+    <div class="grid">
+      <div class="item"><div class="fld ph">Correo electrónico</div><div class="lbl">empty (placeholder)</div></div>
+      <div class="item"><div class="fld focus">ana@ejemplo.com</div><div class="lbl">focused — 2px ring, the visible focus state A11y needs</div></div>
+      <div class="item"><div class="fld">ana@ejemplo.com</div><div class="lbl">filled</div></div>
+      <div class="item">
+        <div class="fld bad">ana@ejemplo.com</div>
+        <div class="errtext">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta e inténtalo de nuevo.</div>
+        <div class="hinttext">Distingue mayúsculas y minúsculas.</div>
+        <div class="lbl">error — underline + message ABOVE the hint, per reference</div>
+      </div>
+      <div class="item"><div class="fld"><span>••••••••</span><span style="opacity:.55">👁</span></div><div class="lbl">PasswordField · secure, toggle slashed</div></div>
+      <div class="item"><div class="fld"><span>Contraseña123</span><span>👁</span></div><div class="lbl">PasswordField · revealed</div></div>
+    </div>
+  </div>
+
+  <h3>Link · divider · loading atoms</h3>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item"><span class="lnk-dark">Más información ▾</span><div class="lbl">Link tone="onDark" (accent)</div></div>
+      <div class="item"><div class="divider"></div><div class="lbl">Divider · hairline token</div></div>
+      <div class="item"><div class="spinner"></div><div class="lbl">Spinner · sizes 26 / 16</div></div>
+      <div class="item"><div class="skel" style="width:88px;height:132px"></div><div class="lbl">Skeleton · takes the tile's ratio</div></div>
+    </div>
+  </div>
+  <div class="stage light">
+    <div class="grid">
+      <div class="item"><span class="lnk-light">(editar)</span><div class="lbl">Link tone="onLight" (blue)</div></div>
+      <div class="item"><span class="lnk-light">¿Problemas para iniciar sesión?</span><div class="lbl">Link · long form, wraps</div></div>
+      <div class="item"><div class="divider"></div><div class="lbl">Divider · light value</div></div>
+    </div>
+  </div>
+
+  <h3>Artwork · Wordmark</h3>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item">
+        <div class="tile port"><svg viewBox="0 0 80 120"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient><linearGradient id="sc" x1="0" y1="0" x2="0" y2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".65"/></linearGradient><linearGradient id="g2" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#4c1d95"/><stop offset="1" stop-color="#831843"/></linearGradient><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><rect width="80" height="120" fill="url(#g1)"/><rect width="80" height="120" fill="url(#sc)"/></svg></div>
+        <div class="lbl">Artwork ratio="2:3" · scrim baked in</div>
+      </div>
+      <div class="item"><div class="skel" style="width:88px;height:132px"></div><div class="lbl">Artwork · missing/loading fallback</div></div>
+      <div class="item"><div style="color:#fff;font-weight:800;letter-spacing:.06em;font-size:16px">DINSEY-</div><div class="lbl">Wordmark tone="light" (asset, not text — see doc 02 §10 / OQ-13)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MOLECULES ============================ -->
+<section class="sec">
+  <div class="sec-head">
+    <h2>Molecules</h2>
+    <span class="tag own">split: shared/ui vs feature</span>
+  </div>
+  <p class="char">
+    The tiles are <em>storefront-only</em> and belong to Dev B; the auth composites are Dev A's. Only
+    <code>SectionHeader</code> and <code>TabBarItem</code> cross features (the shell renders the tab bar),
+    so only those two are shared.
+  </p>
+  <div class="stage dark">
+    <div class="grid">
+      <div class="item">
+        <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><circle cx="118" cy="26" r="30" fill="#38bdf8" opacity=".22"/><rect width="160" height="90" fill="url(#sc)"/></svg><div class="play"></div><div class="tbar"><i style="width:62%"></i></div></div>
+        <div class="tmeta">
+          <div class="sub"><span>11 min restantes</span><span>⋮</span></div>
+          <div class="nm">El Umbral de Orión</div>
+          <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red</span></div>
+        </div>
+        <div class="lbl">ProgressTile — 16:9 + play + bar + meta block. <b>1a</b></div>
+      </div>
+      <div class="item">
+        <div class="tile port"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+        <div class="lbl">PortraitTile — 2:3, art only. <b>1a</b></div>
+      </div>
+      <div class="item">
+        <div class="tile port press-s"><svg viewBox="0 0 80 120"><rect width="80" height="120" fill="url(#g2)"/></svg></div>
+        <div class="lbl">PortraitTile :pressed (scale .965)</div>
+      </div>
+      <div class="item">
+        <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g3)"/><rect width="160" height="90" fill="url(#sc)"/></svg><span class="badge badge-live" style="position:absolute;left:8px;bottom:10px">⚡ Vivo</span><div class="tbar live"><i style="width:34%"></i></div></div>
+        <div class="tmeta"><div class="sub">Comenzó hace 7 h 26 min</div><div class="nm">Clásico ATP</div><div class="ep"><span>2026 • SPORTX</span></div></div>
+        <div class="lbl">LiveTile — <b>1b</b></div>
+      </div>
+      <div class="item">
+        <div class="tile wide"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#g1)"/><rect width="160" height="90" fill="url(#sc)"/></svg></div>
+        <div class="tmeta"><div class="nm" style="margin-top:0">Nébula</div></div>
+        <div class="lbl">LandscapeTile — <b>1b</b></div>
+      </div>
+      <div class="item">
+        <div class="tile" style="width:180px"><svg viewBox="0 0 120 160"><rect width="120" height="160" fill="url(#g2)"/><rect width="120" height="160" fill="url(#sc)"/></svg><div style="position:absolute;left:0;right:0;bottom:12px;text-align:center"><span class="badge badge-label">Nueva película</span><div style="color:#fff;font-weight:800;font-size:18px;margin-top:8px">Nébula</div><div style="color:#fff;font-size:12px;margin-top:4px">Ver ahora</div></div></div>
+        <div class="lbl">HeroCard — <b>Phase 2</b> chrome; the feed already carries a hero container (ADR-0006), so 1a renders it as a PortraitTile stand-in (OQ-24)</div>
+      </div>
+      <div class="item" style="min-width:170px">
+        <div class="t-h2" style="color:#fff">Continuar viendo</div>
+        <div class="lbl">SectionHeader — <b>shared</b></div>
+      </div>
+    </div>
+  </div>
+  <p class="char" style="margin-bottom:6px"><span class="tag">choose</span> <strong>Press feedback.</strong> Compare the two pressed specimens above.</p>
+  <table>
+    <tr><th>Option</th><th>Behavior</th><th>Consequence</th></tr>
+    <tr>
+      <td><strong>A</strong></td>
+      <td>Opacity 0.7 everywhere (RN <code>Pressable</code> default-ish)</td>
+      <td>One rule, trivial. On a dark surface, dimming already-dark artwork is a weak signal.</td>
+    </tr>
+    <tr>
+      <td><strong>B</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
+      <td>Tiles scale to 0.965; buttons, pills, links, icons use opacity 0.7</td>
+      <td>Matches how every streaming storefront feels, and reads clearly against artwork where opacity does not. Two tokens (<code>press.scale</code>, <code>press.opacity</code>), one <code>usePressAnim</code> hook in <code>shared/</code>. Must honor reduced-motion (decision 11/13): the scale collapses to opacity when the OS flag is set.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============================ ORGANISMS ============================ -->
+<section class="sec">
+  <div class="sec-head">
+    <h2>Organisms &amp; screen states</h2>
+    <span class="tag own">features + shell</span>
+  </div>
+  <p class="char">
+    The four states every data surface needs — and the ones teams skip. Doc 02's criteria F2 and DF2 mean
+    loading and error here are <em>real code paths</em> driven by failable mocks, not decorative.
+  </p>
+  <div class="grid" style="margin-top:16px">
+    <div class="item">
+      <p class="cap">Cold-start gate (shell)</p>
+      <div class="phone"><div class="ov"><div style="color:#fff;font-weight:800;letter-spacing:.06em">DINSEY-</div><div class="spinner"></div></div></div>
+      <div class="lbl">Blocks until <code>/me</code> + HomeFeed + CW resolve (doc 04 §6)</div>
+    </div>
+    <div class="item">
+      <p class="cap">Storefront loading (skeleton)</p>
+      <div class="phone">
+        <div style="padding:20px 16px 11px"><div class="skel" style="width:96px;height:26px"></div></div>
+        <div style="padding:0 16px 8px"><div class="skel" style="width:130px;height:20px"></div></div>
+        <div style="display:flex;gap:8px;padding:0 16px 20px"><div class="skel" style="width:158px;height:89px"></div><div class="skel" style="width:158px;height:89px"></div></div>
+        <div style="padding:0 16px 8px"><div class="skel" style="width:150px;height:20px"></div></div>
+        <div style="display:flex;gap:8px;padding:0 16px"><div class="skel" style="width:88px;height:132px"></div><div class="skel" style="width:88px;height:132px"></div><div class="skel" style="width:88px;height:132px"></div></div>
+      </div>
+      <div class="lbl">Skeletons at the real tile geometry — no layout jump on arrival</div>
+    </div>
+    <div class="item">
+      <p class="cap">Error state (feature)</p>
+      <div class="phone"><div class="ov">
+        <p style="color:#A1A1AA">No pudimos cargar el contenido.</p>
+        <div class="btn btn-onDark btn-sm" style="width:auto">Reintentar</div>
+      </div></div>
+      <div class="lbl">HomeFeed/CW failure — <b>not</b> the no-internet overlay (doc 15)</div>
+    </div>
+    <div class="item">
+      <p class="cap">No-internet overlay (shell)</p>
+      <div class="phone"><div class="ov">
+        <p>Es necesario revisar tu conexión a internet. Volveremos a cargar automáticamente la pantalla una vez que se establezca la conexión.</p>
+        <div class="cta">Reintentar</div>
+      </div></div>
+      <div class="lbl">ADR-0004 · sits over the navigator, never unmounts it</div>
+    </div>
+    <div class="item">
+      <p class="cap">Empty state</p>
+      <div class="phone"><div class="ov"><p style="color:#A1A1AA">Aún no has empezado a ver nada.</p></div></div>
+      <div class="lbl">CW with zero resources — the row is omitted, not shown empty</div>
+    </div>
+  </div>
+  <p class="char" style="margin:18px 0 6px"><span class="tag">choose</span> <strong>Loading treatment.</strong></p>
+  <table>
+    <tr><th>Option</th><th>Treatment</th><th>Consequence</th></tr>
+    <tr><td><strong>A</strong></td><td>Spinner everywhere</td><td>Cheapest. Makes the storefront look empty then pop — the layout jump doc 04 §6 explicitly wants to avoid.</td></tr>
+    <tr><td><strong>B</strong></td><td>Skeletons everywhere, including cold start</td><td>Most polished, but the cold-start gate waits on three calls and a skeleton of a screen we haven't composed yet is a lie about what's coming.</td></tr>
+    <tr>
+      <td><strong>C</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
+      <td>Wordmark + spinner for the cold-start gate; skeletons at real tile geometry for storefront rows and <code>loadMore</code>; inline spinner inside the button for auth submit</td>
+      <td>Each state matches what is actually being awaited. Three loading affordances instead of one, all built from the same two atoms.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============================ OWNERSHIP ============================ -->
+<section class="sec">
+  <div class="sec-head"><h2>Ownership map</h2><span class="tag">what the foundation STEP owes, and to whom</span></div>
+  <table style="margin-top:14px">
+    <tr><th>Component</th><th>Lives in</th><th>Consumers</th><th>Phase</th></tr>
+    <tr><td class="mono">Text · Button · IconButton · Chip · Badge · ProgressBar · TextField · PasswordField · Link · Divider · Spinner · Skeleton · Artwork · Wordmark</td><td class="mono">shared/ui/atoms</td><td>auth · storefront · shell</td><td>1a foundation</td></tr>
+    <tr><td class="mono">SectionHeader · TabBarItem</td><td class="mono">shared/ui/molecules</td><td>storefront · shell</td><td>1a foundation</td></tr>
+    <tr><td class="mono">FilterPill</td><td class="mono">shared/ui/atoms</td><td>storefront (Ph2)</td><td>atom now, used later</td></tr>
+    <tr><td class="mono">PortraitTile · ProgressTile · LandscapeTile · LiveTile · HeroCard · MetaRow</td><td class="mono">features/storefront/ui</td><td>storefront only</td><td>1a (portrait, progress) · 1b (live, landscape) · Ph2 (hero chrome)</td></tr>
+    <tr><td class="mono">Container (config-driven carousel) · HomeFeedList</td><td class="mono">features/storefront/ui</td><td>storefront only</td><td>1a · one component, all variants (DF6 / ADR-0007)</td></tr>
+    <tr><td class="mono">AuthSheetLayout · WelcomeHero · CredentialsForm</td><td class="mono">features/auth/ui</td><td>auth only</td><td>1a</td></tr>
+    <tr><td class="mono">AppHeader · TabBar · LoadingGate · NoInternetOverlay</td><td class="mono">app/shell/ui</td><td>shell only</td><td>1a</td></tr>
+    <tr><td class="mono">ErrorState · EmptyState</td><td class="mono">shared/ui/molecules</td><td>storefront · auth</td><td>1a foundation</td></tr>
+  </table>
+  <p class="char" style="margin-top:14px">
+    <strong>Not built:</strong> modal/dialog (the card tap is a native <code>Alert</code> in 1a — DF7),
+    toast/snackbar (nothing dispatches one), table (no tabular data), form beyond two fields, date picker,
+    avatar (the tab bar's profile item is a placeholder image), search field (Phase 3), settings list. Listed
+    so their absence is a decision rather than an oversight.
+  </p>
+</section>
+
+</body>
+</html>

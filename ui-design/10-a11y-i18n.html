@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decisions 11–12 — Accessibility &amp; i18n · quasar-disney-mobile 1.7</title>
+<style>
+  @font-face { font-family:"InterVar"; src:url("fonts/inter-latin.woff2") format("woff2");
+               font-weight:400 800; font-style:normal; font-display:block; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:28px 24px 64px; background:#16161a; color:#e7e7ea;
+         font:15px/1.55 "InterVar",-apple-system,sans-serif; }
+  h1 { font-size:22px; margin:0 0 6px; } h2 { font-size:17px; margin:0 0 2px; }
+  .lede { max-width:78ch; color:#b0b0b8; margin:0 0 8px; } .lede strong { color:#e7e7ea; }
+  .hold { max-width:78ch; margin:18px 0 26px; padding:12px 14px; border-left:3px solid #52525b;
+          background:#1d1d22; border-radius:0 6px 6px 0; color:#b0b0b8; font-size:13.5px; }
+  .sec { border-top:1px solid #2c2c33; padding:24px 0 8px; }
+  .sec-head { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:baseline; margin-bottom:4px; }
+  .tag { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.1em; text-transform:uppercase;
+         padding:5px 9px; border-radius:5px; background:#2c2c33; color:#b0b0b8; }
+  .rec { background:#14532d; color:#a7f3d0; } .bad { background:#4c1d1d; color:#fecaca; }
+  .ok { background:#14532d; color:#a7f3d0; }
+  .char { color:#b0b0b8; max-width:82ch; margin:2px 0 0; font-size:14px; }
+  .char em { color:#e7e7ea; font-style:normal; font-weight:600; }
+  .cap { font:600 11px/1 "InterVar",sans-serif; letter-spacing:.09em; text-transform:uppercase;
+         color:#8a8a93; margin:0 0 10px; }
+  .row { display:flex; gap:22px; align-items:flex-start; overflow-x:auto; padding:16px 2px 6px; }
+  table { border-collapse:collapse; font-size:12.5px; width:100%; }
+  th,td { text-align:left; padding:6px 14px 6px 0; border-bottom:1px solid #26262c; vertical-align:top; }
+  th { color:#8a8a93; font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.07em; white-space:nowrap; }
+  code,.mono { font-family:ui-monospace,Menlo,monospace; color:#d4d4d8; }
+  .note { background:#1d1d22; border:1px solid #2c2c33; border-radius:10px; padding:14px 16px; }
+  pre { background:#0E0E12; border:1px solid #2c2c33; border-radius:10px; padding:16px;
+        overflow-x:auto; font:12.5px/1.6 ui-monospace,Menlo,monospace; color:#d4d4d8; }
+  pre .k { color:#38BDF8; } pre .s { color:#a7f3d0; } pre .c { color:#71717A; }
+
+  /* screen-reader demo */
+  .sr { display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+  .srcol { background:#0E0E12; border:1px solid #26262c; border-radius:12px; padding:16px; width:340px; }
+  .tile { border-radius:10px; overflow:hidden; position:relative; width:158px; }
+  .tile svg { display:block; width:100%; height:auto; }
+  .play { position:absolute; inset:0; margin:auto; width:28px; height:28px; border-radius:999px;
+          background:rgba(255,255,255,.22); border:1px solid rgba(255,255,255,.5); }
+  .play::after { content:""; position:absolute; inset:0; margin:auto; width:0; height:0;
+          border-left:8px solid #fff; border-top:5px solid transparent; border-bottom:5px solid transparent; }
+  .bar { position:absolute; left:0; right:0; bottom:0; height:3px; background:rgba(255,255,255,.28); }
+  .bar i { display:block; height:100%; width:62%; background:#38BDF8; }
+  .tm { width:158px; margin-top:6px; }
+  .tm .sub { color:#8A8A93; font-size:12px; display:flex; justify-content:space-between; }
+  .tm .nm { color:#fff; font-size:16px; font-weight:700; margin:4px 0 3px; }
+  .tm .ep { color:#A1A1AA; font-size:12px; display:flex; gap:6px; align-items:center; }
+  .chip { font-size:9.5px; font-weight:700; padding:2px 5px; border-radius:4px; background:#3F3F46; color:#D4D4D8; }
+  .focus { outline:2px dashed #38BDF8; outline-offset:3px; border-radius:12px; }
+  .speech { margin-top:14px; }
+  .bubble { background:#17171D; border:1px solid #2c2c33; border-left:3px solid #38BDF8;
+            border-radius:0 8px 8px 0; padding:8px 11px; font-size:12px; color:#d4d4d8; margin-bottom:6px; }
+  .bubble.b { border-left-color:#FF4D63; }
+  .count { font:600 11px/1 "InterVar",sans-serif; color:#8a8a93; margin-top:10px; }
+</style>
+</head>
+<body>
+
+<h1>Decisions 11–12 — Accessibility &amp; internationalization</h1>
+<p class="lede">
+  Both are cheap now and expensive later, and both are mostly <em>already decided</em> by choices made
+  earlier in this session — contrast was a constraint on the palette, 44&nbsp;pt targets shaped the spacing,
+  font-scaling caps came out of the type ladder, and DF8 already forbids hardcoded strings. What remains is
+  the target level, the screen-reader model, and the i18n mechanism.
+</p>
+
+<!-- ============== 11 · TARGET ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>11 · Target level</h2><span class="tag rec">WCAG 2.1 AA</span></div>
+  <p class="char">
+    AA is the common default and the legal baseline in most jurisdictions. It costs almost nothing here
+    because the expensive parts were designed in rather than retrofitted — the table below is a status
+    report, not a work plan.
+  </p>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>AA requirement</th><th>Status</th><th>Where it was decided</th></tr>
+    <tr><td>Text contrast ≥ 4.5:1</td><td><span class="tag ok" style="padding:3px 6px">met</span></td><td>Decision 2 — every pair measured; tertiary text raised from the reference's ~4:1</td></tr>
+    <tr><td>Touch targets ≥ 44 pt</td><td><span class="tag ok" style="padding:3px 6px">met</span></td><td>Decision 4 — <code>hitSlop</code> rule; decision 6 — built into <code>IconButton</code></td></tr>
+    <tr><td>Text resize to 200%</td><td><span class="tag ok" style="padding:3px 6px">met, capped</span></td><td>Decision 10 — <code>maxFontSizeMultiplier</code> per step</td></tr>
+    <tr><td>Visible focus indicator</td><td><span class="tag ok" style="padding:3px 6px">met</span></td><td>Decision 6 — 2 px ring on focused fields (matters for external keyboards and Switch Control)</td></tr>
+    <tr><td>Non-text contrast (controls) ≥ 3:1</td><td><span class="tag ok" style="padding:3px 6px">met</span></td><td>Hairline borders and the progress-bar track both clear 3:1 on their surfaces</td></tr>
+    <tr><td>Labels &amp; name/role/value</td><td><span class="tag" style="padding:3px 6px">this page</span></td><td>Screen-reader model below</td></tr>
+    <tr><td>Reduced motion honored</td><td><span class="tag" style="padding:3px 6px">decision 13</span></td><td>Press scale collapses to opacity; transitions shorten</td></tr>
+    <tr><td>Color not the only signal</td><td><span class="tag ok" style="padding:3px 6px">met</span></td><td>The auth error is red <em>and</em> an underline <em>and</em> a message; live is red <em>and</em> a ⚡ VIVO badge</td></tr>
+  </table></div></div>
+</section>
+
+<!-- ============== 11 · SCREEN READER ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>11 · The screen-reader model</h2><span class="tag">choose</span></div>
+  <p class="char">
+    This is the one part not already implied by earlier decisions, and it is where carousel apps usually
+    fail. A continue-watching tile is <em>seven</em> views: artwork, play overlay, progress bar,
+    time-remaining, overflow button, title, rating chip, episode line. Left alone, VoiceOver treats each as a
+    separate stop.
+  </p>
+  <div class="row"><div class="sr">
+    <div class="srcol">
+      <p class="cap" style="color:#fecaca">A · default — no grouping</p>
+      <div class="tile focus"><svg viewBox="0 0 160 90"><defs><linearGradient id="q1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a8a"/><stop offset="1" stop-color="#0c4a6e"/></linearGradient></defs><rect width="160" height="90" fill="url(#q1)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+      <div class="tm"><div class="sub"><span>11 min restantes</span><span>⋮</span></div>
+        <div class="nm">El Umbral de Orión</div>
+        <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red</span></div></div>
+      <div class="speech">
+        <div class="bubble b">“imagen”</div>
+        <div class="bubble b">“botón”</div>
+        <div class="bubble b">“11 min restantes”</div>
+        <div class="bubble b">“El Umbral de Orión”</div>
+        <div class="bubble b">“13 más”</div>
+        <div class="bubble b">“T3 dos puntos E12 La Red”</div>
+      </div>
+      <div class="count">6 swipes per tile · 60 to cross one row of 10 · nothing says it is tappable</div>
+    </div>
+    <div class="srcol">
+      <p class="cap" style="color:#a7f3d0">B · grouped tile + separate action <span class="tag rec" style="padding:3px 6px">recommended</span></p>
+      <div class="tile focus"><svg viewBox="0 0 160 90"><rect width="160" height="90" fill="url(#q1)"/></svg><div class="play"></div><div class="bar"><i></i></div></div>
+      <div class="tm focus" style="margin-top:10px"><div class="sub"><span>11 min restantes</span><span style="outline:2px dashed #38BDF8;outline-offset:2px">⋮</span></div>
+        <div class="nm">El Umbral de Orión</div>
+        <div class="ep"><span class="chip">13+</span><span>T3:E12 La Red</span></div></div>
+      <div class="speech">
+        <div class="bubble">“El Umbral de Orión. T3:E12 La Red. Clasificación 13+. Quedan 11 minutos, 62 % visto. Botón.”</div>
+        <div class="bubble">“Más opciones para El Umbral de Orión. Botón.”</div>
+      </div>
+      <div class="count">2 swipes per tile · reads like the row looks · role and state announced</div>
+    </div>
+    <div class="note" style="width:360px">
+      <p class="cap">How B is built</p>
+<pre><span class="c">// ProgressTile</span>
+&lt;Pressable
+  accessible                       <span class="c">// collapse children → 1 element</span>
+  accessibilityRole=<span class="s">"button"</span>
+  accessibilityLabel={t(<span class="s">'tile.progress.a11y'</span>, {
+     name, episode, rating, minutes, percent })}
+  onPress={onCardPress}&gt;
+  &lt;Artwork … accessibilityElementsHidden importantForAccessibility=<span class="s">"no-hide-descendants"</span> /&gt;
+  …
+&lt;/Pressable&gt;
+&lt;IconButton              <span class="c">// sibling, NOT nested — else it's unreachable</span>
+  accessibilityRole=<span class="s">"button"</span>
+  accessibilityLabel={t(<span class="s">'tile.overflow.a11y'</span>, { name })} /&gt;</pre>
+      <p class="char" style="margin-top:12px">
+        The rule generalizes: <strong>one tile = one accessibility element, plus one element per additional
+        action.</strong> Decorative artwork is always hidden from the tree. The label is a
+        <em>translated template</em>, not string concatenation — which is why this decision has to be made
+        alongside i18n rather than after it.
+      </p>
+    </div>
+  </div></div>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Surface</th><th>Announcement rule</th></tr>
+    <tr><td>Tab bar (unlabeled icons)</td><td><code>accessibilityLabel</code> per tab + <code>accessibilityState={{selected}}</code>. Inert tabs also get <code>accessibilityHint</code> "Disponible pronto".</td></tr>
+    <tr><td>Password visibility toggle</td><td>Label changes with state (<em>Mostrar / Ocultar contraseña</em>), not just the glyph.</td></tr>
+    <tr><td>Auth inline error</td><td><code>accessibilityLiveRegion="assertive"</code> (Android) + <code>AccessibilityInfo.announceForAccessibility</code> (iOS) — otherwise a failed login is <em>silent</em> to a screen-reader user, which is criterion F2 failing for that user.</td></tr>
+    <tr><td>Progress bar</td><td>Folded into the tile's label as a percentage; not its own element.</td></tr>
+    <tr><td>Loading gate / skeletons</td><td>Skeletons hidden from the tree; the gate announces "Cargando".</td></tr>
+    <tr><td>No-internet overlay</td><td><code>accessibilityViewIsModal</code> so focus can't wander to the navigator underneath.</td></tr>
+    <tr><td>Section headers</td><td><code>accessibilityRole="header"</code> — enables rotor/heading navigation between rows.</td></tr>
+  </table></div></div>
+  <p class="char" style="margin-top:14px">
+    <strong>Verification, honestly stated:</strong> UI tests are deferred to 1b (doc 02), so there is no
+    automated a11y assertion in 1a. The props above are written <em>as the atoms are written</em> — near-free
+    then, a sweep across every component later — and verified by a <strong>10-minute VoiceOver + TalkBack
+    pass</strong> added to the Tuesday-AM smoke checklist. That is a real gap, recorded rather than papered over.
+  </p>
+</section>
+
+<!-- ============== 12 · I18N ============== -->
+<section class="sec">
+  <div class="sec-head"><h2>12 · Internationalization — the mechanism</h2><span class="tag">choose</span></div>
+  <p class="char">
+    DF8 already requires that no string be hardcoded. The open question is <em>what</em> the strings layer is.
+    Note this app genuinely needs <strong>interpolation and plurals</strong>, not just lookup:
+    <em>“11 min restantes”</em>, <em>“Comenzó hace 7 h 26 min”</em>, and the screen-reader templates above.
+  </p>
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Option</th><th>Mechanism</th><th>Consequence</th></tr>
+    <tr>
+      <td><strong>A</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
+      <td><code>react-i18next</code> + <code>i18next</code>, one <code>es-419</code> bundle</td>
+      <td>Plurals, interpolation, and namespaces out of the box; the production-standard answer, which matters because this repo is explicitly a migration template for the real app. ~1 hour to wire, and adding <code>en-US</code> later is a JSON file. Cost: two dependencies for a single-locale demo.</td>
+    </tr>
+    <tr>
+      <td><strong>B</strong></td>
+      <td>Hand-rolled typed strings module (<code>t('auth.password.title')</code> over a typed key map)</td>
+      <td>~30 lines, zero dependencies, compile-time key checking that i18next doesn't give you by default. But plurals and relative time become hand-written, and a migration template that ships a bespoke i18n layer teaches the wrong lesson. Reasonable fallback if Saturday slips.</td>
+    </tr>
+    <tr><td><strong>C</strong></td><td><code>i18n-js</code> + <code>expo-localization</code></td><td>Ruled out — <code>expo-*</code> packages contradict the bare-RN decision (doc 15).</td></tr>
+  </table></div></div>
+
+  <div class="row"><div style="flex:1">
+<pre><span class="c">// shared/i18n/es-419.json — semantic keys, Spanish values</span>
+{
+  <span class="s">"auth.password.title"</span>: <span class="s">"Escribir contraseña"</span>,
+  <span class="s">"auth.error.credentials"</span>: <span class="s">"No pudimos iniciar tu sesión…"</span>,
+  <span class="s">"tile.progress.remaining_one"</span>: <span class="s">"{{count}} min restante"</span>,
+  <span class="s">"tile.progress.remaining_other"</span>: <span class="s">"{{count}} min restantes"</span>,
+  <span class="s">"tile.progress.a11y"</span>: <span class="s">"{{name}}. {{episode}}. Clasificación {{rating}}. Quedan {{minutes}} minutos, {{percent}} % visto."</span>,
+  <span class="s">"tabs.novedades"</span>: <span class="s">"Novedades"</span>,
+  <span class="s">"common.retry"</span>: <span class="s">"Reintentar"</span>
+}</pre>
+  </div></div>
+
+  <div class="row"><div style="flex:1"><table>
+    <tr><th>Sub-decision</th><th>Call</th><th>Why</th></tr>
+    <tr><td>Keys</td><td><strong>Semantic IDs</strong> (<code>auth.password.title</code>), not English source strings</td><td>Source-string keys break every consumer the moment the copy is edited.</td></tr>
+    <tr><td>Locales shipped</td><td><strong><code>es-419</code> only</strong> in Phase 1</td><td>The reference material is Spanish (LatAm) and fidelity is the goal. English is a translation file whenever someone wants it.</td></tr>
+    <tr><td>Locale detection</td><td><strong>Forced <code>es-419</code></strong>; no device-locale lookup</td><td>A demo that changes language based on the reviewer's phone is a demo that can't be rehearsed. Detection is a Phase-3 line change.</td></tr>
+    <tr><td>Dates / numbers / relative time</td><td><code>Intl</code> via Hermes</td><td>Already available; no <code>moment</code>/<code>date-fns</code> dependency for "hace 7 h 26 min".</td></tr>
+    <tr><td>RTL</td><td><strong>Not enabled</strong>, but not foreclosed: use <code>marginStart</code>/<code>paddingEnd</code>/<code>textAlign:"start"</code> throughout, never <code>Left</code>/<code>Right</code></td><td>Costs nothing today and makes RTL a flag flip plus a QA pass instead of a re-layout. This is exactly the foreclosure the session brief warns about.</td></tr>
+    <tr><td>Layout tolerance</td><td>No fixed-width text containers; the tight spacing from decision 4 assumes Spanish, and German/Finnish would grow ~30%</td><td>Recorded as a known constraint of the reference-tight density rather than a defect.</td></tr>
+  </table></div></div>
+
+  <div class="hold" style="max-width:none">
+    <strong>One thing that needs your call, because it crosses into the API contract.</strong> Doc 04 says
+    <code>Container.name</code> is the row header and is <em>“i18n in the client”</em> — but a row name
+    arriving from a feed is <strong>data</strong>, and the client can only translate it if the wire sends a
+    key rather than a display string. Three ways: (i) the wire sends a <em>key</em>
+    (<code>"home.row.marvel"</code>) and the client resolves it — clean, but the backend then owns our key
+    namespace; (ii) the wire sends an already-localized <em>string</em> and the client renders it verbatim —
+    normal for a real content API, and it means row headers are the one text on screen not in our bundle;
+    (iii) Phase-1 mocks send display strings and we note that the real API must send localized text per the
+    request's locale. I'd take <strong>(iii)</strong> — it matches how content APIs actually behave and defers
+    nothing incorrectly — but it contradicts doc 04's wording, so it belongs in the doc and in 1.11's contract.
+  </div>
+</section>
+
+</body>
+</html>

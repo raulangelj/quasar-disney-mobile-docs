@@ -1,29 +1,33 @@
 # Shell (Bash) coding standards — quasar-disney-mobile
 
-> **Starting point — review and customize.** These are sane defaults so code is consistent from
-> day one. Change anything that doesn't fit your team.
+> **Reconciled to this project in STEP-1.12** (`architecture/12-test-strategy.md` §10.3). Kept
+> because the docs hub ships `scripts/*.sh` and the root `doctor.sh`, and doc 09 §7.2 contemplates a
+> small `.env` key-completeness script. Otherwise close to the shipped default.
 >
-> **Cross-cutting.** Shell scripts show up across the repo — CI glue, dev scripts, Docker
-> entrypoints — alongside whatever language a project is written in. Record real decisions (a
-> required interpreter, a target environment) in an ADR and link it from this file.
+> **Cross-cutting.** Shell here is CI glue and developer scripts. **There are no containers and no
+> entrypoints** — doc 08 §1 hosts nothing.
 
 **Baseline:** this standard targets **bash** — it is bash-specific, not portable POSIX `sh`.
-Reach for `sh`/`dash` only when a constraint requires it (e.g. a minimal Alpine image), and say
-so at the top of the script. Follow the
-[Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html); lint with
-**ShellCheck** and format with **shfmt**, both pinned in CI so the standard is enforced, not just
-documented.
+Reach for `sh`/`dash` only when a constraint requires it, and say so at the top of the script.
+Follow the [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html); lint
+with **ShellCheck** and format with **shfmt**.
+
+**ShellCheck and shfmt are *not* a Phase-1 CI gate.** The merge gate is a JS-only job — `tsc`,
+Jest, ESLint, Prettier (doc 12 §7, ADR-0018) — and the only shell this project authors in Phase 1a is
+possibly the `.env` completeness check. Run them locally or from a pre-commit hook; revisit adding
+them to CI when Bitrise lands (Phase 2, OQ-05). Saying they are "pinned in CI" when they are not is
+how a standards doc stops being trusted.
 
 **Prefer a real language past simple scripts (recommendation).** Shell is best for small
-utilities and wrappers. When a script grows beyond ~100 lines, or needs non-straightforward
-control flow or real data structures, it's usually worth rewriting in Python/Go — easier to test,
-read, and maintain. This is a guideline to weigh, not a hard gate.
+utilities and wrappers. When a script grows beyond ~100 lines, or needs non-straightforward control
+flow or real data structures, move it to **TypeScript under the Node tooling runtime** (doc 12 §7) or
+split it — this stack has no Python or Go to fall back on. A guideline to weigh, not a hard gate.
 
 ## Preamble & strict mode
-- **Shebang — a project decision; pick one and apply it everywhere.** `#!/usr/bin/env bash`
-  resolves bash via `PATH`, so it works where bash isn't in `/bin` (macOS/Homebrew, Nix);
-  `#!/bin/bash` is an absolute path (what the Google guide mandates) and avoids `PATH` surprises.
-  There's no universal default — settle it for the project (and record the why if it's not obvious).
+- **Shebang: `#!/usr/bin/env bash`** — settled for this project. It resolves bash via `PATH`, which
+  matters on the macOS development machines, where `/bin/bash` is still 3.2 and a modern bash comes
+  from Homebrew. All existing scripts (`scripts/*.sh`, root `doctor.sh`) already use it; this records
+  the convention rather than introducing one.
 - Start scripts with **strict mode**: `set -euo pipefail` — exit on error, error on unset
   variables, and fail a pipeline if any stage fails. Be aware `set -e` has well-known edge cases,
   so still check explicitly any command whose failure you must handle. Set `IFS=$'\n\t'` when

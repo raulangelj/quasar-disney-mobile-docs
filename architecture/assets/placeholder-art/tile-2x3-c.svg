@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600" role="img" aria-label="Placeholder key art">
+  <defs>
+    <linearGradient id="p23cBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5C1B10"/><stop offset="1" stop-color="#170604"/>
+    </linearGradient>
+    <radialGradient id="p23cGlow" cx="0.5" cy="0.2" r="0.62">
+      <stop offset="0" stop-color="#F59E0B" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#F59E0B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="p23cScrim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.78"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#p23cBg)"/>
+  <rect width="400" height="600" fill="url(#p23cGlow)"/>
+  <g fill="#FFD59E" fill-opacity="0.16">
+    <path d="M200 96 L246 214 L372 214 L270 288 L308 408 L200 334 L92 408 L130 288 L28 214 L154 214 Z"/>
+  </g>
+  <path d="M0 470 L120 386 L232 452 L400 344 L400 600 L0 600 Z" fill="#1B0705" fill-opacity="0.85"/>
+  <rect y="340" width="400" height="260" fill="url(#p23cScrim)"/>
+</svg>
