@@ -32,6 +32,17 @@ date. Revisit at Phase 1b. `strict: true` is not optional.
   `architecture/11-interface-contracts.md` §6.3. Do not "fix" a wire name to match a local
   convention; the contract is the authority.
 
+## Functions
+- Prefer **arrow functions** over `function` declarations — standalone helpers, selectors,
+  hooks, and exported utilities use `const name = (...) => { ... }`, not `export function name`.
+- **Generic arrows** use the TypeScript form `const fn = <T>(...) => { ... }` (or
+  `async <T>(...) =>` when async).
+- **Exception:** RTK `createSlice` reducer bodies stay as object methods — that is what RTK
+  expects. `forwardRef` callbacks may use a named inner arrow when DevTools need a display name.
+- React components follow the same rule: `export const WelcomeScreen = () => { ... }`, not
+  `export function WelcomeScreen`.
+- **Enforced repo-wide** by ESLint `func-style: expression` in `.eslintrc.js`.
+
 ## Documentation
 - **A TSDoc `/** … */` block on every class, function, and method** (the project rule — see
   [`README.md`](README.md)), with `@param`/`@returns` where they add what the signature does not.
