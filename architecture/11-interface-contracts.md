@@ -1,10 +1,10 @@
 # Doc 11 — Interface Contracts
 
-**Version:** v0.3.3
+**Version:** v0.4.0
 **Status:** Draft
 **Coverage:** full for Phase 1. The promotion to a machine-readable artifact (OpenAPI) is
 consciously deferred with a named trigger (§2.3, ADR-0016) rather than left unenumerated.
-**Last updated:** 2026-08-18 (STEP-2.2)
+**Last updated:** 2026-08-18 (STEP-3.1)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > The one boundary in this system that will ever cross a network — five operations, their
@@ -82,24 +82,28 @@ key and the contract are the same decision seen from two sides.
 
 | Role | Where |
 |------|-------|
-| **Authoring source of truth** | The TypeScript wire types in the API module — doc 04 §7's "types in the API module *are* the schema" |
+| **Authoring source of truth** | **`src/api/types/`** in `quasar-disney-mobile-app` — `card.ts`, `container.ts`, `envelope.ts`, `auth.ts`, `errors.ts`, `index.ts`. Doc 04 §7's "types in the API module *are* the schema", now an actual file tree (STEP-3.1) |
 | **Consumer-facing contract of record** | **This document.** §5–§8's tables are what a backend team is handed — not a link to a source file in a repo they do not have |
 
-### 2.2 The inversion, stated on purpose
+### 2.2 The inversion — stated on purpose, resolved in STEP-3.1
 
-Right now the contract of record lives in the docs hub while the authoring source will live in a
-repo that **now exists** (`quasar-disney-mobile-app` at `Code/quasar-disney-mobile-app/`,
-registered in `registries/repos.yml` as of STEP-2.2) but whose `src/api/types/` has **not yet
-been transcribed** (STEP-3). That is still backwards from where it ends up,
-and it is the reason §3's scaffold obligation matters more than a folder-layout note normally
-would.
+**Resolved in STEP-3.1.** The inversion this section existed to name is over: `src/api/types/`
+in `quasar-disney-mobile-app` now transcribes §7 and §8 completely, so the authoring source and
+the contract of record both exist and are in agreement. §3.1's obligation is discharged — the
+types were written from this specification rather than from memory of a conversation, which is
+the whole reason the obligation was stated rather than assumed.
 
-The handover rule:
+The handover rule, now in its second half:
 
-> **This doc's tables are normative until the TS types exist.** From **STEP-3** onward the
-> **TS types are normative**, and this doc must be updated in the same PR as any wire-shape
-> change (§12). STEP-2.2 created the empty `src/api/types/` tree and pointed the README here;
-> it did not transcribe §7.
+> **This doc's tables were normative until the TS types existed. Since STEP-3.1 the TS types are
+> normative** — `src/api/types/` is where a wire shape is *decided* — and **this doc stays the
+> consumer-facing contract of record**: §5–§8's tables are what a backend team is handed, not a
+> link to a source file in a repo they do not have. Neither may move without the other:
+> **§12's same-PR rule is what keeps them one contract instead of two**, and it binds every
+> substep that touches an operation, payload, envelope, or error code.
+
+Kept for the record, since it explains §3.1's shape: until STEP-2.2 the authoring source lived in
+a repo that did not exist, and until STEP-3.1 that repo's `src/api/types/` was an empty folder.
 
 ### 2.3 The upgrade trigger
 
@@ -110,10 +114,10 @@ argument against that call.
 
 ## 3. Artifact locations
 
-| Artifact | Where, now | Where, after STEP-3 |
+| Artifact | Where, now | Where, after the rest of STEP-3 |
 |----------|-----------|-------------------------------|
 | Operation spec — paths, payloads, envelope, errors, transport profiles | **`architecture/11-interface-contracts.md`** (this doc) | Unchanged — remains the contract of record until OQ-10 |
-| TS wire types (`Card`, `Container`, envelopes, `ApiError`, login / `/me` DTOs) | Do not exist as TypeScript — §7 states them as normative tables. Empty folder `src/api/types/` exists (STEP-2.2) | **`src/api/types/`** — the authoring source. This doc gains a pointer |
+| TS wire types (`Card`, `Container`, envelopes, `ApiError`, login / `/me` DTOs) | **`Code/quasar-disney-mobile-app/src/api/types/`** — the authoring source (STEP-3.1). `card.ts` §7.1 · `container.ts` §7.2 · `envelope.ts` §6.1–§6.3 · `auth.ts` §7.4 · `errors.ts` §8 · `index.ts` barrel | Unchanged — features import the barrel and nothing deeper in `src/api/` (doc 03 §8.2) |
 | axios instance + interceptors + `axiosBaseQuery` / `baseQueryWithAuth` | Folder `src/api/client/` exists empty (STEP-2.2) | `src/api/client/` |
 | RTK Query `baseApi` | Stub file `src/api/baseApi.ts` (STEP-2.2); `createApi` not called | `src/api/baseApi.ts`; feature `injectEndpoints` in `src/features/*/api.ts` |
 | Mock fixtures + `axios-mock-adapter` | Folder `src/api/mocks/` exists empty (STEP-2.2) | `src/api/mocks/` — on the **same** axios instance (ADR-0020) |
@@ -135,6 +139,10 @@ The application-repo scaffold is split across two STEPs (planning session):
 **STEP-3** **must** transcribe §7's tables into TypeScript interfaces and enums in
 `src/api/types/`, then stand up interceptors, `baseApi`, and mocks. From that PR onward
 the TS types are normative (§2.2).
+
+**Status:** the transcription landed in **STEP-3.1** — §7 and §8 are in `src/api/types/`, the
+app README carries the contract-of-record line, and §2.2's handover is discharged. The
+interceptors, `baseApi`, and mocks remain STEP-3.2–3.4.
 
 This is the handoff that makes §2.2's inversion safe. Without it, the TS types get written from
 memory of a conversation instead of from a specification.
@@ -657,3 +665,4 @@ Carried forward, unchanged by this session: **OQ-03** (production JWT claims + I
 | v0.3.1 | 2026-08-17 | STEP-1.14 | §7.2: `visibleCount` is not a wire field (OQ-37). |
 | v0.3.2 | 2026-08-17 | planning session | Closed OQ-12 / OQ-18 / OQ-28 as recorded by the planning session. |
 | v0.3.3 | 2026-08-18 | STEP-2.2 | §3.1 split: STEP-2 creates the `src/api/` tree + README pointer + `repos.yml`; STEP-3 transcribes §7. Repo exists; types still pending. No wire-shape change. |
+| v0.4.0 | 2026-08-18 | STEP-3.1 | **§7 and §8 transcribed into TypeScript.** The authoring source of truth is now `src/api/types/` in `quasar-disney-mobile-app` (§2.1, §3); §2.2's inversion is **resolved** and the TS types are normative from here, with this doc remaining the consumer-facing contract of record under §12's same-PR rule. §3.1 records the obligation as discharged. **No wire-shape change:** no field, name, enum value, envelope shape, page-size default, or error code differs from §6.3, §7, or §8 as written. |
