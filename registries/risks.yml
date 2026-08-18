@@ -77,23 +77,23 @@ risks:
       reason: "STEP-1.14 Cross-Cutting Review completed. All core and included-conditional architecture sessions ran."
 
   - id: RISK-0003
-    status: open
+    status: closed
     title: "Bare React Native scaffold on two platforms is the critical-path schedule risk"
     category: reliability
     severity: high
-    owner: "TBD"
+    owner: "Raul Angel"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
     description: "Pods, signing, emulators, and Xcode version drift can consume half a day of a ~3.5-day window with no warning. Session 1.8 chose lockfiles-only reproducibility (no authored pin files, no toolchain table), so Xcode version drift between the two laptops stays explicitly unmitigated inside this risk."
     impact: "If the scaffold slips, the Sunday auth-flow plan no longer closes before the immovable 2026-08-18 sign-off."
     mitigation: "Pre-agreed fallback: if no app runs on both platforms by Saturday midday, drop Android for Saturday, pursue iOS only, bring Android up Monday. Commit every lockfile the RN scaffold generates."
-    revisit_trigger: "Foundation / scaffold STEP — Saturday midday checkpoint in doc 02 §8. The original 2026-08-15 date has passed; the scaffold has not started because STEP-1 was still in flight."
+    revisit_trigger: "—"
     refs:
       - "architecture/02-phasing-roadmap.md#8-schedule-and-schedule-risk"
       - "architecture/08-infrastructure-deployment.md#4-infrastructure-as-code--lockfiles-only"
     closed:
-      date:
-      reason:
+      date: "2026-08-18"
+      reason: "STEP-2.1: RN 0.87 template booted on iOS Simulator (iPhone 17 / iOS 26.4) and Android emulator (Pixel 7 API 34). Both platforms kept."
 
   - id: RISK-0005
     status: open
