@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.4.2
+**Version:** v0.4.3
 **Status:** Draft
-**Last updated:** 2026-08-18 (STEP-2.2)
+**Last updated:** 2026-08-18 (STEP-3.2)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -153,6 +153,7 @@ src/features/storefront/
 src/shared/{theme,ui,i18n,analytics}/
 src/api/
   ├── baseApi.ts               createApi (empty endpoints); reducerPath `api`
+  ├── sessionCleared.ts        `createAction('session/cleared')` — the API module's clear signal (§8.2)
   ├── types/                   wire types — the contract's authoring source (doc 11 §2)
   ├── mocks/                   axios-mock-adapter + fixtures (typed, never `any` — doc 11 §11.2)
   └── client/                  axios instance, interceptors, axiosBaseQuery, baseQueryWithAuth
@@ -171,9 +172,20 @@ architecture, and `features/` is already the established word. The tree is creat
 | Auth / Storefront → `src/api/types/` | **Yes** — schema only |
 | Auth / Storefront → own `api.ts` hooks (`useLoginMutation`, `useGetHomeFeedQuery`, …) | **Yes** — `injectEndpoints` on `baseApi` |
 | Auth / Storefront → `src/api/client/` or `axios` / `fetch` | **No** |
+| Auth / Storefront → `src/api/sessionCleared.ts` | **Yes** — the API module *declares* the clear signal, the auth slice *reduces* it. See below |
+| API module → `features/` | **No** — including the auth slice. This is what `sessionCleared` exists to avoid |
 | Auth → Storefront · Storefront → Auth | **No** (including the other feature's `api.ts`) |
 | Shared → `features/` | **No** |
 | Persist | **Auth slice only**, into **`react-native-encrypted-storage`** — not AsyncStorage, not the RTK Query cache |
+
+**The `sessionCleared` seam** (added STEP-3.2). `baseQueryWithAuth` must clear the session on
+`UNAUTHORIZED` (ADR-0017 / ADR-0020), but the auth slice belongs to the Auth feature and the row
+above forbids the API module importing one. The API module therefore owns the *event* and the
+feature owns the *reaction*: `src/api/sessionCleared.ts` exports
+`createAction('session/cleared')`, `baseQueryWithAuth` dispatches it alongside
+`baseApi.util.resetApiState()`, and the auth slice reduces it through `extraReducers`. The
+dependency direction stays **feature → api**, and the API module is buildable and testable with no
+auth slice in existence — which is how STEP-3 shipped ahead of STEP-4.
 
 Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query** so the API boundary stays visible (not hidden behind `createAsyncThunk`, not handwritten per-operation middleware).
 
@@ -222,3 +234,4 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 | v0.4.0 | 2026-08-17 | STEP-1.14 | §2 names **feature-based Clean Architecture**. I/O is **RTK Query `baseApi`** + axios interceptors; mocks are `axios-mock-adapter` (ADR-0020). Theme is **Emotion** (ADR-0019). User/content slices replaced by RTK Query cache. Reversed OQ-17. |
 | v0.4.1 | 2026-08-17 | planning session | Closed OQ-18: application repo is `quasar-disney-mobile-app`. |
 | v0.4.2 | 2026-08-18 | STEP-2.2 | Repo exists at `Code/quasar-disney-mobile-app/`. §8.1 tree is STEP-2.2; wire-type transcription is STEP-3 (doc 11 §3.1). |
+| v0.4.3 | 2026-08-18 | STEP-3.2 | §8.1 tree gains `src/api/sessionCleared.ts`; §8.2 records the **`sessionCleared` seam** — the API module declares the clear signal, the auth slice reduces it — and states explicitly that the API module never imports a feature (PLAN Q1). |
