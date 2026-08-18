@@ -1,10 +1,10 @@
 # Doc 09 — Environments
 
-**Version:** v0.1.2
+**Version:** v0.1.3
 **Status:** Draft
 **Coverage:** full for Phase 1. A `staging` tier and CI-as-environment are consciously deferred
 with named triggers (§2.1, §8) rather than left unenumerated.
-**Last updated:** 2026-08-17 (planning session)
+**Last updated:** 2026-08-18 (STEP-2.2)
 **Audience:** Mobile developers, QA, eng leadership
 
 > What "environment" means in a project that deploys nothing, how config and secrets reach the
@@ -123,8 +123,7 @@ The mock adapter reads the demo pair from env — **not** a committed fixture an
 screen-level `if` (doc 06 §5, unchanged).
 
 `.env.example` is committed with placeholder values and one line of documentation per key. It
-does not exist yet: no application repo exists (`registries/repos.yml` lists only the two docs
-repos), so **it is created in the scaffold STEP** alongside the RN project, from the convention
+lives in `Code/quasar-disney-mobile-app/.env.example` (created STEP-2.2) from the convention
 in `templates/env-example.txt`. Its three keys are the table above.
 
 ### 4.3 Differences between configurations are expressed in code, not config
@@ -351,3 +350,4 @@ are unchanged. **OQ-28** is closed (planning session: Raul Angel owns the sign-o
 | v0.1.0 | 2026-08-17 | STEP-1.9 | Initial draft from the environments session. Two build configurations named; sandbox and `staging` declined with triggers; config mechanism closed via ADR-0015; clean-state pre-flight and `.env` completeness check added (doc 08 §5–6 and `runbooks/release-deploy.md` updated); release-build parity cadence and the deterministic-vs-injectable failure boundary set. Opened OQ-31, OQ-32. |
 | v0.1.1 | 2026-08-17 | STEP-1.12 | §6.2 extended: the adapter carries **three** test seams — failure injection, latency, and the clock — all constructor parameters, none a runtime toggle (doc 12 §4.4). Also recorded there: **tests never read the real `.env`**, resolving `@env` to a committed stub instead, which is what makes §7's CI tier possible on a runner that can never have a gitignored file (ADR-0018). No change to the two configurations, the `.env` key set, or the promotion flow. |
 | v0.1.2 | 2026-08-17 | planning session | Closed OQ-28 in §7.3: Raul Angel owns the sign-off binary. |
+| v0.1.3 | 2026-08-18 | STEP-2.2 | `.env.example` now exists in `Code/quasar-disney-mobile-app/`. No change to the two configurations or the key set. |

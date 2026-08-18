@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.4.1
+**Version:** v0.4.2
 **Status:** Draft
-**Last updated:** 2026-08-17 (planning session)
+**Last updated:** 2026-08-18 (STEP-2.2)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -41,7 +41,7 @@ This is the simplest shape that still makes auth and storefront extractable late
 
 Internal partition of Shared is folders, not packages: `shared/theme/`, `shared/ui/`, `shared/i18n/`, `shared/analytics/`. There is **no types module** — wire types live in the API module, feature types live with the owning feature, component props live next to the component.
 
-Code lives in a **single application repo**, **`quasar-disney-mobile-app`** (OQ-18 closed by the planning session). No backend repo is created by this project.
+Code lives in a **single application repo**, **`quasar-disney-mobile-app`** at `Code/quasar-disney-mobile-app/` (OQ-18 closed; registered STEP-2.2). No backend repo is created by this project.
 
 ## 3. Component diagram
 
@@ -159,8 +159,8 @@ src/api/
 ```
 
 **`src/api/`, not `src/modules/api/`** — no `modules/` prefix appears anywhere in this
-architecture, and `features/` is already the established word. Created by the scaffold STEP, which
-carries doc 11 §3.1's obligation to transcribe the wire types from doc 11 §7.
+architecture, and `features/` is already the established word. The tree is created by **STEP-2.2**.
+**STEP-3** transcribes the wire types from doc 11 §7 into `src/api/types/` (doc 11 §3.1).
 
 ### 8.2 Import rules
 
@@ -221,3 +221,4 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 | v0.3.5 | 2026-08-17 | STEP-1.11 | §5 boundary table points at doc 11 and names the **fifth operation** (`/containers/{id}/resources`). §8 gains the **source-layout table** (§8.1, `src/api/`) and is renamed; import rules move to §8.2. Closed OQ-17. No dependency change. |
 | v0.4.0 | 2026-08-17 | STEP-1.14 | §2 names **feature-based Clean Architecture**. I/O is **RTK Query `baseApi`** + axios interceptors; mocks are `axios-mock-adapter` (ADR-0020). Theme is **Emotion** (ADR-0019). User/content slices replaced by RTK Query cache. Reversed OQ-17. |
 | v0.4.1 | 2026-08-17 | planning session | Closed OQ-18: application repo is `quasar-disney-mobile-app`. |
+| v0.4.2 | 2026-08-18 | STEP-2.2 | Repo exists at `Code/quasar-disney-mobile-app/`. §8.1 tree is STEP-2.2; wire-type transcription is STEP-3 (doc 11 §3.1). |
