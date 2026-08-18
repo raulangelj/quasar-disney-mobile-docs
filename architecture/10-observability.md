@@ -1,10 +1,10 @@
 # Doc 10 — Observability
 
-**Version:** v0.1.1
+**Version:** v0.1.2
 **Status:** Draft
 **Coverage:** full for Phase 1. Metrics, tracing, health checks, dashboards, and alerting are
 **consciously declined** with named revisit triggers (§3, §4, §6) rather than left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.10)
+**Last updated:** 2026-08-17 (planning session)
 **Audience:** Mobile developers, QA, eng leadership
 
 > What this app logs, what it deliberately does not measure, and the one failure mode worth
@@ -274,8 +274,7 @@ Closed by 1.11: **OQ-22** / **OQ-23** / **OQ-26** (wire shapes — doc 11 §5–
 expressed concretely as doc 11 §14's Phase-3 checklist plus **OQ-34**; §2.4's correlation-ID
 decision is item 2 on that list, and 1.11 deliberately did **not** reserve a header name.
 
-Carried forward, unchanged by this session: **OQ-28** (who owns the sign-off binary),
-**OQ-31** / **OQ-32** (Phase 2/3 config and CI). **RISK-0002**'s deferral of this session is
+Carried forward, unchanged by this session: **OQ-31** / **OQ-32** (Phase 2/3 config and CI). **OQ-28** is closed (planning session: Raul Angel owns the sign-off binary). **RISK-0002**'s deferral of this session is
 closed by this doc.
 
 ## Version Log
@@ -284,3 +283,4 @@ closed by this doc.
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.10 | Initial draft from the observability session. Logging is bare `console.*` with a no-bodies rule; metrics, tracing, health checks, correlation IDs, dashboards, alerting, and any vendor are consciously declined with triggers. Adds one shell-root error boundary (doc 03 §4 updated). Opened OQ-33, RISK-0014. |
 | v0.1.1 | 2026-08-17 | STEP-1.11 | §2.4's correlation-ID deferral becomes item 2 on doc 11 §14's Phase-3 checklist; no header name reserved. Boundary-logging rule restated in doc 11 §10. Closed OQ-22, OQ-23, OQ-26. |
+| v0.1.2 | 2026-08-17 | planning session | Recorded OQ-28 closure (Raul Angel owns the sign-off binary). |

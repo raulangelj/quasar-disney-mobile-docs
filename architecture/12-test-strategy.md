@@ -1,11 +1,11 @@
 # Doc 12 — Test Strategy
 
-**Version:** v0.1.1
+**Version:** v0.1.2
 **Status:** Draft
 **Coverage:** full for Phase 1a. UI/component tests (1b), automated device e2e (Phase 2), and
 numeric coverage gates (1b) are consciously deferred with named triggers (§2, §5, §8) rather than
 left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.14)
+**Last updated:** 2026-08-17 (planning session)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > What gets tested in a codebase whose network layer is a fixture, what has to be green before code
@@ -241,7 +241,7 @@ sides of the boundary. Revisit at **OQ-34**.
 
 The multi-repo question ("where do cross-repo e2e tests live — a dedicated tests repo?") dissolves
 here. `registries/repos.yml` will hold the docs hub, `prompts/`, and **one** application repo
-(**OQ-18**). Everything the system does happens in a single React Native process against in-process
+(`quasar-disney-mobile-app` — OQ-18 closed). Everything the system does happens in a single React Native process against in-process
 mocks. There is no second deployable for an integration suite to sit between.
 
 **The system test is the manual smoke on a release build, and it already exists.**
@@ -256,7 +256,7 @@ the first sync point. Both are right — they are different artifacts:
 
 | Artifact | Phase | Owner | Scope |
 |---|---|---|---|
-| **Release smoke** — `runbooks/release-deploy.md` Part 3 | **1a, now** | Whoever builds the sign-off binary (**OQ-28**) | The launch criteria: F1/F2/F3 + a11y spot-check + A1 |
+| **Release smoke** — `runbooks/release-deploy.md` Part 3 | **1a, now** | **Raul Angel** (OQ-28 closed) | The launch criteria: F1/F2/F3 + a11y spot-check + A1 |
 | **Formal QA checklist** | **1b** | QA | Exhaustive per-screen / per-state pass against installable builds |
 
 The second needs CI-produced builds and a QA owner, neither of which exists before Phase 2.
@@ -557,12 +557,12 @@ touching every test already written.
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
 | OQ-35 | When Bitrise lands in Phase 2, does it **subsume** the Tier A GitHub Actions job or do both run? Doc 09 decision 3 calls CI "a runner"; there would then be two | Mobile | Phase 2 Bitrise STEP (**OQ-05**) |
-| OQ-36 | Who owns fixing a **red trunk** during the Sat–Mon parallel window? Doc 02 §9 promises "no coordination" on Sunday and Monday, but a merge gate blocks both developers by design | Eng leadership | Planning session; relates to **OQ-12** |
+| ~~OQ-36~~ | ~~Who owns fixing a red trunk during the Sat–Mon parallel window?~~ **Resolved (planning session):** the author of the PR that went red fixes it before anything else merges. If trunk is red after combining both STEPs, the later merger owns the fix. Fallback: **Raul Angel** (STEP-2 CI owner). | — | closed |
 
-Carried forward, unchanged by this session: **OQ-05** (Bitrise setup — §7 Tier B), **OQ-12** (who is
-Dev A / Dev B), **OQ-18** (application repo name — §11's obligations land there), **OQ-28** (who
-owns the sign-off binary — §6.1), **OQ-34** (backend accepts the contract — §5's revisit for
+Carried forward, unchanged by this session: **OQ-05** (Bitrise setup — §7 Tier B), **OQ-34** (backend accepts the contract — §5's revisit for
 consumer-driven contract testing).
+
+**Closed by the planning session:** **OQ-12** (Dev A = Raul Angel, Dev B = Andres Montoya), **OQ-18** (`quasar-disney-mobile-app`), **OQ-28** (Raul Angel owns the sign-off binary), **OQ-36** (red-trunk owner rule above).
 
 **Opened as accepted risks:** **RISK-0015** (no automated e2e), **RISK-0016** (coverage reported but
 not gated), **RISK-0017** (criterion A2's lint rule is pattern-matching).
@@ -573,3 +573,4 @@ not gated), **RISK-0017** (criterion A2's lint rule is pattern-matching).
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.12 | Initial draft from the test-strategy session. Four tiers set (device e2e declined); must-cover list named, adding the persist-whitelist and theme token-parity tests; test factories separated from demo fixtures and colocated; `@env`, latency, clock, and failure injection fixed as test seams; two-tier CI adopted (**ADR-0018**, amending doc 11 §11.4) with DF5/DF1/A2 as lint gates; coverage reported but not gated; load testing declined; `coding-standards/` reconciled to TypeScript + shell + api, seven files pruned. **ADR-0017** relocates doc 11 §8.4's 401 policy above the transport. Opened OQ-35, OQ-36 and RISK-0015/0016/0017. |
 | v0.1.1 | 2026-08-17 | STEP-1.14 | T2 is store + `baseApi` + `axios-mock-adapter`. Persist whitelist excludes the RTK Query cache. Emotion, not styled-components snapshots (ADR-0019, ADR-0020). |
+| v0.1.2 | 2026-08-17 | planning session | Closed OQ-36 (red-trunk owner). Recorded OQ-12 / OQ-18 / OQ-28 closures. |

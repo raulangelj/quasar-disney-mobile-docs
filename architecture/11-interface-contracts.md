@@ -1,10 +1,10 @@
 # Doc 11 — Interface Contracts
 
-**Version:** v0.3.1
+**Version:** v0.3.2
 **Status:** Draft
 **Coverage:** full for Phase 1. The promotion to a machine-readable artifact (OpenAPI) is
 consciously deferred with a named trigger (§2.3, ADR-0016) rather than left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.14)
+**Last updated:** 2026-08-17 (planning session)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > The one boundary in this system that will ever cross a network — five operations, their
@@ -88,8 +88,8 @@ key and the contract are the same decision seen from two sides.
 ### 2.2 The inversion, stated on purpose
 
 Right now the contract of record lives in the docs hub while the authoring source lives in a repo
-**that does not exist yet** (OQ-18 — the application repo is unnamed and uncreated;
-`registries/repos.yml` lists only the two docs repos). That is backwards from where it ends up,
+**that does not exist yet** (`quasar-disney-mobile-app` — OQ-18 closed by the planning session;
+`registries/repos.yml` lists only the two docs repos until STEP-2 registers it). That is backwards from where it ends up,
 and it is the reason §3's scaffold obligation matters more than a folder-layout note normally
 would.
 
@@ -542,7 +542,7 @@ doc 09 decision 3 holds, CI is a runner.
 ## 12. Ownership & review
 
 **Owner:** the mobile pair owns this contract outright until OQ-10. After the backend team accepts
-it, breaking changes are a joint decision. Who is Dev A / Dev B remains **OQ-12**.
+it, breaking changes are a joint decision. **OQ-12 closed:** Dev A = Raul Angel, Dev B = Andres Montoya.
 
 **The update rule** — a definition-of-done item on any implementation substep that touches an
 operation, payload, envelope, or error code:
@@ -598,7 +598,7 @@ exercise.
 | 3 | B-E, B-F | **Listed, not specified** — cross-referenced to docs 04/09 | A second place to keep true is the drift risk this doc exists to prevent | Doc 11 as a single index of every rule |
 | 4 | Contract level | Formal-but-lightweight for B-A/B; informal elsewhere | One consumer, one producer, one process today | Ceremony with no second party to serve |
 | 5 | Style | **TS interfaces + this doc's Markdown tables**; no OpenAPI yet (**ADR-0016**) | An OpenAPI file with no server behind it rots between now and Phase 3 | A codegen-ready artifact for the backend team today — the migration-template argument against this is recorded in ADR-0016 |
-| 6 | Source of truth | **Authoring:** TS types. **Contract of record:** this doc. Inverts at the scaffold STEP | The app repo does not exist yet (OQ-18) | Requires §3.1's explicit scaffold obligation to be safe |
+| 6 | Source of truth | **Authoring:** TS types. **Contract of record:** this doc. Inverts at the scaffold STEP | The app repo is named `quasar-disney-mobile-app` (OQ-18 closed) but does not exist yet | Requires §3.1's explicit scaffold obligation to be safe |
 | 7 | Versioning | **No `/v1`**; the contract version is this doc's Version Log | `API_BASE_URL` absorbs a prefix; the scheme is the backend team's to pick | Retrofitting a prefix into a live client — not a situation this project has |
 | 8 | Compatibility | Additive-optional non-breaking; renames/removals breaking. **Free to break until OQ-10** | One consumer, in the same repo | Treating a Phase-1 rename as a process violation |
 | 9 | Unknown enum values | **Drop the row + `console.warn`.** Do not throw, do not default | Not throwing keeps variant additions non-breaking; not defaulting avoids a plausible-but-wrong row on a fidelity demo | A graceful fallback layout |
@@ -629,10 +629,11 @@ exercise.
 
 Carried forward, unchanged by this session: **OQ-03** (production JWT claims + IdP vendor —
 §14 item 3), **OQ-10** (backend accepts the contract — now expressed concretely as §14 and OQ-34),
-**OQ-12** (who is Dev A / Dev B — §12), **OQ-18** (application repo name — §3), **OQ-28**
-(sign-off binary owner), **OQ-29** (reachability probe — §14 item 6), **OQ-30** (server-localized
+**OQ-29** (reachability probe — §14 item 6), **OQ-30** (server-localized
 `Container.name` — §7.3, §14 item 8), **OQ-31** / **OQ-32** (Phase 2/3 config and CI), **OQ-33**
 (error-boundary fallback design).
+
+**Closed by the planning session:** **OQ-12** (Dev A = Raul Angel, Dev B = Andres Montoya), **OQ-18** (`quasar-disney-mobile-app`), **OQ-28** (Raul Angel owns the sign-off binary).
 
 **Closed by this session (1.11):** **OQ-17**, **OQ-22**, **OQ-23**, **OQ-26**. **OQ-17 reversed in 1.14 (ADR-0020):** mocks are `axios-mock-adapter` on the real axios instance so interceptors run.
 
@@ -644,3 +645,4 @@ Carried forward, unchanged by this session: **OQ-03** (production JWT claims + I
 | v0.2.0 | 2026-08-17 | STEP-1.12 | **§8.4 amended (ADR-0017):** the session-clearing 401 policy lives **above the transport** and switches on `code` — in the interceptor it would sit in a path Phase 1 never executes. **§11.4 amended (ADR-0018):** CI is two tiers, a JS gate in 1a plus Bitrise's native build in Phase 2, replacing "none until Bitrise". §3 contract-test row and §11.3 point at doc 12. Decision Summary rows 19 and 25 updated. No wire-shape change: no field, name, enum, envelope, or error code differs. |
 | v0.3.0 | 2026-08-17 | STEP-1.14 | Transport is RTK Query `baseApi` + axios interceptors; Phase 1 mocks are `axios-mock-adapter` on the same instance (**ADR-0020**). §8.4 home is `baseQueryWithAuth`. Reversed OQ-17. No wire-shape change. |
 | v0.3.1 | 2026-08-17 | STEP-1.14 | §7.2: `visibleCount` is not a wire field (OQ-37). |
+| v0.3.2 | 2026-08-17 | planning session | Closed OQ-12 / OQ-18 / OQ-28 as recorded by the planning session. |

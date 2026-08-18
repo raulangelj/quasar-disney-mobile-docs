@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.4.0
+**Version:** v0.4.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.14)
+**Last updated:** 2026-08-17 (planning session)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -286,10 +286,10 @@ with no React Native dependency**, so they can be built from hour zero, in paral
 
 | STEP | Owner | When | Scope |
 |------|-------|------|-------|
-| **Foundation** | Dev A | Sat | RN bare scaffold (iOS + Android), TypeScript, module structure, **theme tokens both modes**, store + middleware wiring, navigation shell, and the **shared atoms both features need** (typography, pill button in both polarities, text field with error state, chip, icon wrapper, layout primitives) |
-| **Contract & mock API** | Dev B | Sat | TypeScript interfaces, enums, response envelope, error shape; the written contract document; the mock client (Promises + artificial latency + failure injection); fixtures wired to `assets/placeholder-art/`; tests. **Zero RN dependency** — plain TS |
-| **Auth feature** | Dev A | Sun–Mon | Welcome, credentials, inline error state; auth slice + middleware; password field with visibility toggle; tests |
-| **Storefront feature** | Dev B | Sun–Mon | Header, tab bar, **config-driven carousel component**, 2 variants, RTK Query feed endpoints, progress-bar and play-overlay molecules; tests |
+| **Foundation** | Dev A — **Raul Angel** | Sat | RN bare scaffold (iOS + Android), TypeScript, module structure, **theme tokens both modes**, store + middleware wiring, navigation shell, and the **shared atoms both features need** (typography, pill button in both polarities, text field with error state, chip, icon wrapper, layout primitives) |
+| **Contract & mock API** | Dev B — **Andres Montoya** | Sat | TypeScript interfaces, enums, response envelope, error shape; the written contract document; the mock client (Promises + artificial latency + failure injection); fixtures wired to `assets/placeholder-art/`; tests. **Zero RN dependency** — plain TS |
+| **Auth feature** | Dev A — **Raul Angel** | Sun–Mon | Welcome, credentials, inline error state; auth slice + middleware; password field with visibility toggle; tests |
+| **Storefront feature** | Dev B — **Andres Montoya** | Sun–Mon | Header, tab bar, **config-driven carousel component**, 2 variants, RTK Query feed endpoints, progress-bar and play-overlay molecules; tests |
 
 **Why this pairing:** Dev B authors the contract, so Dev B owns the surface that consumes the most
 data. Dev A authors the theme, so Dev A owns auth — the **light** surface mode, which is where token
@@ -372,7 +372,7 @@ Two things carried forward:
 | ~~OQ-09~~ | ~~Source of placeholder key art at 2:3, 16:9, 3:4~~ **Resolved 2026-08-14:** SVG art in `assets/placeholder-art/` | — | closed |
 | ~~OQ-10~~ | ~~Does the backend team accept a contract they did not draft, and who reviews it?~~ **Superseded (1.11):** the contract now exists (`architecture/11-interface-contracts.md`); the question becomes **OQ-34**, and doc 11 §14 lists the eight items to settle with them | — | closed |
 | OQ-11 | Who attends the 18 Aug sign-off, and what constitutes "passed"? | Stakeholders | P1 launch criterion |
-| OQ-12 | Which dev is A and which is B? §9 assigns roles, not names | Eng leadership | Planning session (Sat AM) |
+| ~~OQ-12~~ | ~~Which dev is A and which is B?~~ **Resolved (planning session):** Dev A = **Raul Angel** (STEP-2, STEP-4, STEP-6); Dev B = **Andres Montoya** (STEP-3, STEP-5, STEP-7) | — | closed |
 | OQ-13 | Who outlines the wordmark text before 18 Aug? (~30 min; see §10) | Mobile dev | Phase 1a assets |
 | ~~OQ-19~~ | ~~Pagination wire format (cursor vs offset) and first-page sizes~~ **Resolved (1.4):** opaque `nextCursor`; HomeFeed first page = hero + 15; CW is a separate endpoint. Envelope JSON names → 1.11 (OQ-22); tile page size → OQ-23 | — | closed |
 
@@ -399,3 +399,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.7 | 2026-08-17 | STEP-1.11 | DF12 page sizes locked from doc 11 §6.3. **OQ-10 closed** — the contract exists; the backend-acceptance question becomes OQ-34 against doc 11 §14's checklist. No schedule change. |
 | v0.3.8 | 2026-08-17 | STEP-1.14 | DF1/A3: I/O is RTK Query `baseApi` + axios interceptors; Phase 1 mocks are `axios-mock-adapter` on the same instance (ADR-0020). Goal sentence names Emotion + RTK Query (ADR-0019). |
 | v0.4.0 | 2026-08-17 | STEP-1.14 | Cross-cutting: two-step auth in 1a; live stays 1b; hero 3:4 stand-in (OQ-24 closed); Decision 10/15 reconciled. STEP-1 sessions complete. |
+| v0.4.1 | 2026-08-17 | planning session | Closed OQ-12: Dev A = Raul Angel, Dev B = Andres Montoya. §9 assignment table named. |

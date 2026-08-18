@@ -1,10 +1,10 @@
 # Doc 09 — Environments
 
-**Version:** v0.1.1
+**Version:** v0.1.2
 **Status:** Draft
 **Coverage:** full for Phase 1. A `staging` tier and CI-as-environment are consciously deferred
 with named triggers (§2.1, §8) rather than left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.12)
+**Last updated:** 2026-08-17 (planning session)
 **Audience:** Mobile developers, QA, eng leadership
 
 > What "environment" means in a project that deploys nothing, how config and secrets reach the
@@ -47,7 +47,7 @@ in release, a device in the wrong state — are handled in §4–§6 rather than
 | Environment | Purpose | Who has access | Data |
 |-------------|---------|----------------|------|
 | **`development`** | The daily loop. Metro-served bundle, simulator or tethered device, `__DEV__` on — logging, Redux DevTools, fast reload | Both developers, on their own machines | The same committed fixtures as `release` (§5) |
-| **`release`** | **The artifact stakeholders see.** JS bundle embedded, `__DEV__` stripped, no Metro, installed over USB (doc 08 §2) | Whoever holds the demo device; built by whoever owns the sign-off binary (**OQ-28**) | Identical fixtures; **no persisted session** at demo start (§5.1) |
+| **`release`** | **The artifact stakeholders see.** JS bundle embedded, `__DEV__` stripped, no Metro, installed over USB (doc 08 §2) | Whoever holds the demo device; built by **Raul Angel** (OQ-28 closed) | Identical fixtures; **no persisted session** at demo start (§5.1) |
 
 They correspond to RN's existing `Debug`/`Release` iOS schemes and `debug`/`release` Android
 build types. **No product flavors, no additional schemes, no app-id suffixes** — the two configs
@@ -281,10 +281,9 @@ Two rules close it, both free:
 
 ### 7.3 Who deploys
 
-**OQ-28** (doc 08) remains open and owned by eng leadership: who owns building and installing
-the sign-off binary, and onto which two devices. This session does not invent an answer, but
-notes that it has changed character — it is no longer a nice-to-have, because §5.1 and §6.1 give
-it a **dated pre-flight sequence** that somebody has to own before the 18th.
+**OQ-28** (doc 08) is **closed:** **Raul Angel** owns building and installing the sign-off
+binary (STEP-6). The two demo devices are named at the STEP-6 pre-flight. §5.1 and §6.1 still
+give that pre-flight a dated sequence that owner has to run before the 18th.
 
 ## 8. Access control
 
@@ -342,10 +341,8 @@ If anything real is ever suspected leaked, the escalation path is
 | OQ-31 | At Phase 3, does the `staging` configuration need **native** build config (distinct application id, side-by-side install) — reopening ADR-0015's mechanism choice in favor of `react-native-config`? | Mobile | Phase 3 backend integration |
 | OQ-32 | Does Bitrise need its own secret source for `.env` values (a CI secret-env entry), and would that make CI an environment row rather than a runner? | Mobile | Phase 2 Bitrise STEP (OQ-05) |
 
-Carried forward: **OQ-28** (who owns building and installing the sign-off binary, and on which
-two devices) — now blocking a **dated** pre-flight sequence rather than a nice-to-have, per §7.3.
-**OQ-05** (Bitrise setup) and **OQ-27** (closed — audit gates deferred to Bitrise implementation)
-are unchanged.
+Carried forward: **OQ-05** (Bitrise setup) and **OQ-27** (closed — audit gates deferred to Bitrise implementation)
+are unchanged. **OQ-28** is closed (planning session: Raul Angel owns the sign-off binary).
 
 ## Version Log
 
@@ -353,3 +350,4 @@ are unchanged.
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.9 | Initial draft from the environments session. Two build configurations named; sandbox and `staging` declined with triggers; config mechanism closed via ADR-0015; clean-state pre-flight and `.env` completeness check added (doc 08 §5–6 and `runbooks/release-deploy.md` updated); release-build parity cadence and the deterministic-vs-injectable failure boundary set. Opened OQ-31, OQ-32. |
 | v0.1.1 | 2026-08-17 | STEP-1.12 | §6.2 extended: the adapter carries **three** test seams — failure injection, latency, and the clock — all constructor parameters, none a runtime toggle (doc 12 §4.4). Also recorded there: **tests never read the real `.env`**, resolving `@env` to a committed stub instead, which is what makes §7's CI tier possible on a runner that can never have a gitignored file (ADR-0018). No change to the two configurations, the `.env` key set, or the promotion flow. |
+| v0.1.2 | 2026-08-17 | planning session | Closed OQ-28 in §7.3: Raul Angel owns the sign-off binary. |

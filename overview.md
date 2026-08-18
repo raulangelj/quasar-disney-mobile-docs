@@ -76,7 +76,7 @@ Internal pre-launch demo for stakeholders — functional on iOS and Android simu
 
 - Production backend contract acceptance and JWT claims shape for the real IdP (**OQ-34**, **OQ-03**) — dummy API stands in.
 - Real streaming app migration timeline and which modules move first (**OQ-04**).
-- Who is Dev A / Dev B, the application repo name, and who owns the sign-off binary (**OQ-12**, **OQ-18**, **OQ-28**) — planning session.
+- Who is Dev A / Dev B, the application repo name, and who owns the sign-off binary (**OQ-12**, **OQ-18**, **OQ-28**) — **closed by the planning session:** Dev A = Raul Angel, Dev B = Andres Montoya; app repo = `quasar-disney-mobile-app`; sign-off binary owner = Raul Angel (STEP-6). Two demo devices are named at the STEP-6 pre-flight.
 
 ## Anything else
 

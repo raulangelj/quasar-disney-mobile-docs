@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.4.0
+**Version:** v0.4.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.14)
+**Last updated:** 2026-08-17 (planning session)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -41,7 +41,7 @@ This is the simplest shape that still makes auth and storefront extractable late
 
 Internal partition of Shared is folders, not packages: `shared/theme/`, `shared/ui/`, `shared/i18n/`, `shared/analytics/`. There is **no types module** — wire types live in the API module, feature types live with the owning feature, component props live next to the component.
 
-Code lives in a **single application repo**, named when the foundation STEP creates it. No backend repo is created by this project.
+Code lives in a **single application repo**, **`quasar-disney-mobile-app`** (OQ-18 closed by the planning session). No backend repo is created by this project.
 
 ## 3. Component diagram
 
@@ -202,10 +202,10 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 |----|----------|-------|------------|
 | ~~OQ-16~~ | ~~Persist backend library: `react-native-encrypted-storage` vs a thin `react-native-keychain` adapter~~ **Resolved (1.3a):** `react-native-encrypted-storage` | — | closed |
 | ~~OQ-17~~ | ~~Mock strategy: axios-mock-adapter on the real instance vs a separate mock client behind the same functions~~ **Resolved (1.11) then reversed (1.14 / ADR-0020):** **`axios-mock-adapter` on the real instance** so interceptors run in Phase 1 | — | closed |
-| OQ-18 | Application repo name when created | Eng leadership | Planning session / foundation STEP |
+| ~~OQ-18~~ | ~~Application repo name when created~~ **Resolved (planning session):** `quasar-disney-mobile-app` at `Code/quasar-disney-mobile-app/` | — | closed |
 | ~~OQ-19~~ | ~~Pagination wire format: cursor vs offset, envelope fields~~ **Resolved (1.4):** opaque `nextCursor`. JSON names → 1.11 (OQ-22) | — | closed |
 
-Carried forward: OQ-12 (who is Dev A / Dev B). **OQ-02** is closed (doc 04). **OQ-10** is now expressed concretely as doc 11 §14's Phase-3 checklist plus **OQ-34**.
+**OQ-12** is closed (planning session: Dev A = Raul Angel, Dev B = Andres Montoya). **OQ-02** is closed (doc 04). **OQ-10** is now expressed concretely as doc 11 §14's Phase-3 checklist plus **OQ-34**.
 
 ## Version Log
 
@@ -220,3 +220,4 @@ Carried forward: OQ-12 (who is Dev A / Dev B). **OQ-02** is closed (doc 04). **O
 | v0.3.4 | 2026-08-17 | STEP-1.10 | §4 shell gains the **root error boundary** (doc 10 §5.2). No new dependency — §7's hard-dependency list is unchanged. |
 | v0.3.5 | 2026-08-17 | STEP-1.11 | §5 boundary table points at doc 11 and names the **fifth operation** (`/containers/{id}/resources`). §8 gains the **source-layout table** (§8.1, `src/api/`) and is renamed; import rules move to §8.2. Closed OQ-17. No dependency change. |
 | v0.4.0 | 2026-08-17 | STEP-1.14 | §2 names **feature-based Clean Architecture**. I/O is **RTK Query `baseApi`** + axios interceptors; mocks are `axios-mock-adapter` (ADR-0020). Theme is **Emotion** (ADR-0019). User/content slices replaced by RTK Query cache. Reversed OQ-17. |
+| v0.4.1 | 2026-08-17 | planning session | Closed OQ-18: application repo is `quasar-disney-mobile-app`. |

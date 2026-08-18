@@ -1,8 +1,8 @@
 # Doc 13 — Glossary
 
-**Version:** v0.2.1
+**Version:** v0.2.2
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.14)
+**Last updated:** 2026-08-17 (planning session)
 **Audience:** Mobile developers, backend team, QA, future agents
 
 > Precise meaning of quasar-disney-mobile's domain terms, entities, acronyms, and naming
@@ -203,8 +203,7 @@ client i18n. Surface modes are `app` / `auth`, never `light` / `dark`.
 
 **Handoff for 1.14:** echo Decision 2 in doc 03 §2 — **done** (doc 03 v0.4.0). Also Emotion + RTK Query `baseApi` (ADR-0019, ADR-0020).
 
-Carried naming leftovers (not coined here): **OQ-18** (application repo name) still belongs to
-the planning session / foundation STEP.
+Carried naming leftovers (not coined here): **OQ-18** is closed — application repo is `quasar-disney-mobile-app`.
 
 ---
 
@@ -215,3 +214,4 @@ the planning session / foundation STEP.
 | v0.1.0 | 2026-08-17 | STEP-1.13 | Initial glossary from all architecture docs through 1.12. Feature-based Clean Architecture named; wire types kept in `src/api/types/` with a types-only import rule. |
 | v0.2.0 | 2026-08-17 | STEP-1.14 | Emotion + RTK Query `baseApi` terms. User/content slices → cache. 1.14 handoff for doc 03 §2 closed. |
 | v0.2.1 | 2026-08-17 | STEP-1.14 | Hero: 3:4 stand-in in 1a (OQ-24 closed). |
+| v0.2.2 | 2026-08-17 | planning session | OQ-18 closed: application repo is `quasar-disney-mobile-app`. |
