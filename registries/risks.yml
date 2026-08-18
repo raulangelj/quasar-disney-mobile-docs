@@ -115,11 +115,11 @@ risks:
       reason:
 
   - id: RISK-0006
-    status: open
+    status: closed
     title: "Brand wordmark text is not outlined — renders differently on iOS and Android"
     category: tech-debt
     severity: medium
-    owner: "TBD"
+    owner: "Raul Angel"
     opened: "2026-08-14"
     source: "architecture/assets/README.md"
     description: "Wordmark SVGs use <text> with a font stack; Avenir Next resolves on iOS, Android falls back to a different face."
@@ -127,11 +127,11 @@ risks:
     mitigation: "Convert text to outlines (~30 min in Figma/Inkscape) or ship @1x/@2x/@3x PNGs. Geometry is already platform-independent."
     revisit_trigger: "Before the 2026-08-18 sign-off (open question OQ-13)."
     refs:
-      - "architecture/assets/README.md#known-limitation-text-is-not-outlined"
+      - "architecture/assets/README.md#outlined-wordmarks-runtime"
       - "architecture/02-phasing-roadmap.md#10-placeholder-brand"
     closed:
-      date:
-      reason:
+      date: "2026-08-18"
+      reason: "STEP-2.4 outlined all four brand SVGs to paths in quasar-disney-mobile-app src/shared/assets/brand/; OQ-13 closed."
 
   - id: RISK-0004
     status: open

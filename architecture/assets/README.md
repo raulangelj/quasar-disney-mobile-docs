@@ -25,17 +25,17 @@ lookalike, and that was an explicit project decision.
 > `../../registries/risks.yml`). **Rename before any public release, app store submission, public
 > site, or marketing material.**
 
-### Known limitation: text is not outlined
+### Outlined wordmarks (runtime)
 
-The wordmarks and strip use SVG `<text>` with a font stack (`Avenir Next` → `Futura` →
-`Trebuchet MS` → `Verdana` → `sans-serif`). Avenir Next resolves on iOS; **Android will fall back**,
-so the brand renders differently per platform — a real problem for a demo whose subject is visual
-fidelity.
+**Resolved in STEP-2.4 (OQ-13 / RISK-0006).** The shipped app reads outlined copies from
+`Code/quasar-disney-mobile-app/src/shared/assets/brand/` — every former `<text>` node is path
+data so iOS and Android render identical letterforms. Regenerate with
+`npm run outline-brand` in the app repo after editing the hub originals below.
 
-**Fix before the 2026-08-18 sign-off** (~30 min): open each file in Figma or Inkscape, convert text
-to outlines, re-export. Alternatively ship the wordmarks as `@1x/@2x/@3x` PNGs. Until then the
-geometry — swoosh, dash, proportions, plate — is final and platform-independent; only the letterforms
-are at risk.
+### Hub originals (provenance)
+
+These files in `brand/` are the design source. They still use SVG `<text>` for editability;
+the app repo copies are the runtime source after outlining.
 
 ## `placeholder-art/` — mock content artwork
 
