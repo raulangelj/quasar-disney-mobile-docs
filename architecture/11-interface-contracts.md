@@ -1,10 +1,10 @@
 # Doc 11 — Interface Contracts
 
-**Version:** v0.4.0
+**Version:** v0.4.1
 **Status:** Draft
 **Coverage:** full for Phase 1. The promotion to a machine-readable artifact (OpenAPI) is
 consciously deferred with a named trigger (§2.3, ADR-0016) rather than left unenumerated.
-**Last updated:** 2026-08-18 (STEP-3.1)
+**Last updated:** 2026-08-18 (STEP-3.5)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > The one boundary in this system that will ever cross a network — five operations, their
@@ -435,6 +435,17 @@ and **F2 — the inline error state, half of what Phase 1a exists to demonstrate
 Distinct codes (`INVALID_CREDENTIALS` vs `UNAUTHORIZED`) make the distinction mechanical rather
 than a path comparison.
 
+**What the caller observes on `UNAUTHORIZED`** (measured in STEP-3.5's T2 suite). The base query
+returns the `ApiError` in every case, but `resetApiState()` removes the in-flight query's cache
+entry, which aborts its RTK Query thunk — so a caller awaiting that query sees it torn down rather
+than errored. That is the intended shape of this reaction, not a gap: the session is over and the
+user is on their way back to Welcome, so there is no screen left to render an error on. It is
+recorded because the obvious test — "assert the hook surfaces `UNAUTHORIZED`" — cannot be written
+against RTK Query, and the next person to try it should not conclude the policy is broken. What
+*is* observable, and what the suite asserts, is the transport's normalized `ApiError` plus the
+`sessionCleared` + `resetApiState()` pair that only this branch dispatches. `INVALID_CREDENTIALS`
+is unaffected: nothing is reset, so **F2's error reaches the credentials screen normally.**
+
 **Why not the axios interceptor** (**ADR-0017**). A global interceptor 401 handler would also fire on
 login failure and destroy F2. The request interceptor attaches `Authorization`; the response
 interceptor maps status → `code`; **`baseQueryWithAuth` reacts**. Phase 1 mocks use
@@ -666,3 +677,4 @@ Carried forward, unchanged by this session: **OQ-03** (production JWT claims + I
 | v0.3.2 | 2026-08-17 | planning session | Closed OQ-12 / OQ-18 / OQ-28 as recorded by the planning session. |
 | v0.3.3 | 2026-08-18 | STEP-2.2 | §3.1 split: STEP-2 creates the `src/api/` tree + README pointer + `repos.yml`; STEP-3 transcribes §7. Repo exists; types still pending. No wire-shape change. |
 | v0.4.0 | 2026-08-18 | STEP-3.1 | **§7 and §8 transcribed into TypeScript.** The authoring source of truth is now `src/api/types/` in `quasar-disney-mobile-app` (§2.1, §3); §2.2's inversion is **resolved** and the TS types are normative from here, with this doc remaining the consumer-facing contract of record under §12's same-PR rule. §3.1 records the obligation as discharged. **No wire-shape change:** no field, name, enum value, envelope shape, page-size default, or error code differs from §6.3, §7, or §8 as written. |
+| v0.4.1 | 2026-08-18 | STEP-3.5 | §8.4 records what a caller observes when the `UNAUTHORIZED` branch fires: `resetApiState()` aborts the in-flight query, so the reaction supersedes the error result. Behavior unchanged and §11.3's table unchanged — this is the T2 suite writing down what it found so the next author does not read the absent error as a defect. No wire-shape change. |

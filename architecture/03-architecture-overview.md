@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.4.4
+**Version:** v0.4.5
 **Status:** Draft
-**Last updated:** 2026-08-18 (STEP-3.4)
+**Last updated:** 2026-08-18 (STEP-3.5)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -157,12 +157,20 @@ src/api/
   ├── sessionCleared.ts        `createAction('session/cleared')` — the API module's clear signal (§8.2)
   ├── types/                   wire types — the contract's authoring source (doc 11 §2)
   ├── mocks/                   axios-mock-adapter + fixtures (typed, never `any` — doc 11 §11.2)
-  └── client/                  axios instance, interceptors, axiosBaseQuery, baseQueryWithAuth
+  ├── client/                  axios instance, interceptors, axiosBaseQuery, baseQueryWithAuth
+  └── integration/             T2 suites + the wired-world factory (doc 12 §2; STEP-3.5)
 ```
 
 **`src/api/`, not `src/modules/api/`** — no `modules/` prefix appears anywhere in this
 architecture, and `features/` is already the established word. The tree is created by **STEP-2.2**.
 **STEP-3** transcribes the wire types from doc 11 §7 into `src/api/types/` (doc 11 §3.1).
+
+**`src/api/integration/` is test-only** (added STEP-3.5). It holds the T2 suites and the
+`*.factory.ts` that builds their world — a real `createStore()`, `baseApi.middleware`, the shared
+axios instance, and the adapter, wired together (doc 12 §2, §4.2). It lives under `src/api/`
+because what it tests is the API module; its import of `src/app/store/` is a **test-time** import,
+which §8.2's rules do not govern (doc 12 §4.1). Nothing reachable from the app entry imports it,
+and `mocks/factories.test.ts` is what keeps that true.
 
 **`src/shared/assets/` is a bundle folder, not a code one** (added STEP-3.4). It holds the
 placeholder key art the demo fixtures name — copied unchanged from
@@ -246,3 +254,4 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 | v0.4.2 | 2026-08-18 | STEP-2.2 | Repo exists at `Code/quasar-disney-mobile-app/`. §8.1 tree is STEP-2.2; wire-type transcription is STEP-3 (doc 11 §3.1). |
 | v0.4.3 | 2026-08-18 | STEP-3.2 | §8.1 tree gains `src/api/sessionCleared.ts`; §8.2 records the **`sessionCleared` seam** — the API module declares the clear signal, the auth slice reduces it — and states explicitly that the API module never imports a feature (PLAN Q1). |
 | v0.4.4 | 2026-08-18 | STEP-3.4 | §8.1 tree gains **`src/shared/assets/placeholder-art/`** — bundled placeholder key art the demo fixtures name by filename string. Resolution of that string to a renderable asset is STEP-5's (PLAN Q4); no dependency change. |
+| v0.4.5 | 2026-08-18 | STEP-3.5 | **§8.2's shell wiring landed**: `createStore()` registers `baseApi.reducer` and `baseApi.middleware`, and the composition root calls `injectStore(store)` — the two lines STEP-2 left as stubs. `api` is in the root-state type and stays off the persist whitelist (ADR-0003, DF3). `createStore()` gains an optional `extraMiddleware` slot, appended after `baseApi.middleware`, because a `configureStore` store is sealed and the 401 reaction is dispatched from *inside* the chain where a `store.dispatch` wrapper cannot see it; the T2 suite records actions through it. §8.1 tree gains **`src/api/integration/`** (test-only). No dependency change. |

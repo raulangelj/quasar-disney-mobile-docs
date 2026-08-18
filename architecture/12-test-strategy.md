@@ -1,11 +1,11 @@
 # Doc 12 — Test Strategy
 
-**Version:** v0.1.2
+**Version:** v0.1.3
 **Status:** Draft
 **Coverage:** full for Phase 1a. UI/component tests (1b), automated device e2e (Phase 2), and
 numeric coverage gates (1b) are consciously deferred with named triggers (§2, §5, §8) rather than
 left unenumerated.
-**Last updated:** 2026-08-17 (planning session)
+**Last updated:** 2026-08-18 (STEP-3.5)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > What gets tested in a codebase whose network layer is a fixture, what has to be green before code
@@ -56,9 +56,17 @@ against separately all weekend (doc 02 §9).
 |---|------|-------|-------|---------------|-------|
 | **T0** | **Type check** | `tsc --noEmit` across `src/`. This is the contract test (doc 11 §11.2) — it is only meaningful because fixtures are typed `Container[]` / `Card[]` and never `any` | TypeScript `strict` | Local + CI | **1a** |
 | **T1** | **Unit** | Pure logic in isolation: reducers, selectors, the mock adapter's rules (credential compare, `exp` validation, cursor exhaustion), `ApiError` normalization, i18n formatters, home composition | Jest (React Native preset). **No renderer** | Local + CI | **1a** — the bulk |
-| **T2** | **Integration** | Real store + `baseApi.middleware` + axios instance against `axios-mock-adapter`; hooks via `renderHook`. Doc 11 §11.3's behavioral tests live here | Jest + RNTL `renderHook` | Local + CI | **1a** — thin, load-bearing |
+| **T2** | **Integration** | Real store + `baseApi.middleware` + axios instance against `axios-mock-adapter`; hooks via `renderHook` once a feature owns one. Doc 11 §11.3's behavioral tests live here | Jest. **RNTL arrives with the first feature hook** (STEP-4/5) — see below | Local + CI | **1a** — thin, load-bearing |
 | **T3** | **Component render** | Screens and atoms render from theme tokens; a11y props present (RISK-0011) | React Native Testing Library | Local + CI | **1b** |
 | **T4** | **Device e2e** | — | **Declined** — see below | — | — |
+
+**T2 landed without RNTL, and that is the right order** (STEP-3.5). The API module has no hooks of
+its own: `login` / `getMe` belong to Auth and the feed operations to Storefront (doc 03 §8.2), so
+the T2 suite injects **test-local endpoints** onto `baseApi` and drives them with
+`store.dispatch(endpoint.initiate(...))`. That exercises the whole path — store → middleware →
+`baseQueryWithAuth` → interceptors → adapter — without pulling a component renderer into 1a to
+render nothing. `renderHook` becomes the natural surface when STEP-4 and STEP-5 own real hooks;
+adding the dependency then, rather than now, keeps the 1a dependency surface honest.
 
 **T1 and T2 stay separate even though they share a runner.** Doc 11 §11.3 lists tests that are only
 meaningful with middleware, error normalization, and the adapter wired together — §8.4's 401 scoping
@@ -574,3 +582,4 @@ not gated), **RISK-0017** (criterion A2's lint rule is pattern-matching).
 | v0.1.0 | 2026-08-17 | STEP-1.12 | Initial draft from the test-strategy session. Four tiers set (device e2e declined); must-cover list named, adding the persist-whitelist and theme token-parity tests; test factories separated from demo fixtures and colocated; `@env`, latency, clock, and failure injection fixed as test seams; two-tier CI adopted (**ADR-0018**, amending doc 11 §11.4) with DF5/DF1/A2 as lint gates; coverage reported but not gated; load testing declined; `coding-standards/` reconciled to TypeScript + shell + api, seven files pruned. **ADR-0017** relocates doc 11 §8.4's 401 policy above the transport. Opened OQ-35, OQ-36 and RISK-0015/0016/0017. |
 | v0.1.1 | 2026-08-17 | STEP-1.14 | T2 is store + `baseApi` + `axios-mock-adapter`. Persist whitelist excludes the RTK Query cache. Emotion, not styled-components snapshots (ADR-0019, ADR-0020). |
 | v0.1.2 | 2026-08-17 | planning session | Closed OQ-36 (red-trunk owner). Recorded OQ-12 / OQ-18 / OQ-28 closures. |
+| v0.1.3 | 2026-08-18 | STEP-3.5 | **T2 exists.** §2's T2 row is corrected: the layer landed as store-driven suites in `src/api/integration/` with endpoints injected test-locally, and **RNTL is not yet a dependency** — `renderHook` arrives with the first feature-owned hook in STEP-4/5. §3.1's 401-scoping, §3.2's two-axis cursor, §3.3's `ApiError` and injected-failure rows are covered; §3.1's **boot gate** row stays open and belongs to the shell (STEP-6), and its persist-whitelist row is covered by `createStore.test.ts` (T1, STEP-2.3). No change to the tiers, the gates, or the coverage posture. |
