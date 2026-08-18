@@ -1,15 +1,15 @@
 # Doc 01 — System Overview, Requirements & Non-Goals
 
-**Version:** v0.1.4
+**Version:** v0.1.6
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.6a)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > What quasar-disney-mobile is building in v1, who it serves, how success is measured, and what is deliberately out of scope.
 
 ## 1. Problem & Value
 
-The team needs a credible, functional reference app that shows stakeholders how a streaming product is shaped using the Throughstone template and disciplined architecture — not a throwaway prototype. Today there is no shared mobile codebase on this method; this project establishes the pattern before migrating the production streaming app: **atomic-design UI components**, **Styled Components** for styling, **custom hooks** to separate business logic from presentation, a **Redux store with middleware** routing API calls through a swappable boundary, **thoughtful TypeScript interfaces, enums, and types** across the data and UI layers, and a **modular file structure** ready for real backend integration.
+The team needs a credible, functional reference app that shows stakeholders how a streaming product is shaped using the Throughstone template and disciplined architecture — not a throwaway prototype. Today there is no shared mobile codebase on this method; this project establishes the pattern before migrating the production streaming app: **atomic-design UI components**, **Emotion** (`ThemeProvider` + `@emotion/native` styled components) for theming, **custom hooks** to separate business logic from presentation, a **Redux Toolkit store with RTK Query** (`baseApi` + interceptors) routing API calls through a swappable boundary, **thoughtful TypeScript interfaces, enums, and types** across the data and UI layers, and a **feature-based Clean Architecture** file structure ready for real backend integration.
 
 **Why now:** Internal stakeholders need a working demo to validate the Throughstone mobile methodology before the real streaming app migrates to the same patterns.
 
@@ -28,9 +28,9 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | Criterion | Measurable target |
 |-----------|-------------------|
 | **Demo-ready on both platforms** | App runs on **iOS and Android** (simulator or device) with login → storefront flow completable end-to-end |
-| **Stakeholder sign-off** | Internal stakeholders can walk through the demo and confirm the **architecture patterns** (atomic design, hooks, Redux middleware, typed models, swappable API, theme tokens) are visible and credible |
+| **Stakeholder sign-off** | Internal stakeholders can walk through the demo and confirm the **architecture patterns** (atomic design, hooks, RTK Query `baseApi`, typed models, swappable API, Emotion theme tokens) are visible and credible |
 | **QA-validated builds** | QA receives **installable builds** for both platforms (Bitrise once CI exists) and can execute a basic smoke checklist without blockers |
-| **API swap readiness** | Replacing dummy auth/content endpoints with real backend URLs requires changes **only in the API/middleware layer** — no storefront or hook rewrites |
+| **API swap readiness** | Replacing dummy auth/content endpoints with real backend URLs requires changes **only in `src/api/client/`** (base URL + drop `axios-mock-adapter`) — no storefront or hook rewrites |
 | **Theme swap readiness** | A **central theme** (color variables, typography tokens, spacing) lives in one place; re-skinning for a different product means **updating theme tokens only** — not hunting colors/styles across screens |
 
 ## 4. Scope
@@ -38,12 +38,12 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | Core (in) | Not now (deferred) | Not ever |
 |-----------|-------------------|----------|
 | Login screen (email/password; UI from reference designs when available) | Video player / playback | *(none — long-term goal is full streaming-app feature parity)* |
-| Storefront / home with **up to 8 carousel variants** (aspect-ratio-driven tile sizes); **paginated** rows and tiles via storefront hooks | **Content details screen** (metadata, description, cast, "similar to this" row) | |
+| Storefront / home with **config-driven carousel variants** (2 in Phase 1a: continue-watching + standard portrait); **paginated** rows and tiles via storefront hooks | **Content details screen** (metadata, description, cast, "similar to this" row) | |
 | **Tap behavior v1:** Alert showing content title on card tap | Settings screen | |
-| Central **theme** (tokens consumed by Styled Components; no hardcoded colors) | Search | |
+| Central **theme** (Emotion `ThemeProvider` + token palette consumed by `@emotion/native` styled components; no hardcoded colors) | Search | |
 | Atomic-design UI (atoms → molecules → organisms) | Multi-user profiles (household) | |
 | Custom hooks separating business logic from presentation | Offline downloads | |
-| Redux store + middleware for async/API calls | Parental controls | |
+| Redux Toolkit store + RTK Query `baseApi` for async/API calls and token lifecycle | Parental controls | |
 | Typed data layer (interfaces, enums, types) | Real backend / production API | |
 | Dummy API + frontend mocks | Real JWT auth (structure ready; demo credentials in v1) | |
 | Demo auth (hardcoded credentials; JWT-ready structure) | Bitrise CI / automated builds (QA builds follow scaffold) | |
@@ -58,7 +58,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | **Timeline** | ~~**3–4 days** for v1 (login + storefront)~~ — **superseded by doc 02 §8.** Stakeholder sign-off is fixed at **2026-08-18**; Phase 1 is split into 1a (demo-gated) and 1b. The 3–4 day figure assumed a single login screen, before the reference screenshots expanded the auth flow to three screens plus an error state. |
 | **Team** | **1 senior dev** (owner); **+1 senior** if needed; later **1–2 senior or mid-level** devs |
 | **Budget** | **TBD** — not a blocker; management decides while dev proceeds |
-| **Tech stack** | Bare **React Native** (no Expo), iOS + Android, **TypeScript**, **Redux + middleware**, **Styled Components**, **atomic design**, **custom hooks** |
+| **Tech stack** | Bare **React Native** (no Expo), iOS + Android, **TypeScript**, **Redux Toolkit + RTK Query**, **Emotion** (`ThemeProvider` + styled), **atomic design**, **custom hooks**, **feature-based Clean Architecture** |
 | **Architecture** | Modular feature structure; swappable API boundary; central theme tokens; typed models throughout |
 | **Backend** | **No real backend in v1** — dummy API + frontend mocks; backend team owns separate repo later |
 | **Auth** | Demo credentials only in v1; JWT-ready structure required |
@@ -79,7 +79,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | 3 | **Dummy API + frontend mocks** are enough for the stakeholder demo | Need a real backend sooner than planned |
 | 4 | **Stakeholder reference images** for login/storefront arrive in time (or dev can proceed with placeholders) | UI polish blocked; demo looks unfinished |
 | 5 | **Hardcoded demo credentials** suffice for v1; no real user accounts | Confirmed in 1.6a (doc 16). Phase 3 buys an IdP behind our API |
-| 6 | **No regulated data** in v1 — fake credentials only | Privacy/compliance session (1.7a) becomes mandatory earlier |
+| 6 | **No regulated data** in v1 — fake credentials only | Privacy/compliance session (Deferred; revisit before Phase 3 real accounts) becomes mandatory earlier |
 | 7 | **Backend team** will own a separate API repo and adopt the mobile app's contract later | Interface-contracts session (1.11) must lock shapes now |
 | 8 | **Theme token swap** is sufficient for re-skinning future projects | May need multi-theme runtime switching or white-label build variants |
 | 9 | **Carousel mock data** can live in the frontend until backend exists | Content schema decisions deferred but shouldn't block v1 |
@@ -107,7 +107,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | 1 | Problem statement | Throughstone methodology showcase + migration template | Stakeholders need proof of patterns, not a throwaway UI | v1 optimizes for teachability over feature completeness |
 | 2 | Stakeholders | Stakeholders, dev team, QA, backend team | Each group consumes different outputs (demo, template, builds, API contract) | End users and compliance not in v1 audience |
 | 3 | Success criteria | Demo on both platforms + pattern sign-off + API/theme swap readiness | Measurable without vanity metrics | No performance/load targets in v1 |
-| 4 | Core capabilities | Login + storefront (8 carousels) + full architecture stack | Minimum credible streaming-app slice | Details, playback, search deferred |
+| 4 | Core capabilities | Login + storefront (**2 carousel variants in 1a**; 5 data variants across the roadmap) + full architecture stack | Minimum credible streaming-app slice | Details, playback, search deferred |
 | 5 | Non-goals | Playback, details, settings, search, profiles, offline, real backend/auth, store release | Protect 3–4 day timeline | Long-term parity still the strategic goal |
 | 6 | Constraints | 3–4 days, 1 senior dev, bare RN, no Expo, budget TBD | Known team and timeline reality | Expo-managed workflow ruled out |
 | 7 | Assumptions | Config-driven carousels, alert-on-tap, dummy API, theme tokens | De-risk timeline | Custom carousel per row would blow budget |
@@ -117,7 +117,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| OQ-01 | Final login and storefront UI from stakeholder reference images | Stakeholders / design | 1.7 UI / Design System; `inputs/` |
+| ~~OQ-01~~ | ~~Final login and storefront UI from stakeholder reference images~~ **Resolved (1.2):** `inputs/ui/disney-plus-reference-screens.md` | — | closed |
 | ~~OQ-02~~ | ~~Exact carousel card metadata schema~~ **Resolved (1.4):** Title fields + artwork map + CW progress fields in `architecture/04-data-model.md`. JSON names → 1.11 | — | closed |
 | OQ-03 | Production backend contract and JWT claims shape | Backend team | 1.11 Interface Contracts; Phase 3 |
 | OQ-04 | Real streaming app migration timeline and which modules move first | Product / eng leadership | 1.2 Phasing & Roadmap |
@@ -133,3 +133,5 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | v0.1.2 | 2026-08-16 | STEP-1.3a | Storefront scope: paginated feed/carousels via feature hooks (doc 15 / ADR-0005). |
 | v0.1.3 | 2026-08-16 | STEP-1.4 | Closed OQ-02 (Title / CW / artwork schema in doc 04). |
 | v0.1.4 | 2026-08-17 | STEP-1.6a | Assumption 5 confirmed (demo credentials). OQ-03 now 1.11 / Phase 3; mock claims closed in doc 16. |
+| v0.1.5 | 2026-08-17 | STEP-1.14 | Stack: Emotion (`ThemeProvider` + `@emotion/native`) replaces Styled Components; RTK Query `baseApi` replaces handwritten async middleware (ADR-0019, ADR-0020). |
+| v0.1.6 | 2026-08-17 | STEP-1.14 | Closed OQ-01; carousel count aligned with doc 02 (2 in 1a); privacy session is Deferred, not 1.7a. |

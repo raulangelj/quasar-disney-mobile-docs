@@ -45,3 +45,16 @@ Firebase/Auth0 as the “API” — rejected; no BaaS in Phase 1.
   host.
 - Test Strategy can unit-test the mock adapter and middleware without a network.
 - Backend-team integration is gated on their delivery, not on us scaffolding a server.
+
+## Amendment (2026-08-17 — STEP-1.14 / ADR-0020)
+
+Points 1, 2, 4, and 5 stand: the API module is in-app, transport is axios, mocks simulate
+fetches, no backend component.
+
+**Point 3 is replaced.** Features reach the API module through **RTK Query hooks** on a shared
+`baseApi` (`injectEndpoints`), not handwritten async middleware. Axios interceptors on the
+single instance attach `Authorization` and map HTTP → `ApiError`. Phase 1 mocks are
+`axios-mock-adapter` on that instance so the interceptors run. Session-clearing 401 stays
+**above** the raw interceptor (`baseQueryWithAuth`) per ADR-0017.
+
+See **ADR-0020**.

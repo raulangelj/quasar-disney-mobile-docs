@@ -1,8 +1,8 @@
 # Doc 04 — Data Model, Ownership & Retention
 
-**Version:** v0.2.4
+**Version:** v0.2.6
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.11)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, backend team, QA
 
 > Entities the React Native client models, who owns each one, where it lives on device, how long it is kept, and which of it is sensitive — with no server database in this project.
@@ -96,6 +96,8 @@ Same type on **both** authenticated feed GETs (ADR-0007).
 | `resources` | Card[] | One page of cards (not `items`) |
 | `nextCursor` | string \| null | Opaque; Phase 1 mocks may send `null`. **Placement resolved (1.11): both** — the page envelope's cursor pages containers (vertical), this one pages the row's `resources` (horizontal). Doc 11 §6.2 |
 
+**Not a wire field:** `visibleCount` (tiles per rail) is client-side, keyed by `variant` (OQ-37 closed 1.14).
+
 HomeFeed first page: **`Container[]`** with one `variant: "hero"` plus **15** other containers. Further vertical pages, if any, are more containers only (no second hero). Phase 1 mocks may set HomeFeed `nextCursor` to `null`.
 
 Continue Watching: **`Container[]`** (typically length 1), each with `variant: "progress"` and `resources: Card[]`.
@@ -120,9 +122,9 @@ Login body: `{ email, password }` — request DTO, never stored.
 | Entity | Authoritative owner | Who else reads it | Notes |
 |--------|---------------------|-------------------|--------|
 | **Session** | Auth feature (auth slice) | Shell (nav, theme, boot gate) | Persisted |
-| **User** | Auth feature (**user slice**) | Shell / chrome if needed; **not** Storefront | Memory only. Auth ↛ Storefront still holds |
-| **Card, Container, HomeFeed** | API module (wire + fixtures) | Storefront content slice (in-memory copy) | Storefront never authors catalog |
-| **ContinueWatching** | API module (JWT-authenticated fixtures) | Storefront content slice | Same Container/Card types; `progress` is on CW cards, not in Auth |
+| **User** | Auth feature (`getMe` cache; chrome selectors) | Shell / chrome if needed; **not** Storefront | Memory only (RTK Query cache). Auth ↛ Storefront still holds |
+| **Card, Container, HomeFeed** | API module (wire + fixtures) | Storefront RTK Query cache | Storefront never authors catalog |
+| **ContinueWatching** | API module (JWT-authenticated fixtures) | Storefront RTK Query cache | Same Container/Card types; `progress` is on CW cards, not in Auth |
 | **Composed home list** | Storefront feature | — | Inserts the `progress` container under hero (ADR-0006) |
 | **Cold-start loading** | App shell | — | Blocks until `/me` + HomeFeed + CW complete |
 | **Silent CW reload** | Storefront feature | — | When the storefront screen is shown again |
@@ -136,13 +138,13 @@ No relational database, no SQLite/MMKV, no mock HTTP server acting as a DB.
 | Data | Where | Engine |
 |------|--------|--------|
 | **Session** (JWT + `exp`) | Device, encrypted key-value | redux-persist whitelist = **auth slice only** + `react-native-encrypted-storage` |
-| **User** | Memory only | user slice; **`/me` with the JWT on every cold start and after login** |
-| **HomeFeed, ContinueWatching, Container, Card** | Memory only | content slice; overwritten by fetches |
+| **User** | Memory only | `getMe` RTK Query cache; **JWT on every cold start and after login** |
+| **HomeFeed, ContinueWatching, Container, Card** | Memory only | RTK Query cache; overwritten by fetches |
 | **Artwork files** | App bundle | placeholder-art assets; Card stores URIs |
-| **Catalog source** | In-process mock adapter | TS/JSON fixtures inside the API module |
-| **Page cursors** | Memory | With the content slice (ADR-0005) |
+| **Catalog source** | In-process mock (`axios-mock-adapter` on the axios instance) | TS/JSON fixtures inside the API module |
+| **Page cursors** | Memory | In the RTK Query cache with the page args (ADR-0005 / ADR-0020) |
 
-Persisting the user slice was considered and **rejected**: cold start already waits on `/me`, the app is online-only, and a stale `userName` would never be shown first.
+Persisting `/me` or the catalog cache was considered and **rejected**: cold start already waits on `getMe`, the app is online-only, and a stale `userName` would never be shown first.
 
 ---
 
@@ -168,7 +170,7 @@ Phase 1 has **no real people**. Treat the *shape* as production so it is not log
 | Email + password | Confidential | Request lifetime only | Never stored, never logged |
 | JWT | Confidential | Until logout, `/me` 401, or expiry | Logout; failed `/me`; uninstall (best-effort — iOS Keychain can survive uninstall) |
 | `userName` | Confidential (PII-shaped fixture) | This process only | Logout or process death |
-| Continue-watching progress | Confidential in the real product; fixture in Phase 1 | Until the next CW fetch overwrites, or logout | Silent reload replaces the row; logout clears the content slice |
+| Continue-watching progress | Confidential in the real product; fixture in Phase 1 | Until the next CW fetch overwrites, or logout | Silent reload replaces the row; logout `resetApiState()` |
 | Card, Container, artwork URIs | Internal | In memory / binary | Next fetch or next app release |
 | Analytics stubs | Internal | `console.log` only | No PII in stub payloads |
 
@@ -223,11 +225,11 @@ Phase 3 replaces the mock adapter (including mock `exp` reminting). Client stora
 
 | # | Decision | Choice | Rationale | Forecloses / tradeoff |
 |---|----------|--------|-----------|-----------------------|
-| 1 | Identity noun | **User** + separate **user slice**; UI field is **`userName`** from `/me` | JWT `/me` maps cleanly; login does not invent a profile | Email/id as chrome; stuffing profile into the auth slice |
+| 1 | Identity noun | **User** via **`getMe` cache**; UI field is **`userName`** from `/me` | JWT `/me` maps cleanly; login does not invent a profile | Email/id as chrome; stuffing profile into the auth slice; a separate user slice |
 | 2 | Artwork | Map of aspect-ratio → URI on **Card** | Fixtures, not a DAM | Artwork as its own entity |
 | 3 | Live | **Out** of this model | Later feature | LiveBroadcast / `'live'` variant in Phase 1 data |
 | 4 | Catalog split | **HomeFeed** and **ContinueWatching** as two JWT GETs, both **`Container[]`** with **`resources: Card[]`**; client inserts the `progress` container under hero | Same types for UI reuse; CW can silent-reload alone; production APIs stay split | One home payload; CW mixed into the HomeFeed response; distinct CW-only components |
-| 5 | Storage | Encrypted persist **auth slice only**; user + catalog **memory** | Loader waits on `/me`; online-only; DF3 unchanged | Persisting userName; SQLite/MMKV; a server DB |
+| 5 | Storage | Encrypted persist **auth slice only**; `/me` + catalog in **RTK Query cache** (memory) | Loader waits on `getMe`; online-only; DF3 unchanged | Persisting userName or the API cache; SQLite/MMKV; a server DB |
 | 6 | Identifiers | UUID v4 / JWT `sub`; opaque **`nextCursor`** | Stable across a backend swap | Int ids; `userName` as id; offset/`page` |
 | 7 | PII | Shape is confidential; nothing regulated | Fake fixtures, internal demo | Privacy session in Phase 1 |
 | 8 | Privacy session | **Deferred** until Phase 3 real accounts | No data subjects yet | GDPR/CCPA design now |
@@ -242,10 +244,10 @@ Phase 3 replaces the mock adapter (including mock `exp` reminting). Client stora
 | ~~OQ-22~~ | ~~JSON names and paths for `/me`, HomeFeed, ContinueWatching, Container, Card, and the page envelope~~ **Resolved (1.11):** five operations and full payload shapes in doc 11 §5, §7. `Card.name` → **`title`** | — | closed |
 | ~~OQ-26~~ | ~~Remaining **Card** fields beyond content name, and which are `progress`-only~~ **Resolved (1.11):** §1.2's working set is the Card; §1.3's three fields are optional and `progress`-only (doc 11 §7.1) | — | closed |
 | ~~OQ-23~~ | ~~Cards per container horizontal page~~ **Resolved (1.11):** `limit` defaults — 16 on HomeFeed, 10 on Continue Watching and `resources` (doc 11 §6.3) | — | closed |
-| OQ-24 | Does Phase 1a render full hero chrome (peeking neighbors, title art, CTA) or a 3:4 stand-in? Data composition already includes hero | Mobile / 1.7 | 1.7 UI / Design System; planning session |
+| ~~OQ-24~~ | ~~Does Phase 1a render full hero chrome or a 3:4 stand-in?~~ **Resolved (1.14):** 1a ships a **3:4 portrait stand-in**; full spotlight chrome is Phase 2. Data composition still includes `variant: "hero"`. | — | closed |
 | ~~OQ-25~~ | ~~Exact mock `/me` payload beyond `id` + `userName` (claims vs body)~~ **Resolved (1.6a):** mock JWT claims = `sub` + `exp` + `iat`; `/me` = `{ id, userName }`. JSON names → OQ-22 | — | closed |
 
-**OQ-02** (card schema), **OQ-19** (cursor vs offset), and HomeFeed first-page size from **OQ-20** (hero + 15; CW separate) were closed here in earlier revisions; **OQ-17**, **OQ-22**, **OQ-23**, and **OQ-26** are closed by 1.11. Carried forward: **OQ-30** (server-localized `Container.name`) and **OQ-34** (backend accepts the contract — doc 11 §14). Identity living doc is `architecture/16-identity-auth.md`; the wire contract is `architecture/11-interface-contracts.md`.
+**OQ-02** (card schema), **OQ-19** (cursor vs offset), and HomeFeed first-page size from **OQ-20** (hero + 15; CW separate) were closed here in earlier revisions; **OQ-17**, **OQ-22**, **OQ-23**, and **OQ-26** are closed by 1.11. **OQ-24** is closed by 1.14. Carried forward: **OQ-30** (server-localized `Container.name`) and **OQ-34** (backend accepts the contract — doc 11 §14). Identity living doc is `architecture/16-identity-auth.md`; the wire contract is `architecture/11-interface-contracts.md`.
 
 ## Version Log
 
@@ -257,3 +259,5 @@ Phase 3 replaces the mock adapter (including mock `exp` reminting). Client stora
 | v0.2.2 | 2026-08-17 | STEP-1.6a | Closed OQ-25 (`/me` = `{ id, userName }`; JWT claims `sub`/`exp`/`iat`). Doc 16. |
 | v0.2.3 | 2026-08-17 | STEP-1.7 | §1.4 corrected: `Container.name` is a localized display string from the wire, not client-side i18n (doc 07 §9). Opened OQ-30. |
 | v0.2.4 | 2026-08-17 | STEP-1.11 | **`Card.name` → `Card.title`.** Cursor placement resolved as *both* levels; unknown-`variant` rule added; `expiresAt` is ISO on the wire; paths and envelope point at doc 11. Closed OQ-22, OQ-23, OQ-26. |
+| v0.2.5 | 2026-08-17 | STEP-1.14 | User and content slices replaced by RTK Query cache (`getMe` + feeds). Catalog mocks are `axios-mock-adapter` on the axios instance (ADR-0020). |
+| v0.2.6 | 2026-08-17 | STEP-1.14 | Closed OQ-24 (3:4 hero stand-in). `visibleCount` is client-side, not a Container field. |

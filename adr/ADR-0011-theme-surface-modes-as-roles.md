@@ -52,3 +52,10 @@ The obvious naming for two surfaces is `light` and `dark`. That naming is a trap
 **New work.** `ModeProvider`, the `DefaultTheme` augmentation, the `ember` theme file, and the dev swap affordance — all in the foundation STEP.
 
 **Foreclosed in Phase 1.** OS-driven dark mode, a user-facing theme setting, per-screen theme overrides, and persisting a theme choice (which would also contradict ADR-0003's persist-auth-slice-only rule).
+
+## Amendment (2026-08-17 — STEP-1.14 / ADR-0019)
+
+`ThemeProvider` is **Emotion's** (`@emotion/react`), and styled primitives are `@emotion/native`.
+Decision 4's `ModeProvider` shape is unchanged. Type the theme by augmenting `@emotion/react`'s
+`Theme`, not styled-components' `DefaultTheme`.
+

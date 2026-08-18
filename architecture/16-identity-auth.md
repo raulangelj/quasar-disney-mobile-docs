@@ -1,8 +1,8 @@
 # Doc 16 — Identity & Auth
 
-**Version:** v0.1.2
+**Version:** v0.2.0
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.12)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, backend team, QA
 
 > How this React Native demo proves who someone is, what they may do, and how that swaps to a managed IdP behind our API in Phase 3 — without putting Auth0/Firebase in the app or inventing roles we do not have.
@@ -66,7 +66,7 @@ Consistent with doc 04. **User** 1──1 **Session**. No orgs, no household pro
 
 | Noun | Phase 1 |
 |------|---------|
-| **User** | `id` (JWT `sub`) + `userName` from `/me`. No email on the slice. Memory-only user slice. |
+| **User** | `id` (JWT `sub`) + `userName` from `/me`. No email on the slice. Memory-only `getMe` cache. |
 | **Session** | `accessToken` + `expiresAt`. Auth slice. The only persisted entity. |
 | **Credentials** | Login request DTO `{ email, password }`. Never stored, never logged. |
 
@@ -98,11 +98,12 @@ ADR-0010.
 
 | Layer | What it does |
 |-------|----------------|
-| App shell | Auth selectors switch navigators. Cold-start loader until `/me` + HomeFeed + Continue Watching complete. |
-| API interceptor | Attaches the JWT on `/me`, HomeFeed, Continue Watching. Maps HTTP status → `code` once a real transport exists. |
-| Middleware / API-module error handling | **Reacts** to `UNAUTHORIZED` by clearing the session; ignores `INVALID_CREDENTIALS`. Transport-agnostic (**ADR-0017**). |
-| Mock adapter (later: backend) | 401 without a valid token. |
-| Screens / hooks | **Do not** check roles. |
+| App shell | Auth selectors switch navigators. Cold-start loader until `getMe` + `getHomeFeed` + `getContinueWatching` complete. |
+| Axios request interceptor | Attaches `Authorization: Bearer` on operations 2–5. Reads the token from the store (`injectStore`). |
+| Axios response interceptor | Maps HTTP status → `ApiError.code`. Does **not** clear the session. |
+| `baseQueryWithAuth` | **Reacts** to `UNAUTHORIZED` by clearing the session and `resetApiState()`; ignores `INVALID_CREDENTIALS`. (**ADR-0017** / **ADR-0020**). |
+| Mock handlers (later: backend) | 401 without a valid token (`exp` + presence). |
+| Screens / hooks | **Do not** check roles. Use generated RTK Query hooks only. |
 
 No stub `role` / `entitlements` field on `/me`. Phase 3 can add claims **in the API contract** without rewriting the binary nav split. Parental controls and profiles wait until those features exist.
 
@@ -187,16 +188,13 @@ When Phase 3 adds a host, **the app authenticates as a user** (JWT on HTTPS), no
 
 **Added by 1.11 (doc 11 §8.4, §9.2), because both bear directly on this doc's flows:**
 
-- The session-clearing **401 reaction excludes `/auth/login`** — otherwise a wrong
+- The session-clearing **401 reaction excludes login** — otherwise a wrong
   password would bounce the user out of the credentials screen and destroy the F2 inline-error
   demo. `INVALID_CREDENTIALS` and `UNAUTHORIZED` are distinct codes so the distinction is
-  mechanical. **Amended in 1.12 (ADR-0017):** that reaction lives **above the transport**, in the
-  middleware / API-module error handling that consumes the normalized `ApiError` — *not* in the axios
-  interceptor, which in Phase 1 no request passes through. §4's "Mock adapter … 401 without a valid
-  token" is unaffected; what moved is who *reacts* to the 401.
-- The **mock adapter validates the token's presence *and* `exp`** on authenticated operations.
-  §4's "401 without a valid token" is now a contract obligation, not an implementation detail —
-  a permissive mock would leave this doc's expiry → Welcome path untested until Phase 3.
+  mechanical. The reaction lives in **`baseQueryWithAuth`** (**ADR-0017** / **ADR-0020**) — *not* in the axios
+  interceptor. The request interceptor attaches the header; the response interceptor maps status → `code`.
+- The **mock handlers validate the token's presence *and* `exp`** on authenticated operations
+  (and they see the interceptor-attached header because mocks use `axios-mock-adapter` on the same instance).
 
 Carried: privacy session remains Deferred (doc 04). Pinning / root detection remain **RISK-0007**. Shared demo login remains **RISK-0008**.
 
@@ -207,3 +205,4 @@ Carried: privacy session remains Deferred (doc 04). Pinning / root detection rem
 | v0.1.0 | 2026-08-17 | STEP-1.6a | Initial identity & auth design. ADR-0009, ADR-0010. Closed OQ-25. |
 | v0.1.1 | 2026-08-17 | STEP-1.11 | §6 header and `/me` names locked in doc 11; `expiresAt` is ISO on the wire. Added the 401-scoping rule and the mock's token-validation obligation. Closed OQ-22. |
 | v0.1.2 | 2026-08-17 | STEP-1.12 | **ADR-0017:** the session-clearing 401 *reaction* moves out of the axios interceptor to the transport-agnostic middleware / API-module error handling, so Phase 1 actually executes and tests it. §4's enforcement table gains that row and narrows the interceptor's. No change to auth methods, claims, lifetimes, storage, or the authorization model. |
+| v0.2.0 | 2026-08-17 | STEP-1.14 | Token lifecycle is RTK Query `baseApi` + axios interceptors (`injectStore`); 401 reaction in `baseQueryWithAuth`; `/me` is cache not a user slice (**ADR-0020**). |

@@ -1,10 +1,11 @@
 # Doc 08 — Infrastructure & Deployment
 
-**Version:** v0.1.1
+**Version:** v0.1.2
 **Status:** Draft
-**Coverage:** deferred — server-side hosting, IaC, networking/TLS, and CI are consciously not
-enumerated in Phase 1 (see §1). Resurface at each check-in.
-**Last updated:** 2026-08-17 (STEP-1.9)
+**Coverage:** deferred — server-side hosting, IaC, and networking/TLS are consciously not
+enumerated in Phase 1 (see §1). **Native CI** (Bitrise) is still Phase 2; a JavaScript GitHub
+Actions gate exists from 1.12 (**ADR-0018**). Resurface at each check-in.
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, QA, eng leadership
 
 > Where quasar-disney-mobile runs, how a build reaches the sign-off device, and what actually
@@ -64,9 +65,9 @@ With no server, "compute" is the machine that produces the artifact.
 
 ### The sign-off artifact is a release build
 
-Docs 15 §8 and 05 §2 both treat a **release build** as the *fallback* if a device hitches at
-sign-off. **This session inverts that: the release build is the declared sign-off artifact,
-not the contingency.**
+Docs 15 §7 and 08 Decision 3 declare a **release build** as the sign-off artifact. Doc 05 §2
+previously treated it as a hitch fallback; 1.14 aligned that doc. **The release build is the
+declared sign-off artifact, not the contingency.**
 
 | | Debug build | **Release build (sign-off)** |
 |---|---|---|
@@ -301,7 +302,7 @@ guardrail worth carrying into Phase 2.
 | # | Decision | Choice | Rationale | Forecloses / tradeoff |
 |---|----------|--------|-----------|-----------------------|
 | 1 | Scope of this doc | **Mobile build-and-distribute only.** No application hosting exists; Phase-3 backend hosting is explicitly the backend team's | Docs 03/05 build no server — there is nothing to host, secure, or scale | Pre-deciding a Phase-3 provider/region as "guidance"; inventing infrastructure we do not own |
-| 2 | Build host | Dev laptops now; Bitrise hosted runners in Phase 2 (externally blocked) | iOS signing needs macOS; no CI exists yet | A Phase-1a CI pipeline |
+| 2 | Build host | Dev laptops now; **JS CI** on GitHub Actions from 1a (**ADR-0018**); Bitrise hosted runners in Phase 2 for **native** artifacts | iOS signing needs macOS; native CI is still blocked | Treating the JS gate as a native pipeline |
 | 3 | Sign-off artifact | **Release build on-device is the declared demo artifact**, not the fallback | Removes Metro and the laptop from the demo's critical path; a red box is worse than any hitch | Demoing from a simulator with Metro attached; ~30 min setup at the Tue-AM sync point |
 | 4 | Deploy procedure | Manual, **written down** in `runbooks/release-deploy.md` (rewritten from the generic template) | Method rule: manual is fine if repeatable. Makes "Dev A is unavailable Tuesday" survivable | An automated pipeline before Bitrise exists |
 | 5 | Deploy identity | Version stamp **paired with a git tag** per build | Ties the binary on the demo phone to a commit | Untraceable builds |
@@ -334,3 +335,4 @@ real line item), OQ-13 (wordmark outlining before 18 Aug).
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.8 | Initial draft from the infrastructure & deployment session. Release build declared the sign-off artifact; release/rollback procedure written to `runbooks/release-deploy.md`; OQ-21 resolved (ADR-0014); OQ-27 closed as deferred. Opened OQ-28, OQ-29. |
 | v0.1.1 | 2026-08-17 | STEP-1.9 | §5 names the `.env` mechanism (ADR-0015) and upgrades the pre-flight check from existence to key-completeness; §6 SPOF table gains a **device state** row (persisted rehearsal session skips the auth flow). Environments are now doc 09; OQ-28 noted as blocking a dated pre-flight sequence. |
+| v0.1.2 | 2026-08-17 | STEP-1.14 | Decision 2 / coverage: JS GitHub Actions gate exists (ADR-0018); native CI still Phase 2. §2 aligned with docs 05/15 — release build is the declared artifact. |

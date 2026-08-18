@@ -18,8 +18,8 @@ standard so the codebase stays consistent regardless of who (or which agent) wri
 - **Where a rule here and an `architecture/` doc disagree, the architecture doc wins** and this file
   has drifted. `api.md` is subordinate to `architecture/11-interface-contracts.md`, which is the
   contract of record.
-- If a standard reflects a decision, link the ADR that records why — several rules here link
-  ADR-0002, ADR-0003, ADR-0010, ADR-0016, ADR-0017, and ADR-0018.
+-   If a standard reflects a decision, link the ADR that records why — several rules here link
+  ADR-0002, ADR-0003, ADR-0010, ADR-0016, ADR-0017, ADR-0018, ADR-0019, and ADR-0020.
 
 ## Documentation & comments  (all languages)
 A project-wide rule; each language file shows the idiomatic *form* and the lint that

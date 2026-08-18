@@ -1,8 +1,8 @@
 # Doc 07 — UI / Design System
 
-**Version:** v0.1.1
+**Version:** v0.2.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.11)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, QA, stakeholders reviewing the 2026-08-18 demo
 
 > The visual foundations of the React Native client — tokens, components, navigation, theming, accessibility, i18n, and motion — with exact values, so Phase 1a can be built without re-deciding any of it.
@@ -182,7 +182,7 @@ Translucent chrome is `rgba(255,255,255,.07)`, **not** a backdrop blur — RN ne
 | `PortraitTile` (2:3, art only) | `features/storefront/ui` | 1a |
 | `ProgressTile` (16:9 + play + bar + meta block) | `features/storefront/ui` | 1a |
 | `LiveTile`, `LandscapeTile` | `features/storefront/ui` | 1b |
-| `HeroCard` | `features/storefront/ui` | Phase 2 chrome; 1a renders the hero container as a portrait stand-in (OQ-24) |
+| `HeroCard` | `features/storefront/ui` | Phase 2 chrome; 1a renders the hero container as a **3:4 portrait stand-in** (OQ-24 closed) |
 | `AuthSheetLayout`, `WelcomeHero`, `CredentialsForm` | `features/auth/ui` | 1a |
 
 ### 3.3 Organisms
@@ -272,7 +272,7 @@ See ADR-0013 — the SVG assets decided in STEP-1.2 already required this depend
 tileWidth = (screenWidth − gutter − tileGap × (v − 1)) / v
 ```
 
-`v` = tiles visible in the rail, **configured per rail** with a per-variant default (1.9 landscape, 3.6 portrait, 1.15 hero). The peek — the partly-visible next tile that signals the row scrolls — *is the spec*, so it holds at every device width instead of being an accident of fixed widths. `v` sits in the `Container` config beside `variant`, which is what DF6 asks for; whether it travels on the wire is **OQ-28**.
+`v` = tiles visible in the rail, **configured per rail** with a per-variant default (1.9 landscape, 3.6 portrait, 1.15 hero). The peek — the partly-visible next tile that signals the row scrolls — *is the spec*, so it holds at every device width instead of being an accident of fixed widths. `v` is **client-side**, keyed by `variant` — it is **not** a `Container` wire field (**OQ-37** closed).
 
 | Topic | Decision |
 |-------|----------|
@@ -363,10 +363,12 @@ Read via `AccessibilityInfo.isReduceMotionEnabled()` + a change listener, expose
 
 ## 12. Implementation stack
 
-**Styled Components (`styled-components/native`) + TypeScript**, per the overview's constraints.
+**Emotion (`@emotion/native` styled + `@emotion/react` `ThemeProvider`) + TypeScript**, per ADR-0019.
 
 ```ts
-// shared/theme/ModeProvider.tsx — mode is a nested ThemeProvider that flattens the active mode
+// shared/theme/ModeProvider.tsx — mode is a nested Emotion ThemeProvider that flattens the active mode
+import { ThemeProvider, useTheme } from '@emotion/react';
+
 export const ModeProvider = ({ mode, children }) => {
   const base = useTheme();
   const value = useMemo(() => ({ ...base, ...base.modes[mode] }), [base, mode]);
@@ -375,6 +377,8 @@ export const ModeProvider = ({ mode, children }) => {
 ```
 
 ```ts
+import styled from '@emotion/native';
+
 const Title = styled.Text`
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: ${({ theme }) => theme.type.h2.size}px;
@@ -385,9 +389,9 @@ const Title = styled.Text`
 | Concern | Decision |
 |---------|----------|
 | Layout | `shared/theme/{tokens/, themes/dinsey.ts, themes/ember.ts, ModeProvider.tsx, types.ts, styled.d.ts}` |
-| Typing | Augment `DefaultTheme` in `styled.d.ts` — otherwise `theme` is `any` inside every template, defeating the overview's "typed values throughout" |
-| **A2 enforcement** | An **ESLint rule, not code review**: `no-restricted-syntax` banning hex literals and `rgba(` outside `shared/theme/`, plus a rule banning non-`/native` `styled-components` imports. A1/A2 are launch criteria and should fail a build, not depend on a reviewer noticing. Raw spacing numbers stay a review item — a numeric rule is too fragile to be worth it |
-| Token consumers outside styled-components | React Navigation's theme object, `StatusBar`, and the SVG icon `color` prop must all read from the same tokens. These three are where a hardcoded value usually survives an otherwise clean migration |
+| Typing | Augment `@emotion/react`'s `Theme` in `emotion.d.ts` — otherwise `theme` is `any` inside every template, defeating the overview's "typed values throughout" |
+| **A2 enforcement** | An **ESLint rule, not code review**: `no-restricted-syntax` banning hex literals and `rgba(` outside `shared/theme/`, plus a rule banning `styled-components` imports. Styled primitives come from `@emotion/native`. A1/A2 are launch criteria and should fail a build, not depend on a reviewer noticing. Raw spacing numbers stay a review item — a numeric rule is too fragile to be worth it |
+| Token consumers outside Emotion styled | React Navigation's theme object, `StatusBar`, and the SVG icon `color` prop must all read from the same tokens. These three are where a hardcoded value usually survives an otherwise clean migration |
 
 ## 13. Platform conventions
 
@@ -429,7 +433,7 @@ const Title = styled.Text`
 | 16 | Theme structure | theme × surface mode; modes named by **role** (ADR-0011) | Prevents `useColorScheme()` from breaking the light auth flow | OS-driven dark mode in Phase 1 |
 | 17 | Theme swap | Dev long-press on the wordmark; `ember` test theme specified | Makes A1 demonstrable live at sign-off | A user-facing theme setting |
 | 18 | Icons | 13 hand-authored SVG components over `react-native-svg` | Token-tinted, no font linking; dependency already required (ADR-0013) | `react-native-vector-icons`; PNG icons |
-| 19 | Tile sizing | Visible-count formula; `v` configurable per rail | Peek is the spec, so it holds at every width; rails stay tunable | Fixed widths; magic viewport fractions |
+| 19 | Tile sizing | Visible-count formula; `v` is **client-side**, keyed by variant (**OQ-37**) | Peek is the spec, so it holds at every width; rails stay tunable | Fixed widths; magic viewport fractions; a wire `visibleCount` |
 | 20 | Device strategy | 375–440 pt phones, portrait locked, insets in 3 components, font-scale caps | Every reference screen is portrait; no native header to pad for us | Tablets, landscape, foldables |
 | 21 | Accessibility | WCAG 2.1 AA; one tile = one element + sibling actions; live-region errors | Carousels fail screen readers by default; a silent error fails F2 for those users | Automated a11y assertions in 1a (RISK-0011) |
 | 22 | i18n | `react-i18next`, semantic keys, forced `es-419`, RTL-safe properties | Plurals/interpolation genuinely needed; template repo should show the production answer | Device-locale detection; shipped RTL |
@@ -437,7 +441,7 @@ const Title = styled.Text`
 | 24 | Motion | 4-step scale; cross-fade login after the boot gate; platform stack transitions | Native-driver-only properties; never fade into a spinner | A cinematic through-black transition |
 | 25 | Reduced motion | Shorten or substitute, never remove | Removing feedback is a worse a11y outcome than the animation | — |
 | 26 | Data-viz | N/A — no charts | The progress bar is an atom | A charting dependency |
-| 27 | Implementation | Styled Components + `DefaultTheme` augmentation; `ModeProvider` flattens the mode | Components never know their surface — A1 becomes mechanical | A second theme context |
+| 27 | Implementation | **Emotion** (`@emotion/native` + `@emotion/react` ThemeProvider); `ModeProvider` flattens the mode (**ADR-0019**) | Components never know their surface — A1 becomes mechanical | `styled-components`; a second theme context |
 | 28 | A2 enforcement | ESLint bans hex/`rgba(` outside `shared/theme/` | A launch criterion should fail a build, not rely on review | A numeric spacing rule (too fragile) |
 | 29 | Platform conventions | Behavior follows platform; appearance follows the reference | Two deliberate deviations recorded (press feedback, typography) | Full Material compliance on Android |
 
@@ -445,11 +449,11 @@ const Title = styled.Text`
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| OQ-28 | Does `visibleCount` (tiles per rail) travel on the wire as a `Container` field, or stay a client-side config keyed by variant? | Mobile | 1.11 Interface Contracts |
-| OQ-29 | No Phase-1a screen exposes logout — the Perfil tab is a placeholder. Add a dev affordance, or accept that logout is only reachable via token expiry in 1a? | Eng leadership | Planning session / auth STEP |
-| OQ-30 | Confirm the real API returns row `name` localized to the request's locale (and how locale is conveyed) | Backend team | 1.11 Interface Contracts |
+| ~~OQ-37~~ | ~~Does `visibleCount` travel on the wire as a `Container` field?~~ **Resolved (1.14):** client-side, keyed by variant. **Not OQ-28** (that ID is the sign-off binary owner). | — | closed |
+| ~~OQ-38~~ | ~~No Phase-1a screen exposes logout — add a hidden affordance, or expiry-only?~~ **Resolved (1.14):** logout in 1a is **expiry-only** (Perfil is ComingSoon; no hidden logout). **Not OQ-29** (that ID is the reachability probe). | — | closed |
+| OQ-30 | Confirm the real API returns row `name` localized to the request's locale (and how locale is conveyed) | Backend team | Phase 3 / OQ-34 |
 
-Carried forward: **OQ-13** (wordmark outlining / PNG export — now also the wordmark half of ADR-0013), **OQ-24** (hero chrome in 1a vs Phase 2). **OQ-22** is closed (1.11) — wire names are in `architecture/11-interface-contracts.md` §7; note that **`Card.name` is now `Card.title`**, and that doc 11 §7.3 records why `Container.name` is rendered verbatim while `error.message` never is.
+Carried forward: **OQ-13** (wordmark outlining / PNG export — now also the wordmark half of ADR-0013). **OQ-24** is closed (1.14): 1a ships a 3:4 hero stand-in. **OQ-22** is closed (1.11) — wire names are in `architecture/11-interface-contracts.md` §7; note that **`Card.name` is now `Card.title`**, and that doc 11 §7.3 records why `Container.name` is rendered verbatim while `error.message` never is.
 
 ## Version Log
 
@@ -457,3 +461,5 @@ Carried forward: **OQ-13** (wordmark outlining / PNG export — now also the wor
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.7 | Initial design system from the UI session. Tokens, components, navigation, theme, icons, device strategy, a11y, i18n, motion, implementation, platform conventions. ADR-0011, ADR-0012, ADR-0013. Opened OQ-28/29/30; opened RISK-0011/0012. Corrected doc 04's client-side row-name i18n; surfaced three missing dependencies in doc 03. |
 | v0.1.1 | 2026-08-17 | STEP-1.11 | Closed OQ-22: wire names live in doc 11 §7 (`Card.name` → `Card.title`). Doc 11 §7.3 records the rendered-verbatim vs never-rendered rule for server strings; §8.2 keys all error copy off `error.code`, not server prose. |
+| v0.2.0 | 2026-08-17 | STEP-1.14 | §12: **Emotion** (`@emotion/native` + `@emotion/react` ThemeProvider) replaces styled-components (**ADR-0019**). Token model unchanged. |
+| v0.2.1 | 2026-08-17 | STEP-1.14 | Closed OQ-24 (3:4 hero stand-in). `visibleCount` is client-side (**OQ-37**). Logout in 1a is expiry-only (**OQ-38**). Those questions were mis-numbered as OQ-28/29. |

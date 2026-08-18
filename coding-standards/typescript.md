@@ -38,8 +38,8 @@ date. Revisit at Phase 1b. `strict: true` is not optional.
   `eslint-plugin-jsdoc` can enforce presence and shape.
 - Comment the *why*; let types and names carry the *what*.
 - Where a rule in `architecture/` is load-bearing and non-obvious in the code, say so at the site.
-  The clearest example: the middleware that reacts to `UNAUTHORIZED` should note that the 401 policy
-  deliberately does **not** live in the axios interceptor (**ADR-0017**) — otherwise a developer
+  The clearest example: `baseQueryWithAuth` that reacts to `UNAUTHORIZED` should note that the 401 policy
+  deliberately does **not** live in the axios interceptor (**ADR-0017** / **ADR-0020**) — otherwise a developer
   arriving from another RN codebase will look there, not find it, and add a second one.
 
 ## Project / module layout
@@ -71,9 +71,9 @@ date. Revisit at Phase 1b. `strict: true` is not optional.
 ## Error handling
 - `throw` `Error` (or a subclass), never strings or plain objects.
 - **At the API boundary the type is `ApiError { code, status, message }`**
-  (`architecture/11-interface-contracts.md` §8.3). Both transports — mock adapter and axios —
-  normalize into it, which is what makes the Phase-3 swap invisible above the boundary (ADR-0002).
-  Features and hooks **never** see an axios error or a raw rejection.
+  (`architecture/11-interface-contracts.md` §8.3). The axios response interceptor normalizes HTTP
+  into it; `axios-mock-adapter` still returns axios-shaped responses so Phase 1 exercises the same
+  path (ADR-0020). Features and hooks **never** see an axios error or a raw rejection.
 - Switch on **`code`** (a closed enum), never on `message` and never on a URL path. `message` is
   developer-facing and is never rendered to a user — all user-visible error copy is i18n keyed by
   `code` (doc 11 §7.3, §8.2).
@@ -110,9 +110,9 @@ Revisit only when a real backend and a real crash reporter exist (Phase 3).
   exactly this shape: `/me` + HomeFeed + Continue Watching resolve together before first paint
   (doc 04 §6).
 - **No floating promises** — every promise is `await`ed, returned, `.catch()`-ed, or `void`-ed.
-- All I/O crosses the API module. **No screen or hook imports `axios` or calls `fetch`** — DF1,
-  enforced by lint (doc 12 §7.1). Cancellation, when needed, uses axios's own mechanism rather than
-  a bare `AbortController` on `fetch`.
+- All I/O crosses `baseApi`. **No screen or hook imports `axios` or calls `fetch`** — DF1,
+  enforced by lint (doc 12 §7.1). Features use generated RTK Query hooks from their own `api.ts`.
+  Header attach is the axios request interceptor; session-clear is `baseQueryWithAuth`.
 
 ## Testing
 - **Jest**, React Native preset. `architecture/12-test-strategy.md` is authoritative — tiers in §2,
@@ -120,7 +120,7 @@ Revisit only when a real backend and a real crash reporter exist (Phase 3).
 - Test files `*.test.ts` / `*.test.tsx`, colocated. One behavior per test, Arrange–Act–Assert.
 - Name tests for the behavior (`rejects an expired token`), not the function.
 - **Mock only at the native boundary** — `react-native-encrypted-storage`,
-  `@react-native-community/netinfo`, `@env`. The mock adapter is a production artifact under test,
+  `@react-native-community/netinfo`, `@env`. `axios-mock-adapter` is a production artifact under test,
   **not** a test double (doc 12 §1, §5). i18n runs for real.
 - The store is built per test via `createStore()`; the adapter is constructed per test with latency
   `0`, a frozen clock, and failure injection off by default (doc 12 §4.2, §4.4).

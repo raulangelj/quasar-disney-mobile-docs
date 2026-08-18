@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.3.7
+**Version:** v0.4.0
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.11)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -32,9 +32,9 @@ job is to prove the architecture and the visual result to an internal audience.
 
 > Ship a React Native app running on iOS and Android whose login → storefront flow recognizably
 > reproduces the Disney+ experience (with our own branding and artwork), built on the full
-> Throughstone stack — atomic design, custom hooks, Redux + middleware, typed models, a swappable
-> API boundary, and central theme tokens — so stakeholders sign off on both the pattern and the
-> visual result.
+> Throughstone stack — atomic design, custom hooks, Redux Toolkit + RTK Query, Emotion theme
+> tokens, typed models, and a swappable API boundary — so stakeholders sign off on both the
+> pattern and the visual result.
 
 **What changed from the System Overview.** Doc 01 §4 listed *"Login screen (email/password)"* as one
 scope item and §5 estimated *3–4 days*. Stakeholder reference screenshots supplied during this
@@ -70,8 +70,7 @@ remainder, no external date).
 
 **Auth flow** (light theme)
 - **Welcome / landing** — gradient background, tile collage, brand strip, primary CTA.
-- **Credentials screen** — single screen taking email + password (the reference's two-step
-  email→password split moves to 1b), on the white sheet-over-gradient layout.
+- **Two-step credentials** — email screen, then password screen, on the white sheet-over-gradient layout (recovered into 1a with the second dev; §9).
 - **Inline error state** — red underline on the field plus multi-line red message below it,
   matching the reference's treatment. Driven by a *simulated failed fetch*, not a local branch.
 - Hardcoded demo credentials; opaque token stored in the auth slice from day one.
@@ -90,7 +89,7 @@ remainder, no external date).
   shape — plus the written contract document. We do not build a backend.
 - **Mock API layer that simulates real fetches**: returns Promises with artificial latency and can
   be made to fail, so loading and error states are genuine rather than decorative.
-- Redux store + middleware; no component or hook touches `fetch` directly.
+- Redux Toolkit store + RTK Query `baseApi`; no component or hook touches `fetch` or `axios` directly.
 
 **Tests**
 - Every element gets a test: reducers, middleware, hooks, and the API/mock layer.
@@ -103,20 +102,16 @@ remainder, no external date).
 
 | Item | Lands in | Why deferred |
 |------|----------|--------------|
-| Two-step email → password auth | 1b | Costs a screen + navigation state; one screen proves the same pattern |
-| Live and landscape carousel variants | 1b | Config additions to an existing component — cheap later, not on the critical path |
-| Hero / spotlight carousel + filter pill rail | Phase 2 | Most expensive component in the reference; adds no architectural pattern the other variants don't already exercise |
+| Live and landscape carousel variants | 1b | Config additions to an existing component — cheap later, not on the critical path. Data model parks `'live'` (doc 04) |
+| Hero / spotlight **chrome** + filter pill rail | Phase 2 | Most expensive component in the reference. The feed already includes a `hero` container; 1a renders a **3:4 stand-in** (OQ-24 closed) |
 | UI/component tests | 1b | Highest cost-to-signal ratio under the deadline; logic tests carry the testability argument |
-| Formal QA smoke checklist | 1b | QA has no installable build until CI exists |
+| Formal QA smoke checklist | 1b | Distinct from the **release-build smoke** at every sync point (doc 09 §6.1), which *is* in 1a |
 
 ## 3. Phase 1b, completing Phase 1
 
-No external date. Delivers: two-step email → password auth with its own navigation state; the live
-(`VIVO` badge, red progress bar) and landscape carousel variants; UI/component rendering tests; the
-formal QA smoke checklist; and any polish deferred under deadline pressure.
-
-**Recovery order if a second senior dev joins before 2026-08-18** (doc 01 §5 contemplates
-*"+1 senior if needed"*): (1) two-step auth split, (2) live carousel variant, (3) UI tests.
+No external date. Delivers: the live (`VIVO` badge, red progress bar) and landscape carousel
+variants; UI/component rendering tests; the formal QA smoke checklist; and any polish deferred
+under deadline pressure. **Two-step auth is in 1a** (§2 / §9).
 
 ## 4. Launch criteria
 
@@ -126,7 +121,7 @@ Phase 1a is done when all of the following are true.
 
 | # | Criterion |
 |---|-----------|
-| F1 | On **both** iOS and Android (simulator or device), welcome → credentials → home completes end to end |
+| F1 | On **both** iOS and Android (simulator or device), welcome → email → password → home completes end to end |
 | F2 | Wrong credentials produce the **inline error state** from the reference — not a generic alert, not a crash — driven by a simulated failed fetch |
 | F3 | Home renders both carousel variants from mock data; tapping any card shows an alert with the title |
 
@@ -136,7 +131,7 @@ Phase 1a is done when all of the following are true.
 |---|-----------|
 | A1 | **Theme swap verified**: a second test theme exists, and switching to it re-skins both surface modes without touching a single component |
 | A2 | **Zero hardcoded** colors, typography, or spacing outside the theme |
-| A3 | **API swap**: mocks and a future real backend pass through the same client and middleware; substituting the base URL and removing the mock adapter is the entire change |
+| A3 | **API swap**: mocks and a future real backend pass through the same `baseApi` and axios instance; substituting the base URL and removing `axios-mock-adapter` is the entire change |
 | A4 | **API contract document delivered** to the backend team |
 | A5 | **Module extraction verifiable**: no feature imports from another feature — only from `shared/` |
 | A6 | **Tests green** for every reducer, middleware, hook, and the API/mock layer |
@@ -156,7 +151,7 @@ Criteria A1–A5 trace directly to doc 01 §3's *API swap readiness*, *theme swa
 - Hero / spotlight carousel — near-full-width card with neighbours peeking, badge pill, title
   artwork, CTA line, metadata row. *The Phase-1 **feed contract** already includes a hero row
   (doc 04 / ADR-0006); this phase is the full spotlight **chrome** if 1a shipped a stand-in
-  (OQ-24).*
+  (OQ-24 **closed 1.14:** 1a ships a 3:4 stand-in).*
 - Filter pill rail (logo-only and icon+label forms). *Needs more than one mocked content source to
   mean anything.*
 - **Content details screen** — metadata, description, cast, "similar to this" row; the alert-on-tap
@@ -187,7 +182,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 
 | # | Constraint | What it forbids in Phase 1a |
 |---|------------|------------------------------|
-| DF1 | **Backend swap** | No component or hook calls `fetch` or `axios`. All I/O goes through the API client and middleware (single axios instance inside the API module). Mocks carry the *exact* shape expected of the real backend — field names, enums, response envelope, error shape |
+| DF1 | **Backend swap** | No component or hook calls `fetch` or `axios`. All I/O goes through **RTK Query** on `baseApi` (axios instance + interceptors inside the API module). Mocks are `axios-mock-adapter` on that instance and carry the *exact* shape expected of the real backend — field names, enums, response envelope, error shape |
 | DF2 | **Simulated fetches, not local data** | The mock layer returns Promises with artificial latency and can fail on demand, so loading and error states are real code paths |
 | DF3 | **JWT** | The auth slice holds an opaque token from day one, even though it's fake. Persist that slice only, into **`react-native-encrypted-storage`** (Keychain / EncryptedSharedPreferences) from day one (not AsyncStorage). Refresh still plugs in without touching screens |
 | DF4 | **Re-skin by tokens** | Two surface modes live in the theme structure itself, not as per-screen exceptions |
@@ -198,7 +193,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
 | DF9 | **Analytics** | The hook ships with its final signature behind `console.log` stubs |
 | DF10 | **Trademark substitution** | No Disney/Marvel/Star Wars/hulu/ESPN marks or real key art in the codebase or assets, at any phase |
 | DF11 | **Connectivity gate** | No-network is a **shell overlay** (NetInfo + reference no-internet screen), not a feature fetch error and not an offline cache. Restore by auth state. **Online = interface up**, no reachability probe (ADR-0014). See doc 15 / ADR-0004 |
-| DF12 | **Storefront pagination** | Home rows and cards **page**. Storefront hooks own `{ items, loadMore, hasMore }`; mocks return pages. Screens do not fetch. **Opaque `nextCursor`** (doc 04). Two **`Container[]`** endpoints; cards in **`resources`** (ADR-0006 / ADR-0007). **Page sizes locked (1.11):** `limit` 16 on HomeFeed, 10 on Continue Watching and on `resources` (doc 11 §6.3). |
+| DF12 | **Storefront pagination** | Home rows and cards **page**. Storefront wraps RTK Query queries with `{ items, loadMore, hasMore }`; mocks return pages. Screens do not call axios. **Opaque `nextCursor`** (doc 04). Two **`Container[]`** endpoints; cards in **`resources`** (ADR-0006 / ADR-0007). **Page sizes locked (1.11):** `limit` 16 on HomeFeed, 10 on Continue Watching and on `resources` (doc 11 §6.3). |
 
 ## 7. Phase dependencies and critical path
 
@@ -209,7 +204,7 @@ sessions 1.3, 1.4, 1.7, 1.11, and 1.12.
    is lost and retrofitting costs more than doing it right
 3. Atoms and molecules
 4. **Auth flow** — the smallest surface that exercises the whole stack end to end
-5. **Storefront** — dark theme, both carousel variants, content slice
+5. **Storefront** — dark theme, both carousel variants, feed endpoints / catalog cache
 
 Auth precedes storefront deliberately: if the pattern is wrong, it surfaces on day 2, not day 5.
 
@@ -229,12 +224,8 @@ Infrastructure, **1.9** Environments, and **1.10** Observability were originally
 informs a 1a decision. **1.6** Security (no real PII), **1.13** Glossary, and **1.14** Cross-Cutting
 Review run abbreviated.
 
-*Amendment (2026-08-17):* **1.5**, **1.6a**, **1.8**, **1.9**, and **1.10** subsequently ran
-(`architecture/05-scaling-performance.md`, `architecture/16-identity-auth.md`,
-`architecture/08-infrastructure-deployment.md`, `architecture/09-environments.md`,
-`architecture/10-observability.md`). **No originally-deferred session remains in the STEP-1
-queue** — what is left is the never-deferred set: **1.11**, **1.12**, **1.13**, **1.14**.
-RISK-0002 tracks that list.
+*Amendment (2026-08-17):* **1.5**, **1.6a**, **1.8**, **1.9**, **1.10**, **1.11**, **1.12**, and
+**1.13** subsequently ran. **1.14 Cross-Cutting Review** closes STEP-1. RISK-0002 is closed.
 
 1.10 declined the whole telemetry stack for Phase 1 (no metrics, tracing, health checks,
 dashboards, alerting, or vendor) and added exactly one thing to the build: a **shell-root error
@@ -298,7 +289,7 @@ with no React Native dependency**, so they can be built from hour zero, in paral
 | **Foundation** | Dev A | Sat | RN bare scaffold (iOS + Android), TypeScript, module structure, **theme tokens both modes**, store + middleware wiring, navigation shell, and the **shared atoms both features need** (typography, pill button in both polarities, text field with error state, chip, icon wrapper, layout primitives) |
 | **Contract & mock API** | Dev B | Sat | TypeScript interfaces, enums, response envelope, error shape; the written contract document; the mock client (Promises + artificial latency + failure injection); fixtures wired to `assets/placeholder-art/`; tests. **Zero RN dependency** — plain TS |
 | **Auth feature** | Dev A | Sun–Mon | Welcome, credentials, inline error state; auth slice + middleware; password field with visibility toggle; tests |
-| **Storefront feature** | Dev B | Sun–Mon | Header, tab bar, **config-driven carousel component**, 2 variants, content slice, progress-bar and play-overlay molecules; tests |
+| **Storefront feature** | Dev B | Sun–Mon | Header, tab bar, **config-driven carousel component**, 2 variants, RTK Query feed endpoints, progress-bar and play-overlay molecules; tests |
 
 **Why this pairing:** Dev B authors the contract, so Dev B owns the surface that consumes the most
 data. Dev A authors the theme, so Dev A owns auth — the **light** surface mode, which is where token
@@ -322,11 +313,9 @@ independent test suites. Each dev works at their own pace.
 
 ### Scope recovered from 1b
 
-With two devs, two 1b items return to Phase 1a: the **two-step email → password auth split**
-(Dev A) and the **live carousel variant** (Dev B — mostly configuration plus a badge, since the
-progress-bar atom already exists for continue-watching). **UI tests stay in 1b** — still the lowest
-signal per hour under this deadline. Reviewed at the Saturday midday checkpoint; if the scaffold
-slipped, both recovered items go back to 1b first.
+With two devs, the **two-step email → password auth split** returns to Phase 1a (Dev A). The
+**live carousel variant stays in 1b** — later sessions (docs 04/07/11/13) parked `'live'` out of
+the Phase-1 data model; this review keeps that (1.14). **UI tests stay in 1b**.
 
 ### STEP numbering
 
@@ -356,20 +345,20 @@ Two things carried forward:
 | # | Decision | Choice | Rationale | Forecloses / tradeoff |
 |---|----------|--------|-----------|-----------------------|
 | 1 | Phase 1 milestone type | Functional POC / stakeholder demo, **with visual fidelity as an explicit goal** | Reference screenshots raised fidelity from implicit to a sign-off criterion | Not an MVP; no end-user value claimed |
-| 2 | Phase 1 scope | Full auth flow + home row-stack with 4 carousel variants; hero and filter rail deferred | Covers every architectural pattern without the most expensive component | Demo shows less breadth than the reference home |
+| 2 | Phase 1 scope | Full two-step auth + home row-stack with **2 carousel variants in 1a** (CW + standard portrait); live + landscape in 1b; hero **chrome** Phase 2 (3:4 stand-in in 1a) | Covers every architectural pattern without the most expensive chrome | Demo shows less breadth than the reference home |
 | 3 | Phase 1 split | **1a** (demo-gated, 2026-08-18) / **1b** (remainder, undated) | ~3.5 available days against a ~6–7 day scope; a polished subset beats a half-finished whole for a craft demo | Phase 1 is not complete on the sign-off date |
 | 4 | Details screen | Phase 2; Phase 1a shows an alert with the title | Surface, not architecture — the alert proves the interaction path | Stakeholders see no drill-down on 18 Aug |
 | 5 | Backend | **We build none.** We author the contract; mocks simulate real fetches | Backend team owns delivery; the contract makes Phase 3 a swap, not a rewrite | Phase 3 is externally gated |
 | 6 | Contract ownership | Ours — session 1.11 promoted back into Phase 1a | The contract now *defines* the mock shapes, so it can't be deferred | Backend team inherits a contract they did not draft |
 | 7 | Fetch simulation | Promises with artificial latency, failable on demand | Loading and error states are only real if the call can actually fail | Slightly slower mock layer than local data |
-| 8 | Tests in the gate | Every reducer, middleware, hook, and API layer tested; **UI tests deferred to 1b** | Logic tests carry the "this architecture is testable" argument at the lowest cost | No rendering-regression safety net on 18 Aug |
+| 8 | Tests in the gate | Every reducer, RTK Query endpoint path, hook, and API layer tested; **UI tests deferred to 1b** | Logic tests carry the "this architecture is testable" argument at the lowest cost | No rendering-regression safety net on 18 Aug |
 | 9 | Theme structure | Two surface modes (dark app / light auth) in one token set | The reference auth flow is light-on-white; one palette with exceptions would break criterion A1 | More token work up front |
-| 10 | Architecture sessions | 1.3, 1.4, 1.7, 1.11, 1.12 run before code; 1.5, 1.6a, 1.8, 1.9, 1.10 Deferred | Only sessions that block code fit in the window | Deferred areas carry revisit triggers, not decisions |
+| 10 | Architecture sessions | All core + included conditionals **Done** (1.14). 1.5/1.6a/1.8–1.10 ran after originally being Deferred | Only sessions that block code were meant to fit the window; the deferred set subsequently ran | — |
 | 11 | Weekend work | Sat 15 + Sun 16 included | Sign-off date is not negotiable | No buffer for the scaffold risk |
 | 12 | Trademark posture | Layout reproduced; all marks and key art substituted | Disney IP is not ours to ship | Demo looks like Disney+ in structure, not in branding |
 | 13 | Team | **Two senior devs**, 15–18 Aug | Confirmed after the split was drafted for one | Foundation is still serial — a second dev does not halve the critical path |
 | 14 | Parallelization seam | Four disjoint STEPs: foundation / contract+mocks / auth / storefront | DF5 (no cross-feature imports) already makes auth and storefront disjoint; the contract layer has no RN dependency so it parallelizes the scaffold window | Two hard sync points (Sat EOD, Tue AM); shared atoms need an owner rule |
-| 15 | Scope recovered with the second dev | Two-step auth split and the live carousel variant return to 1a; **UI tests stay in 1b** | Both are cheap on a dedicated owner; UI tests remain the lowest signal per hour | Reverts to 1b first if the Sat midday checkpoint fails |
+| 15 | Scope recovered with the second dev | **Two-step auth in 1a**; live carousel **stays 1b**; **UI tests stay in 1b** | Two-step matches docs 03/16; `'live'` is out of the Phase-1 data model (doc 04) | Live badge on 18 Aug |
 | 16 | Placeholder brand | Fictional **"Dinsey-"** brand + abstract placeholder key art, authored in-repo | Unblocks the build without Disney assets; resolves OQ-08 and OQ-09 | Name is confusingly similar to Disney — internal use only (RISK-0005) |
 | 17 | Connectivity | Online-only + shell NetInfo gate (doc 15) | Matches the no-internet reference; no offline cache in a mock demo | Offline browse; per-feature offline screens |
 | 18 | Storefront pagination | Feature hooks + paginated mocks from day one | Organized loadMore; contract can page later | One-shot full-catalog fixture |
@@ -408,3 +397,5 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.3.5 | 2026-08-17 | STEP-1.8 | §7 amendment: 1.8 ran (doc 08); 1.9 and 1.10 remain. §8 Tue-AM sync point now includes the release build + two-device install. DF11 notes ADR-0014 (interface-up connectivity). |
 | v0.3.6 | 2026-08-17 | STEP-1.10 | §7 amendment: 1.9 (doc 09) and 1.10 (doc 10) ran — no originally-deferred session remains in the STEP-1 queue. 1.10 declines the telemetry stack and adds a shell-root error boundary (RISK-0014). No schedule change. |
 | v0.3.7 | 2026-08-17 | STEP-1.11 | DF12 page sizes locked from doc 11 §6.3. **OQ-10 closed** — the contract exists; the backend-acceptance question becomes OQ-34 against doc 11 §14's checklist. No schedule change. |
+| v0.3.8 | 2026-08-17 | STEP-1.14 | DF1/A3: I/O is RTK Query `baseApi` + axios interceptors; Phase 1 mocks are `axios-mock-adapter` on the same instance (ADR-0020). Goal sentence names Emotion + RTK Query (ADR-0019). |
+| v0.4.0 | 2026-08-17 | STEP-1.14 | Cross-cutting: two-step auth in 1a; live stays 1b; hero 3:4 stand-in (OQ-24 closed); Decision 10/15 reconciled. STEP-1 sessions complete. |

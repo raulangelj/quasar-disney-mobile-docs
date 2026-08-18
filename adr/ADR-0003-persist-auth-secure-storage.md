@@ -54,3 +54,9 @@ The **user slice is not persisted**. Profile (`userName`) is memory-only and fil
 authenticated `/me` on every cold start and after login (see `architecture/04-data-model.md`).
 Decision item 1 still means **auth slice only** — do not add the user slice to the
 redux-persist whitelist.
+
+## Amendment (2026-08-17 — STEP-1.14 / ADR-0020)
+
+There is no user slice. Profile (`userName`) lives in the **`getMe` RTK Query cache**, which is
+memory-only. Do not persist `baseApi` reducer state. Decision item 1 still means **auth slice
+only**.

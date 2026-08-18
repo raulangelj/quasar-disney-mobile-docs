@@ -1,10 +1,10 @@
 # Doc 11 — Interface Contracts
 
-**Version:** v0.2.0
+**Version:** v0.3.1
 **Status:** Draft
 **Coverage:** full for Phase 1. The promotion to a machine-readable artifact (OpenAPI) is
 consciously deferred with a named trigger (§2.3, ADR-0016) rather than left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.12)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > The one boundary in this system that will ever cross a network — five operations, their
@@ -39,7 +39,7 @@ than what was merely remembered.
 
 | # | Boundary | Kind | Owner | Contract level | Style | Status |
 |---|----------|------|-------|----------------|-------|--------|
-| **B-A** | Features → **API module** (via middleware) | Async, wire-shaped | API module | **Formal** | TS interfaces + §5–§8 tables | **This doc** |
+| **B-A** | Features → **API module** (via RTK Query hooks on `baseApi`) | Async, wire-shaped | API module | **Formal** | TS interfaces + §5–§8 tables | **This doc** |
 | **B-B** | API module → future HTTP backend | Async, over the network | API module (consumer: backend team) | **Formal — same contract as B-A** | Same | Phase 3; §6.5 transport profile |
 | **B-C** | Shell → Auth / Storefront / Shared / API | In-process module exports | App shell | Informal | Public exports + import rules | Doc 03 §8 |
 | **B-D** | Auth / Storefront → Shared kernel | In-process component/token API | Shared kernel | Informal | Public component + token API | Doc 03 §8, doc 07 |
@@ -112,8 +112,9 @@ argument against that call.
 |----------|-----------|-------------------------------|
 | Operation spec — paths, payloads, envelope, errors, transport profiles | **`architecture/11-interface-contracts.md`** (this doc) | Unchanged — remains the contract of record until OQ-10 |
 | TS wire types (`Card`, `Container`, envelopes, `ApiError`, login / `/me` DTOs) | Do not exist — §7 states them as normative tables | **`src/api/types/`** — the authoring source. This doc gains a pointer |
-| Mock fixtures | Do not exist | `src/api/mocks/` — colocated with the API module (doc 04 §3) |
-| axios instance + interceptors | Do not exist | `src/api/client/` |
+| axios instance + interceptors + `axiosBaseQuery` / `baseQueryWithAuth` | Do not exist | `src/api/client/` |
+| RTK Query `baseApi` | Do not exist | `src/api/baseApi.ts`; feature `injectEndpoints` in `src/features/*/api.ts` |
+| Mock fixtures + `axios-mock-adapter` | Do not exist | `src/api/mocks/` — on the **same** axios instance (ADR-0020) |
 | Contract tests | Do not exist | App repo, colocated `*.test.ts` beside the source (doc 12 §10.1). Test factories live in `src/api/mocks/` alongside the demo fixtures (doc 12 §4.1) |
 | OpenAPI document | Does not exist by decision (ADR-0016) | `contracts/openapi.yaml` in the app repo, **at OQ-10 only** |
 
@@ -188,7 +189,7 @@ has five rows rather than the four the earlier docs imply.
 | # | Operation | Auth | Purpose |
 |---|-----------|------|---------|
 | 1 | `POST /auth/login` | — | Exchange credentials for a session |
-| 2 | `GET /me` | Bearer | Hydrate the user slice |
+| 2 | `GET /me` | Bearer | Hydrate the `getMe` cache |
 | 3 | `GET /home-feed?cursor=&limit=` | Bearer | HomeFeed page — **vertical** paging (containers) |
 | 4 | `GET /continue-watching?cursor=&limit=` | Bearer | Continue Watching page |
 | 5 | `GET /containers/{containerId}/resources?cursor=&limit=` | Bearer | **Horizontal** paging — more cards in one row (`useCarouselPage`, doc 15 §8) |
@@ -257,13 +258,13 @@ One contract, two implementations. Everything not in this table is identical.
 
 | Aspect | Mock (Phase 1) | HTTP (Phase 3) |
 |--------|----------------|----------------|
-| Mechanism | In-process Promise from the mock adapter | axios over HTTPS |
+| Mechanism | `axios-mock-adapter` on the **same** axios instance RTK Query uses | axios over HTTPS via the same instance |
 | Latency | Artificial **400–600 ms** (doc 05) | Real |
-| Status codes | Synthetic — supplied on `ApiError` (§8.3) | Real HTTP status |
-| `Authorization` header | Not on a wire; the adapter is handed the token and **validates it** (§9.2) | Real header, attached by interceptor |
+| Status codes | Synthetic HTTP status on the mocked response | Real HTTP status |
+| `Authorization` header | Real header on the axios config, attached by the **request interceptor**; mock handlers validate it (§9.2) | Same interceptor |
 | Base URL | `API_BASE_URL` inert (doc 09 §4.2) | `API_BASE_URL` addresses a real host |
 | TLS / ATS | N/A | HTTPS only, ATS on, no cleartext exception (doc 06 §5) |
-| Token expiry | Mock adapter mints and honours a 7-day `exp` (doc 04) | Server-side |
+| Token expiry | Mock handlers mint and honour a 7-day `exp` (doc 04) | Server-side |
 | Correlation ID | None (§10) | Joint decision at OQ-10 (§14) |
 | Failure injection | Test-time seam only, never a runtime toggle (doc 09 §6.2) | N/A |
 
@@ -305,7 +306,8 @@ titles. Doc 04 §1.2 is updated to match.
 | `nextCursor` | `string \| null` | Horizontal cursor for this row's `resources` (§6.2) |
 
 `'progress'` is **never** a member of a `/home-feed` response — it arrives only from
-`/continue-watching` (ADR-0006). `'live'` is out until that feature exists.
+`/continue-watching` (ADR-0006). `'live'` is out until that feature exists. **`visibleCount`
+is not a field** — tile peek is client-side, keyed by `variant` (doc 07, OQ-37 closed).
 
 ### 7.3 Two kinds of server-supplied string, and why they are treated oppositely
 
@@ -389,25 +391,25 @@ reasonably want it, and the mapping from §8.2 is mechanical.
 
 ### 8.3 One `ApiError` across both transports
 
-The mock has no HTTP layer, so the API module normalizes both transports into a single
-client-facing type:
+The mock has no real network, so the API module still normalizes both transports into a single
+client-facing type (response interceptor maps HTTP → this shape):
 
 ```ts
 ApiError { code: ErrorCode; status: number; message: string }
 ```
 
-Mocks supply a synthetic `status`. **Features and hooks never see an axios error or a raw
+Mocks supply a synthetic `status` on the axios response. **Features and hooks never see an axios error or a raw
 rejection** — which is precisely what makes the Phase-3 swap invisible above the boundary
-(ADR-0002).
+(ADR-0002 / ADR-0020).
 
 ### 8.4 The 401 collision — a trap worth naming
 
 A login failure and an expired token are both `401`. The "clear session → Welcome" reaction must
 fire only on the second.
 
-> **The session-clearing 401 policy is transport-agnostic and lives *above* the transport** — in the
-> middleware / API-module error handling that consumes the normalized `ApiError` (§8.3). It switches
-> on **`code`**: `UNAUTHORIZED` clears the session, `INVALID_CREDENTIALS` does not. It never compares
+> **The session-clearing 401 policy is transport-agnostic and lives *above* the raw interceptor** — in
+> **`baseQueryWithAuth`** (ADR-0020 / ADR-0017), which consumes the normalized `ApiError` (§8.3). It switches
+> on **`code`**: `UNAUTHORIZED` clears the session and `resetApiState()`, `INVALID_CREDENTIALS` does not. It never compares
 > paths.
 
 If it fires on a login failure, a wrong password bounces the user out of the credentials screen
@@ -415,13 +417,10 @@ and **F2 — the inline error state, half of what Phase 1a exists to demonstrate
 Distinct codes (`INVALID_CREDENTIALS` vs `UNAUTHORIZED`) make the distinction mechanical rather
 than a path comparison.
 
-**Why not the axios interceptor** (**ADR-0017**, added in 1.12). Phase 1's transport is the mock
-adapter, not axios (§6.5, OQ-17), so a rule living in the interceptor would sit in a code path Phase 1
-**never executes** — first running in Phase 3 against a real backend. That is the same failure mode
-§9.2 rejected for token validation. Putting the policy above the transport, where §8.3 has already
-normalized both into one `ApiError`, makes it exercised by the mock path and therefore testable in 1a
-(doc 12 §3.1). The interceptor's job is narrower: attach the `Authorization` header, and map HTTP
-status → `code` when a real transport exists.
+**Why not the axios interceptor** (**ADR-0017**). A global interceptor 401 handler would also fire on
+login failure and destroy F2. The request interceptor attaches `Authorization`; the response
+interceptor maps status → `code`; **`baseQueryWithAuth` reacts**. Phase 1 mocks use
+`axios-mock-adapter` on the same instance, so this path runs in 1a (doc 12 §3.1).
 
 ### 8.5 No user enumeration
 
@@ -451,10 +450,10 @@ password. Per doc 10 §2.3, error *codes and messages* are fine to log; response
 A stub `role` field was specifically rejected: doc 16 §4 is explicit that Phase 3 adds claims *in
 the contract*, and a placeholder is a shape the mock would have to lie about.
 
-### 9.2 The mock adapter validates the token
+### 9.2 The mock handlers validate the token
 
-> The mock adapter **checks the Bearer token's presence and `exp`** on operations 2–5 and returns
-> `UNAUTHORIZED` otherwise. It does not accept an arbitrary value.
+> The `axios-mock-adapter` handlers **check the Bearer token's presence and `exp`** on operations 2–5 and return
+> `UNAUTHORIZED` otherwise. They do not accept an arbitrary value. The request interceptor has already attached the header.
 
 Doc 16 §4 implies this ("401 without a valid token") but nothing stated it as a contract
 obligation. It matters because a permissive mock would leave doc 04's 7-day expiry path and the
@@ -612,10 +611,10 @@ exercise.
 | 16 | `Card.title` | **`title`**, not `name`. Closes **OQ-22** | Domain term; `Container.name` / `Card.title` makes payloads self-describing | Doc 04 v0.2.0's symmetry, and a generic `.name` reader |
 | 17 | Card fields | Doc 04 §1.2's working set locked; §1.3 progress fields optional and `progress`-only. Closes **OQ-26** | The UI working set is already known from 1.7 | Speculative production fields |
 | 18 | Error model | **Not RFC 9457.** `{ error: { code, message } }`; `code` is switched on, `message` is never rendered | 9457's `type` needs a host we do not have, and its prose fields fight i18n | A standard shape the backend team may prefer (§14 item 4) |
-| 19 | 401 scoping | Session-clearing reaction **excludes `/auth/login`** — and (1.12, **ADR-0017**) lives **above the transport**, switching on `code`, not in the axios interceptor | Otherwise a wrong password destroys the F2 inline-error demo — and in the interceptor the rule would sit in a path Phase 1 never runs, untested until Phase 3 | Following the common "handle 401 in the interceptor" idiom |
+| 19 | 401 scoping | Session-clearing reaction **excludes login** — lives in **`baseQueryWithAuth`** (ADR-0017 / ADR-0020), switching on `code`, not in the axios interceptor | Otherwise a wrong password destroys the F2 inline-error demo | Following the common "handle 401 in the interceptor" idiom |
 | 20 | User enumeration | One `INVALID_CREDENTIALS` for both failure modes | Moot today; this is a migration template | — |
 | 21 | `ApiError` | Both transports normalize to one type; features never see an axios error | What makes the Phase-3 swap invisible above the boundary | — |
-| 22 | Mock token validation | The adapter **validates presence + `exp`**, not just presence | Otherwise the expiry and `/me` 401 paths are untested until Phase 3 | A trivially permissive mock |
+| 22 | Mock token validation | The mock handlers **validate presence + `exp`**, not just presence | Otherwise the expiry and `/me` 401 paths are untested until Phase 3 | A trivially permissive mock |
 | 23 | Observability at the boundary | No correlation ID and **no reserved header name** | It is a joint decision with whoever echoes it (doc 10 §2.4) | Retrofit cost at Phase 3, knowingly accepted |
 | 24 | Contract testing | **`tsc` is the contract test** — conditional on fixtures being typed, never `any` | Untyped fixtures make type-as-contract decorative | Runtime schema validation (Zod et al.) |
 | 25 | CI gates | **Amended (1.12, ADR-0018): two tiers** — a JS gate (`tsc --noEmit` · `jest` · `eslint` · format) on GitHub Actions in 1a; Bitrise owns the native build in Phase 2. No schema linting | The JS suite needs no simulator, certificate, or secret (doc 12 §4.3); only the *native* build is blocked on signing | Adds a blocking gate during doc 02 §9's parallel window (**OQ-36**) |
@@ -635,10 +634,7 @@ Carried forward, unchanged by this session: **OQ-03** (production JWT claims + I
 `Container.name` — §7.3, §14 item 8), **OQ-31** / **OQ-32** (Phase 2/3 config and CI), **OQ-33**
 (error-boundary fallback design).
 
-**Closed by this session:** **OQ-17** (mock strategy — resolved by §6.5 and §8.3: the mock adapter
-sits behind the same functions and normalizes to one `ApiError`, so the axios instance is not
-mocked), **OQ-22** (JSON names and paths — §5, §7), **OQ-23** (page sizes — §6.3), **OQ-26**
-(Card fields — §7.1).
+**Closed by this session (1.11):** **OQ-17**, **OQ-22**, **OQ-23**, **OQ-26**. **OQ-17 reversed in 1.14 (ADR-0020):** mocks are `axios-mock-adapter` on the real axios instance so interceptors run.
 
 ## Version Log
 
@@ -646,3 +642,5 @@ mocked), **OQ-22** (JSON names and paths — §5, §7), **OQ-23** (page sizes �
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.11 | Initial draft from the interface-contracts session. Six boundaries inventoried, one formal. Five operations named (horizontal `resources` paging was previously undocumented). Envelope, two-axis cursors, conventions, payload shapes, and error model locked. ADR-0016. Closed OQ-17, OQ-22, OQ-23, OQ-26; opened OQ-34. Doc 03 §8 gains the source-layout table; doc 04 §1.2 renames `name` → `title`. |
 | v0.2.0 | 2026-08-17 | STEP-1.12 | **§8.4 amended (ADR-0017):** the session-clearing 401 policy lives **above the transport** and switches on `code` — in the interceptor it would sit in a path Phase 1 never executes. **§11.4 amended (ADR-0018):** CI is two tiers, a JS gate in 1a plus Bitrise's native build in Phase 2, replacing "none until Bitrise". §3 contract-test row and §11.3 point at doc 12. Decision Summary rows 19 and 25 updated. No wire-shape change: no field, name, enum, envelope, or error code differs. |
+| v0.3.0 | 2026-08-17 | STEP-1.14 | Transport is RTK Query `baseApi` + axios interceptors; Phase 1 mocks are `axios-mock-adapter` on the same instance (**ADR-0020**). §8.4 home is `baseQueryWithAuth`. Reversed OQ-17. No wire-shape change. |
+| v0.3.1 | 2026-08-17 | STEP-1.14 | §7.2: `visibleCount` is not a wire field (OQ-37). |

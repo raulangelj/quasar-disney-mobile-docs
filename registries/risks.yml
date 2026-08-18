@@ -58,23 +58,23 @@ risks:
       reason:
 
   - id: RISK-0002
-    status: open
+    status: closed
     title: "Five architecture sessions deferred to fit the fixed sign-off date"
     category: tech-debt
     severity: medium
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "Only 1.13 Glossary and 1.14 Cross-Cutting Review remain in the STEP-1 queue; both run abbreviated. 1.11 Interface Contracts (doc 11) and 1.12 Test Strategy (doc 12) have now run."
+    description: "Originally only 1.13 Glossary and 1.14 Cross-Cutting Review remained; every deferred session subsequently ran. STEP-1.14 closed the architecture STEP."
     impact: "Design posture in those remaining areas is undecided; a later phase may find Phase-1a choices constrain it."
-    mitigation: "Each remaining session is Planned in prompts/STEP-index.md; 1.5, 1.6a, 1.8, 1.9, 1.10, 1.11, and 1.12 are Done (docs 05, 16, 08, 09, 10, 11, and 12)."
-    revisit_trigger: "After 1.14 Cross-Cutting Review runs, or the next periodic check-in — whichever comes first."
+    mitigation: "All core sessions and included conditionals are Done. Remaining OQs are planning / Phase-2 / Phase-3 carry-forward, not missing architecture sessions."
+    revisit_trigger: "—"
     refs:
       - "architecture/02-phasing-roadmap.md#7-phase-dependencies-and-critical-path"
       - "../../prompts/STEP-index.md"
     closed:
-      date:
-      reason:
+      date: "2026-08-17"
+      reason: "STEP-1.14 Cross-Cutting Review completed. All core and included-conditional architecture sessions ran."
 
   - id: RISK-0003
     status: open
@@ -87,7 +87,7 @@ risks:
     description: "Pods, signing, emulators, and Xcode version drift can consume half a day of a ~3.5-day window with no warning. Session 1.8 chose lockfiles-only reproducibility (no authored pin files, no toolchain table), so Xcode version drift between the two laptops stays explicitly unmitigated inside this risk."
     impact: "If the scaffold slips, the Sunday auth-flow plan no longer closes before the immovable 2026-08-18 sign-off."
     mitigation: "Pre-agreed fallback: if no app runs on both platforms by Saturday midday, drop Android for Saturday, pursue iOS only, bring Android up Monday. Commit every lockfile the RN scaffold generates."
-    revisit_trigger: "Saturday 2026-08-15 midday checkpoint."
+    revisit_trigger: "Foundation / scaffold STEP — Saturday midday checkpoint in doc 02 §8. The original 2026-08-15 date has passed; the scaffold has not started because STEP-1 was still in flight."
     refs:
       - "architecture/02-phasing-roadmap.md#8-schedule-and-schedule-risk"
       - "architecture/08-infrastructure-deployment.md#4-infrastructure-as-code--lockfiles-only"
@@ -144,7 +144,7 @@ risks:
     description: "Phase 1a authors the contract that defines the mock shapes; the backend team implements against it later without having participated."
     impact: "If they reject or materially change it, Phase 3 becomes a rewrite rather than a base-URL swap — the exact outcome the contract exists to prevent."
     mitigation: "Deliver the contract document as a Phase-1a artifact and seek review before Phase 3 starts."
-    revisit_trigger: "First contact with the backend team about the contract (open question OQ-10)."
+    revisit_trigger: "First contact with the backend team about the contract (open question OQ-34)."
     refs:
       - "architecture/02-phasing-roadmap.md#5-later-phases"
       - "architecture/02-phasing-roadmap.md#open-questions"
@@ -220,7 +220,7 @@ risks:
     owner: "TBD"
     opened: "2026-08-17"
     source: "architecture/06-security-threat-model.md"
-    description: "Lockfile + vet-before-add + check-in-cadence npm audit apply; there is no Bitrise job that fails a build on audit findings. Session 1.8 reviewed the gate and consciously left it undecided — fail vs warn is meaningless with no CI to enforce it (OQ-27 closed as deferred)."
+    description: "Lockfile + vet-before-add + check-in-cadence npm audit apply; there is no Bitrise job that fails a build on audit findings. Session 1.8 closed OQ-27 as deferred. Phase 1a has a JS GitHub Actions gate (ADR-0018) that does not run npm audit — fail vs warn is still meaningless until Bitrise."
     impact: "An unpatched advisory can sit until someone runs audit locally or at a check-in."
     mitigation: "Commit the lockfile; runbooks/dependency-supply-chain.md on add and at check-in."
     revisit_trigger: "Bitrise implementation (Phase 2) — decide fail vs warn then, in the STEP that builds the pipeline."
@@ -278,7 +278,7 @@ risks:
     owner: "TBD"
     opened: "2026-08-17"
     source: "architecture/08-infrastructure-deployment.md"
-    description: "Session 1.8 deliberately scoped to a showcase with no QA or deployment tier: no CI, no IaC beyond committed lockfiles, no secret manager, no availability target. Session 1.9 confirmed environments are two build configurations rather than deployment tiers, and no staging or sandbox tier exists. Recovery is reinstalling the previous known-good .ipa/.apk (RTO ~1 min, RPO = last git push)."
+    description: "Session 1.8 deliberately scoped to a showcase with no QA or deployment tier: no native CI, no IaC beyond committed lockfiles, no secret manager, no availability target. A JavaScript GitHub Actions gate exists from 1.12 (ADR-0018) but does not produce binaries. Session 1.9 confirmed environments are two build configurations rather than deployment tiers, and no staging or sandbox tier exists. Recovery is reinstalling the previous known-good .ipa/.apk (RTO ~1 min, RPO = last git push)."
     impact: "Correct for an internal POC and negligent for a product with users. The gap surfaces the moment anyone other than the two devs depends on a build, or real data exists."
     mitigation: "The manual procedure is written down and repeatable (runbooks/release-deploy.md); build on two machines and install on two devices; keep the previous binary. Session 1.9 hardened the procedure: trunk-only builds, clean-state install verified at the welcome screen, .env key-completeness check, and a release-build smoke at every sync point."
     revisit_trigger: "Bitrise implementation (Phase 2), Phase 3 backend integration (when a staging tier becomes meaningful — OQ-31), or any real users / real data / store submission — whichever comes first."

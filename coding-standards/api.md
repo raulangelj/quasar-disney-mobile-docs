@@ -124,7 +124,7 @@ and its linting is doc 11 §14 item 1.
   (doc 11 §8.5). Moot with one demo account, and this project is a migration template.
 - **Scope the session-clearing 401.** A login failure and an expired token are both `401`. The
   session-clearing reaction fires only on `UNAUTHORIZED`, never on `INVALID_CREDENTIALS`, and it
-  lives **above the transport** — not in the axios interceptor (**ADR-0017**, doc 11 §8.4). Switch on
+  lives **above the raw interceptor** — in `baseQueryWithAuth` (**ADR-0017**, **ADR-0020**, doc 11 §8.4). Switch on
   `code`, never on a path comparison.
 
 ## Versioning
@@ -146,8 +146,8 @@ and its linting is doc 11 §14 item 1.
   **RISK-0009** with doc 11 §14 item 7 as the trigger. When a real login endpoint exists, brute-force
   posture is a real decision.
 - **Authenticate every non-public operation.** Operations 2–5 carry `Authorization: Bearer <jwt>`,
-  attached by the interceptor (doc 11 §9.1). Operation 1 does not. **The mock adapter validates the
-  token's presence *and* `exp`** and returns `UNAUTHORIZED` otherwise (doc 11 §9.2) — a permissive
+  attached by the axios request interceptor (doc 11 §9.1). Operation 1 does not. **The mock handlers validate the
+  token's presence *and* `exp`** and return `UNAUTHORIZED` otherwise (doc 11 §9.2) — a permissive
   mock would leave the expiry path untested until Phase 3.
 - **No scopes, roles, entitlements, or tenancy** — not even a stub field (ADR-0010, doc 16 §4–§5). A
   placeholder is a shape the mock would have to lie about.

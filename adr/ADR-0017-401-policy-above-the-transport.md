@@ -95,3 +95,17 @@ that Phase 1 now executes and tests it.
 Decision Summary row 19 ("401 scoping") stands as written, since the decision was always *that* the
 session-clearing reaction excludes login. Doc 16's closing note, which restated §8.4's wording, is
 corrected to match.
+
+## Amendment (2026-08-17 — STEP-1.14 / ADR-0020)
+
+The policy is unchanged: switch on `code`; `UNAUTHORIZED` clears the session; `INVALID_CREDENTIALS`
+does not; the raw axios interceptor does not own the reaction.
+
+**The home is now `baseQueryWithAuth`**, the RTK Query wrapper around `axiosBaseQuery`, not
+handwritten feature middleware. On `UNAUTHORIZED` it also `resetApiState()`.
+
+**Mocks now go through the same axios instance** (`axios-mock-adapter`, ADR-0020). The original
+reason this ADR moved the policy — Phase 1 never executed interceptors — no longer applies to
+*header attach*. Session-clear still stays out of the raw interceptor so F2 cannot be broken by a
+global 401 handler. The request interceptor attaches `Authorization`; the response interceptor maps
+status → `ApiError`; `baseQueryWithAuth` reacts.

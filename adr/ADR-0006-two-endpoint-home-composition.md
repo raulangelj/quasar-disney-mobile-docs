@@ -75,3 +75,9 @@ CW reload, paging). The **envelope** changes:
 
 The sentence in decision 2, *“Continue watching is not a HomeFeed variant,”* is amended to:
 not a HomeFeed **payload** member. It **is** a Container variant (`progress`) for UI reuse.
+
+## Amendment (2026-08-17 — STEP-1.14)
+
+**OQ-24 is closed.** Phase 1a renders the hero container as a **3:4 portrait stand-in**. Full
+spotlight chrome (peeking neighbors, title art, CTA) is Phase 2. Feed contract and composition
+still include `variant: "hero"` from Phase 1.

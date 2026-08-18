@@ -1,8 +1,8 @@
 # Doc 15 — Native App Architecture
 
-**Version:** v0.2.5
+**Version:** v0.2.6
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.11)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, QA
 
 > Device-side decisions for the React Native iOS + Android client: platform, connectivity, on-device storage, permissions, security posture, distribution, and performance — including how the storefront paginates.
@@ -32,7 +32,7 @@ Keychain / Keystore access is **only** through existing npm packages — no cust
 
 ## 2. Offline, sync, and the connectivity gate
 
-**Online-only.** No offline content cache, no download-and-watch, no write-sync, no conflict rules. Downloads remain Phase 4+. The content slice is not persisted (doc 03).
+**Online-only.** No offline content cache, no download-and-watch, no write-sync, no conflict rules. Downloads remain Phase 4+. The catalog RTK Query cache is not persisted (doc 03).
 
 Session restore from secure storage is **not** offline mode: it is a local auth token, not a content store.
 
@@ -78,7 +78,7 @@ Screens never call the secure-store API. They read the auth slice after the shel
 
 OQ-16 is **closed:** `react-native-encrypted-storage`, not a `react-native-keychain` adapter. It already exposes `getItem` / `setItem` for redux-persist on both platforms.
 
-**Forecloses:** AsyncStorage for tokens, SQLite/MMKV in Phase 1, persisting the content slice, a custom Keychain native module.
+**Forecloses:** AsyncStorage for tokens, SQLite/MMKV in Phase 1, persisting the RTK Query cache, a custom Keychain native module.
 
 ## 4. Push notifications
 
@@ -141,7 +141,7 @@ Phase 2 still owns Bitrise + installable QA builds. **RISK-0005:** do not submit
 - Placeholder art only at the target aspect ratios (`architecture/assets/placeholder-art/`).
 - No background fetch, no video SDK, no push/Firebase native blobs.
 
-What would blow it: unbounded image decode, persisting the content slice, shipping the debug bundle to the sign-off device.
+What would blow it: unbounded image decode, persisting the RTK Query cache, shipping the debug bundle to the sign-off device.
 
 ### Storefront pagination
 
@@ -152,7 +152,7 @@ The storefront **paginates**. Screens do not fetch; a **storefront-owned hook** 
 | Home feed (vertical) | Next page of **rows / carousel configs** | Storefront hook, e.g. `useHomeFeed` |
 | Carousel (horizontal) | Next page of **tiles** in that row | Storefront hook, e.g. `useCarouselPage` |
 
-Each hook exposes at least `{ items, loadMore, hasMore, isLoading, error }`. `loadMore` dispatches → **middleware** → **API module**. Mocks return paginated pages with artificial latency and can fail (DF2). Pagination cursors live in memory with the content slice — not in Keychain.
+Each hook exposes at least `{ items, loadMore, hasMore, isLoading, error }`. `loadMore` is an RTK Query fetch (`getHomeFeed` / `getContainerResources`). Mocks return paginated pages with artificial latency and can fail (DF2). Pagination cursors live in the RTK Query cache — not in Keychain.
 
 Virtualized lists call `loadMore` on end-reached. Do not load every tile in every row on first paint.
 
@@ -187,8 +187,7 @@ implied but no doc named until 1.11 (doc 11 §5).
 | ~~OQ-21~~ | ~~NetInfo “usable network”: treat cellular+wifi as enough, or also require internet reachability (vs captive portal)?~~ **Resolved (1.8):** interface up is enough; no reachability probe (ADR-0014) | — | closed |
 | OQ-29 | Does “connected but not reachable” need a reachability probe once a real host exists? | Mobile | Phase 3 backend integration (doc 08 §6.1) |
 
-**OQ-16** is closed (encrypted-storage). **OQ-17** is closed (1.11): a separate mock adapter behind
-the same functions — the axios instance is not mocked, and both transports normalize to one
+**OQ-16** is closed (encrypted-storage). **OQ-17** is closed then reversed (1.14 / ADR-0020): **`axios-mock-adapter` on the real instance** so interceptors run. Both transports still normalize to one
 `ApiError` (doc 11 §6.5, §8.3). **OQ-23** is closed (doc 11 §6.3).
 
 ## Version Log
@@ -202,3 +201,4 @@ the same functions — the axios instance is not mocked, and both transports nor
 | v0.2.3 | 2026-08-17 | STEP-1.6a | Biometrics stay Phase 3 (doc 16); no Face ID in Phase 1. |
 | v0.2.4 | 2026-08-17 | STEP-1.8 | §2 connectivity gate keys on interface state, not reachability (ADR-0014). Closed OQ-21; opened OQ-29. §7 distribution: the release build is now the declared sign-off artifact (doc 08 §2). |
 | v0.2.5 | 2026-08-17 | STEP-1.11 | §8 envelope and page sizes locked from doc 11; `useCarouselPage`'s operation named (`GET /containers/{id}/resources`). Closed OQ-17, OQ-23. |
+| v0.2.6 | 2026-08-17 | STEP-1.14 | Pagination wraps RTK Query; OQ-17 reversed to `axios-mock-adapter` on the real instance (ADR-0020). Catalog cache is not persisted. |

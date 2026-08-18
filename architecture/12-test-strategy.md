@@ -1,11 +1,11 @@
 # Doc 12 — Test Strategy
 
-**Version:** v0.1.0
+**Version:** v0.1.1
 **Status:** Draft
 **Coverage:** full for Phase 1a. UI/component tests (1b), automated device e2e (Phase 2), and
 numeric coverage gates (1b) are consciously deferred with named triggers (§2, §5, §8) rather than
 left unenumerated.
-**Last updated:** 2026-08-17 (STEP-1.12)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > What gets tested in a codebase whose network layer is a fixture, what has to be green before code
@@ -29,7 +29,8 @@ left unenumerated.
 
 ## 1. What testing is for here
 
-Doc 02 criterion **A6** already requires green tests for *every reducer, middleware, hook, and the
+Doc 02 criterion **A6** already requires green tests for *every reducer, RTK Query endpoint path, hook, and the
+API/mock layer*.
 API/mock layer*, and **A1–A5** name four more architectural properties the demo is supposed to
 prove. This session's job was not to invent a test policy — it was to decide where the tier lines
 fall, what the must-cover list actually contains, and which of A1–A6 can be made mechanical instead
@@ -55,7 +56,7 @@ against separately all weekend (doc 02 §9).
 |---|------|-------|-------|---------------|-------|
 | **T0** | **Type check** | `tsc --noEmit` across `src/`. This is the contract test (doc 11 §11.2) — it is only meaningful because fixtures are typed `Container[]` / `Card[]` and never `any` | TypeScript `strict` | Local + CI | **1a** |
 | **T1** | **Unit** | Pure logic in isolation: reducers, selectors, the mock adapter's rules (credential compare, `exp` validation, cursor exhaustion), `ApiError` normalization, i18n formatters, home composition | Jest (React Native preset). **No renderer** | Local + CI | **1a** — the bulk |
-| **T2** | **Integration** | Real store + real middleware + real API module against the mock adapter; hooks via `renderHook`. Doc 11 §11.3's behavioral tests live here | Jest + RNTL `renderHook` | Local + CI | **1a** — thin, load-bearing |
+| **T2** | **Integration** | Real store + `baseApi.middleware` + axios instance against `axios-mock-adapter`; hooks via `renderHook`. Doc 11 §11.3's behavioral tests live here | Jest + RNTL `renderHook` | Local + CI | **1a** — thin, load-bearing |
 | **T3** | **Component render** | Screens and atoms render from theme tokens; a11y props present (RISK-0011) | React Native Testing Library | Local + CI | **1b** |
 | **T4** | **Device e2e** | — | **Declined** — see below | — | — |
 
@@ -86,7 +87,7 @@ nothing else enforces — the ones that fail silently and are discovered on stag
 | Adapter validates Bearer **presence and `exp`** on operations 2–5 → `UNAUTHORIZED` | Doc 11 §9.2 | T1 |
 | **401 scoping** — `INVALID_CREDENTIALS` on `/auth/login` does *not* clear the session; `UNAUTHORIZED` on `/me` does | Doc 11 §8.4, **ADR-0017** | **T2** |
 | Auth slice: login stores token + `expiresAt`; logout clears auth + user + content | Doc 16 §3 | T1 |
-| **Persist whitelist is auth-only** — the user and content slices are absent from the persisted blob | ADR-0003, DF3 | T1 |
+| **Persist whitelist is auth-only** — the RTK Query cache is absent from the persisted blob | ADR-0003, DF3, ADR-0020 | T1 |
 | Boot gate holds the loader until all three of `/me` + HomeFeed + CW resolve | Doc 04 §6, §7 | T2 |
 
 ### 3.2 Storefront path
@@ -125,7 +126,7 @@ the visual half stays in the smoke sequence (§6).
 | Component rendering | 1b by decision (doc 02); RISK-0001 |
 | Demo fixture *content* | Data, not logic. T0 already proves it conforms to `Container[]` / `Card[]`; asserting a card's title is testing a constant. The structural exception is §4.1's invariant test |
 | Third-party behavior — axios, redux-persist, NetInfo | Test *our* interceptor and *our* whitelist, not their libraries |
-| Snapshot tests of styled-components output | High churn, near-zero signal, and they would fight the token work rather than protect it |
+| Snapshot tests of Emotion styled output | High churn, near-zero signal, and they would fight the token work rather than protect it |
 | Navigation config, the analytics `console.log` stub, `ComingSoon` placeholders | No logic to protect |
 | Criterion **A2** (zero hardcoded design values) | A **lint** rule, not a test (§7) |
 
@@ -398,7 +399,7 @@ tier:
 
 | Doc 15 §8 "what would blow it" | Guarded by |
 |---|---|
-| Persisting the content slice | §3.1 persist-whitelist test |
+| Persisting the RTK Query cache | §3.1 persist-whitelist test |
 | Loading every tile in every row on first paint | §3.2 two-axis pagination tests |
 | Shipping the debug bundle to the demo device | `runbooks/release-deploy.md` pre-flight |
 | Unbounded image decode | Not testable in 1a — virtualization is a component concern; lands with 1b's UI tests |
@@ -571,3 +572,4 @@ not gated), **RISK-0017** (criterion A2's lint rule is pattern-matching).
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.12 | Initial draft from the test-strategy session. Four tiers set (device e2e declined); must-cover list named, adding the persist-whitelist and theme token-parity tests; test factories separated from demo fixtures and colocated; `@env`, latency, clock, and failure injection fixed as test seams; two-tier CI adopted (**ADR-0018**, amending doc 11 §11.4) with DF5/DF1/A2 as lint gates; coverage reported but not gated; load testing declined; `coding-standards/` reconciled to TypeScript + shell + api, seven files pruned. **ADR-0017** relocates doc 11 §8.4's 401 policy above the transport. Opened OQ-35, OQ-36 and RISK-0015/0016/0017. |
+| v0.1.1 | 2026-08-17 | STEP-1.14 | T2 is store + `baseApi` + `axios-mock-adapter`. Persist whitelist excludes the RTK Query cache. Emotion, not styled-components snapshots (ADR-0019, ADR-0020). |

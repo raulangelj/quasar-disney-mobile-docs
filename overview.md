@@ -18,7 +18,7 @@ A React Native stakeholder demo of a Disney+-style streaming app — login plus 
 
 ## The problem
 
-The team needs a credible, functional reference app that shows stakeholders how a streaming product is shaped using the Throughstone template and disciplined architecture — not a throwaway prototype. Today there is no shared mobile codebase on this method; this project establishes the pattern (modular structure, Redux data layer, swappable API boundary) before migrating the production streaming app.
+The team needs a credible, functional reference app that shows stakeholders how a streaming product is shaped using the Throughstone template and disciplined architecture — not a throwaway prototype. Today there is no shared mobile codebase on this method; this project establishes the pattern (feature-based Clean Architecture, Redux Toolkit + RTK Query, Emotion theme, swappable API boundary) before migrating the production streaming app.
 
 ## Who it's for
 
@@ -28,9 +28,9 @@ The team needs a credible, functional reference app that shows stakeholders how 
 
 ## What it does (core capabilities)
 
-- **Login screen** — simple email/password gate; UI to be refined from reference designs (see `inputs/` when provided).
-- **Storefront** — home/browse experience with multiple carousel layouts (varying card sizes) displaying mocked content cards.
-- **Data layer** — Redux store with middleware routing API calls to dummy endpoints; mock content served from the frontend until a real backend exists.
+- **Login** — two-step in Phase 1a: Welcome → email → password, with an inline credentials error (F2). UI locked from `inputs/ui/disney-plus-reference-screens.md`.
+- **Storefront** — home/browse with **2 carousel variants in 1a** (continue-watching + standard portrait); live + landscape in 1b; hero chrome Phase 2 (3:4 stand-in in 1a). Card schema is `architecture/04-data-model.md`.
+- **Data layer** — Redux Toolkit store with **RTK Query `baseApi`**; axios interceptors attach JWT; mock content via `axios-mock-adapter` on the same instance until a real backend exists.
 - **Auth boundary** — hardcoded demo credentials in v1; code structured so swapping to a real API + JWT is a localized change.
 
 ## What it does NOT do (for now)
@@ -59,8 +59,8 @@ Internal pre-launch demo for stakeholders — functional on iOS and Android simu
 ## Constraints & must-haves
 
 - **React Native** — single codebase, iOS + Android.
-- **Redux** — global state with **middleware** for async/API side effects; API module named and structured for easy replacement with a real backend.
-- **Styled Components** — styles separated per screen or component.
+- **Redux Toolkit** — global state; **RTK Query** (`baseApi` + feature `injectEndpoints`) for APIs and token lifecycle; axios interceptors on the shared instance attach `Authorization`.
+- **Emotion** — `@emotion/native` styled components + `@emotion/react` `ThemeProvider` with a token palette (color, type, space).
 - **TypeScript** — interfaces, enums, and typed values throughout.
 - **Atomic design** — atoms → molecules → organisms for reusable UI.
 - **Modular file system** — feature modules colocate related code (UI, state, types, API adapters) and stay organized for potential extraction into separate repositories.
@@ -69,19 +69,17 @@ Internal pre-launch demo for stakeholders — functional on iOS and Android simu
 ## Sensitive data & risk
 
 - v1 uses **fake demo credentials only** (no real PII).
-- Auth flow must be designed so migrating to **JWT** from a real API is straightforward — token storage, middleware, and API client should not assume hardcoded login long-term.
+- Auth flow must be designed so migrating to **JWT** from a real API is straightforward — token storage, RTK Query `baseApi`, and axios interceptors should not assume hardcoded login long-term.
 - No payments, health data, or regulated content in v1.
 
 ## Known unknowns
 
-- Final login and storefront UI from stakeholder reference images (pending in `inputs/`).
-- Exact carousel variants and card metadata schema (to be locked in architecture sessions).
-- Production backend contract and JWT claims shape (deferred — dummy API stands in).
-- Whether Expo or bare React Native best fits team constraints (to decide in architecture).
-- Real streaming app migration timeline and which modules move first.
+- Production backend contract acceptance and JWT claims shape for the real IdP (**OQ-34**, **OQ-03**) — dummy API stands in.
+- Real streaming app migration timeline and which modules move first (**OQ-04**).
+- Who is Dev A / Dev B, the application repo name, and who owns the sign-off binary (**OQ-12**, **OQ-18**, **OQ-28**) — planning session.
 
 ## Anything else
 
 - **Inspirations:** Disney+ (UX patterns — login, horizontal carousels, varied tile sizes).
 - **Strategic intent:** This repo is a **methodology showcase** first; production feature parity comes in later phases after the team validates the Throughstone workflow on mobile.
-- **Design inputs:** User will provide UI reference images for login (and likely storefront) — save to `inputs/` when received.
+- **Design inputs:** Login and storefront UI locked from `inputs/ui/disney-plus-reference-screens.md`.

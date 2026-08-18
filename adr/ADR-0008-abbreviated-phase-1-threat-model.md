@@ -60,6 +60,13 @@ exists to prevent.
 - `architecture/06-security-threat-model.md` is the living posture.
 - RISK-0008 (shared demo login), RISK-0009 (no server-side controls until Phase 3),
   RISK-0010 (CI audit waits for Bitrise) index the deferrals.
-- Session 1.8 must reopen OQ-27 when Bitrise is designed.
+- Session 1.8 **closed OQ-27** as deliberately deferred (undecidable without a CI job that can fail a build on audit findings). It did **not** reopen the question.
 - Session 1.6a must not re-litigate encrypted token storage or the binary gate; it
   designs the swap *off* that gate.
+
+## Amendment (2026-08-17 — STEP-1.14)
+
+The consequence “Session 1.8 must reopen OQ-27 when Bitrise is designed” is **spent**. 1.8
+closed OQ-27 as deferred; RISK-0010's revisit remains **Bitrise implementation**. Phase 1a now
+has a JS GitHub Actions gate (**ADR-0018**) that does **not** run `npm audit` — that still
+waits for Bitrise. Decision 4's fail-vs-warn policy remains parked on that same trigger.

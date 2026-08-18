@@ -64,3 +64,10 @@ Hook `items` in decision 2 means the hook’s **page of rows or cards**, not the
 The wire field on a Container is **`resources: Card[]`**. HomeFeed and Continue Watching
 both page `Container[]` (ADR-0007). First HomeFeed page is still one hero + 15 other
 containers.
+
+## Amendment (2026-08-17 — STEP-1.14 / ADR-0020)
+
+Decision 3 is replaced: `loadMore` is an **RTK Query fetch** on `baseApi` (`getHomeFeed` /
+`getContainerResources`), not handwritten middleware. Decision 4: cursors live in the **RTK Query
+cache**, still not in secure storage. The hook surface in decision 2 is unchanged.
+

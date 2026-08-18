@@ -1,8 +1,8 @@
 # Doc 05 — Scaling & Performance
 
-**Version:** v0.1.1
+**Version:** v0.1.3
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.11)
+**Last updated:** 2026-08-17 (STEP-1.14)
 **Audience:** Mobile developers, backend team, QA
 
 > Load this React Native demo actually has, which on-device shortcuts are fine, and which
@@ -36,8 +36,9 @@ Phase 1 numbers do not change the stack. They only decide which shortcuts are ch
 ## 2. Performance targets
 
 Doc 01 dropped performance from v1 success criteria. Doc 15: **no numeric SLOs** (FPS, binary
-size, cold start, battery) as an 18 Aug gate. If a device hitches at sign-off, use a **release
-build** — do not open a performance program.
+size, cold start, battery) as an 18 Aug gate. The sign-off artifact **is** a **release build**
+(doc 08 §2 / doc 15 §7) — not a hitch fallback. Debug/Metro jank during development is expected;
+do not open a performance program.
 
 Targets below are **perceived UX** for the operations someone waits on. Skip search, ingest,
 p99, throughput, and battery.
@@ -64,7 +65,7 @@ for the future API**.
 |------|------|--------|
 | **Stateless** | Shared kernel (theme / UI / i18n / analytics), API-client functions, screens | No catalog cache of their own |
 | **Stateful on device (normal)** | Auth slice (JWT + `exp`) | Keychain via redux-persist |
-| | User slice, content slice (`Container[]` + pagination cursors), NetInfo, navigation | Memory |
+| | `/me` cache, catalog cache (`Container[]` + pagination cursors), NetInfo, navigation | Memory (RTK Query) |
 | **Stand-in “DB”** | Fixtures + mock adapter | API module, in-process. **Removed in Phase 3** |
 | **Does not exist** | Server sessions, Redis, job queues, SQLite / MMKV | — |
 
@@ -76,7 +77,7 @@ client cache of record. Screens and hooks are not data owners (docs 03–04).
 ## 4. Bottlenecks & scaling strategy
 
 **First bottleneck under growth:** the **storefront on-device** — JS thread, image decode, and
-a content slice that **only grows** on `loadMore` (no eviction). Not a database, Redis, a Node
+a catalog cache that **only grows** on `loadMore` (no eviction). Not a database, Redis, a Node
 process, or a third-party rate limit (none of those exist here). The mock adapter is not a
 bottleneck; it is replaced.
 
@@ -99,7 +100,7 @@ with SQLite or a mock HTTP server.
 | Data | Cache | Invalidation |
 |------|--------|----------------|
 | JWT | Yes — Keychain | Logout, `/me` 401, `exp` |
-| HomeFeed `Container[]` (hero + other rows) | **RAM** only (content slice). No disk | Vertical `loadMore`; logout |
+| HomeFeed `Container[]` (hero + other rows) | **RAM** only (RTK Query cache). No disk | Vertical `loadMore`; logout |
 | Continue Watching `Container[]` (`variant: "progress"`) | **RAM**, stale-while-revalidate | Silent refetch when the storefront screen is shown again; logout |
 | `resources: Card[]` | Travel **with** their container. No global Card store | Horizontal page of that container; logout |
 | Artwork | App bundle + React Native `Image` cache. No Fast Image / extra disk cache | Next binary |
@@ -127,7 +128,7 @@ changing screens.
 | JWT in Keychain, no server session store | No | Header interceptor; no sticky host |
 | Boot: three calls before first paint | No | Parallel; do not add more to the gate |
 | Client inserts CW under hero | No | Two GETs; silent reload replaces only the `progress` container |
-| Extra `Card` fields TBD | No | Additive optionals; 1.11 names JSON |
+| Extra `Card` fields (OQ-26 closed) | No | Additive optionals; living list in doc 04 §1.2 / doc 11 §7.1 |
 | No queues / prefetch / Fast Image | No | `loadMore` behind hooks; prefetch later without touching screens |
 | Single RN process (modular monolith) | N/A — nothing to split into a cluster | Features do not import each other (DF5) |
 | Mock latency 400–600 ms | No | Goes away with the mock |
@@ -145,8 +146,8 @@ list: `architecture/04-data-model.md`. Wire JSON names: session 1.11.
 **Shared types (both feed GETs):**
 
 - **`Container`** — row: own `name` and container metadata, `variant`, **`resources: Card[]`**.
-- **`Card`** — tile: content **name** plus other content fields **TBD** (Phase 1 mocks fill
-  what the UI already needs; production extras stay open).
+- **`Card`** — tile: `title`, `artwork`, optional progress fields, and the rest of doc 04 §1.2
+  / doc 11 §7.1 (OQ-26 closed). Production extras stay additive-optional.
 
 **HomeFeed (JWT):** a **`Container[]`**. The spotlight is a container with
 `variant: "hero"`. First page remains **one hero + 15 other containers**. Further vertical
@@ -194,10 +195,11 @@ section implies but never named: `GET /containers/{id}/resources`, the horizonta
 | ~~OQ-22~~ | ~~JSON names and paths~~ **Resolved (1.11):** doc 11 §5, §6, §7 | — | closed |
 | ~~OQ-23~~ | ~~Cards per container horizontal page~~ **Resolved (1.11):** `limit` defaults 16 / 10 / 10 (doc 11 §6.3) | — | closed |
 | ~~OQ-26~~ | ~~Remaining **Card** fields~~ **Resolved (1.11):** doc 04 §1.2's working set, with §1.3's three fields optional and `progress`-only (doc 11 §7.1) | — | closed |
-| OQ-27 | When (if ever) to evict old container/card pages from the content slice | Mobile | Revisit if a long paginated feed is real (Phase 3+) |
+| OQ-39 | When (if ever) to evict old container/card pages from the RTK Query cache | Mobile | Revisit if a long paginated feed is real (Phase 3+) |
 
-Carried forward: OQ-24 (hero chrome vs stand-in → 1.7). **OQ-17** is closed (1.11): a separate
-mock adapter behind the same functions; the axios instance is not mocked.
+**OQ-27** is the closed npm-audit/CI question (docs 06/08) — do not reuse that ID. **OQ-24** is
+closed (1.14): 1a ships a 3:4 hero stand-in. **OQ-17** is reversed (1.14 / ADR-0020):
+`axios-mock-adapter` on the real instance so interceptors run.
 
 ## Version Log
 
@@ -205,3 +207,5 @@ mock adapter behind the same functions; the axios instance is not mocked.
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-17 | STEP-1.5 | Initial draft from the scaling & performance session |
 | v0.1.1 | 2026-08-17 | STEP-1.11 | Envelope names locked in doc 11; the horizontal `resources` fetch named as a fifth operation. Closed OQ-17, OQ-22, OQ-23, OQ-26. |
+| v0.1.2 | 2026-08-17 | STEP-1.14 | Catalog/user memory is the RTK Query cache, not slices (ADR-0020). OQ-17 reversed. |
+| v0.1.3 | 2026-08-17 | STEP-1.14 | Release build is the declared sign-off artifact, not a hitch fallback. Card fields point at doc 04/11. Eviction question renumbered **OQ-39** (OQ-27 is the closed audit-gate ID). |
