@@ -1,10 +1,10 @@
 # Doc 11 — Interface Contracts
 
-**Version:** v0.3.2
+**Version:** v0.3.3
 **Status:** Draft
 **Coverage:** full for Phase 1. The promotion to a machine-readable artifact (OpenAPI) is
 consciously deferred with a named trigger (§2.3, ADR-0016) rather than left unenumerated.
-**Last updated:** 2026-08-17 (planning session)
+**Last updated:** 2026-08-18 (STEP-2.2)
 **Audience:** Mobile developers, QA, backend team (Phase 3)
 
 > The one boundary in this system that will ever cross a network — five operations, their
@@ -87,17 +87,19 @@ key and the contract are the same decision seen from two sides.
 
 ### 2.2 The inversion, stated on purpose
 
-Right now the contract of record lives in the docs hub while the authoring source lives in a repo
-**that does not exist yet** (`quasar-disney-mobile-app` — OQ-18 closed by the planning session;
-`registries/repos.yml` lists only the two docs repos until STEP-2 registers it). That is backwards from where it ends up,
+Right now the contract of record lives in the docs hub while the authoring source will live in a
+repo that **now exists** (`quasar-disney-mobile-app` at `Code/quasar-disney-mobile-app/`,
+registered in `registries/repos.yml` as of STEP-2.2) but whose `src/api/types/` has **not yet
+been transcribed** (STEP-3). That is still backwards from where it ends up,
 and it is the reason §3's scaffold obligation matters more than a folder-layout note normally
 would.
 
 The handover rule:
 
-> **This doc's tables are normative until the TS types exist.** From the scaffold STEP onward the
+> **This doc's tables are normative until the TS types exist.** From **STEP-3** onward the
 > **TS types are normative**, and this doc must be updated in the same PR as any wire-shape
-> change (§12).
+> change (§12). STEP-2.2 created the empty `src/api/types/` tree and pointed the README here;
+> it did not transcribe §7.
 
 ### 2.3 The upgrade trigger
 
@@ -108,23 +110,31 @@ argument against that call.
 
 ## 3. Artifact locations
 
-| Artifact | Where, now | Where, after the scaffold STEP |
+| Artifact | Where, now | Where, after STEP-3 |
 |----------|-----------|-------------------------------|
 | Operation spec — paths, payloads, envelope, errors, transport profiles | **`architecture/11-interface-contracts.md`** (this doc) | Unchanged — remains the contract of record until OQ-10 |
-| TS wire types (`Card`, `Container`, envelopes, `ApiError`, login / `/me` DTOs) | Do not exist — §7 states them as normative tables | **`src/api/types/`** — the authoring source. This doc gains a pointer |
-| axios instance + interceptors + `axiosBaseQuery` / `baseQueryWithAuth` | Do not exist | `src/api/client/` |
-| RTK Query `baseApi` | Do not exist | `src/api/baseApi.ts`; feature `injectEndpoints` in `src/features/*/api.ts` |
-| Mock fixtures + `axios-mock-adapter` | Do not exist | `src/api/mocks/` — on the **same** axios instance (ADR-0020) |
+| TS wire types (`Card`, `Container`, envelopes, `ApiError`, login / `/me` DTOs) | Do not exist as TypeScript — §7 states them as normative tables. Empty folder `src/api/types/` exists (STEP-2.2) | **`src/api/types/`** — the authoring source. This doc gains a pointer |
+| axios instance + interceptors + `axiosBaseQuery` / `baseQueryWithAuth` | Folder `src/api/client/` exists empty (STEP-2.2) | `src/api/client/` |
+| RTK Query `baseApi` | Stub file `src/api/baseApi.ts` (STEP-2.2); `createApi` not called | `src/api/baseApi.ts`; feature `injectEndpoints` in `src/features/*/api.ts` |
+| Mock fixtures + `axios-mock-adapter` | Folder `src/api/mocks/` exists empty (STEP-2.2) | `src/api/mocks/` — on the **same** axios instance (ADR-0020) |
 | Contract tests | Do not exist | App repo, colocated `*.test.ts` beside the source (doc 12 §10.1). Test factories live in `src/api/mocks/` alongside the demo fixtures (doc 12 §4.1) |
 | OpenAPI document | Does not exist by decision (ADR-0016) | `contracts/openapi.yaml` in the app repo, **at OQ-10 only** |
 
 ### 3.1 Scaffold STEP obligation
 
-The STEP that scaffolds the application repo **must**:
+The application-repo scaffold is split across two STEPs (planning session):
 
-1. Create `src/api/types/` and transcribe §7's tables into TypeScript interfaces and enums.
-2. Add a line to the app repo's README pointing at this doc as the contract of record.
+**STEP-2** **must**:
+
+1. Create the `src/api/` tree — including empty `src/api/types/`, `src/api/mocks/`,
+   `src/api/client/`, and a stub `src/api/baseApi.ts`. Do **not** transcribe §7 here.
+2. Add a line to the app repo's README pointing at this doc as the contract of record
+   until STEP-3 types exist.
 3. Update `registries/repos.yml` with the new repo (doc 03's standing rule).
+
+**STEP-3** **must** transcribe §7's tables into TypeScript interfaces and enums in
+`src/api/types/`, then stand up interceptors, `baseApi`, and mocks. From that PR onward
+the TS types are normative (§2.2).
 
 This is the handoff that makes §2.2's inversion safe. Without it, the TS types get written from
 memory of a conversation instead of from a specification.
@@ -598,7 +608,7 @@ exercise.
 | 3 | B-E, B-F | **Listed, not specified** — cross-referenced to docs 04/09 | A second place to keep true is the drift risk this doc exists to prevent | Doc 11 as a single index of every rule |
 | 4 | Contract level | Formal-but-lightweight for B-A/B; informal elsewhere | One consumer, one producer, one process today | Ceremony with no second party to serve |
 | 5 | Style | **TS interfaces + this doc's Markdown tables**; no OpenAPI yet (**ADR-0016**) | An OpenAPI file with no server behind it rots between now and Phase 3 | A codegen-ready artifact for the backend team today — the migration-template argument against this is recorded in ADR-0016 |
-| 6 | Source of truth | **Authoring:** TS types. **Contract of record:** this doc. Inverts at the scaffold STEP | The app repo is named `quasar-disney-mobile-app` (OQ-18 closed) but does not exist yet | Requires §3.1's explicit scaffold obligation to be safe |
+| 6 | Source of truth | **Authoring:** TS types. **Contract of record:** this doc. Inverts when STEP-3 transcribes §7 | The app repo `quasar-disney-mobile-app` exists at `Code/quasar-disney-mobile-app/`; `src/api/types/` is empty until STEP-3 | Requires §3.1's split obligation (tree in STEP-2, types in STEP-3) |
 | 7 | Versioning | **No `/v1`**; the contract version is this doc's Version Log | `API_BASE_URL` absorbs a prefix; the scheme is the backend team's to pick | Retrofitting a prefix into a live client — not a situation this project has |
 | 8 | Compatibility | Additive-optional non-breaking; renames/removals breaking. **Free to break until OQ-10** | One consumer, in the same repo | Treating a Phase-1 rename as a process violation |
 | 9 | Unknown enum values | **Drop the row + `console.warn`.** Do not throw, do not default | Not throwing keeps variant additions non-breaking; not defaulting avoids a plausible-but-wrong row on a fidelity demo | A graceful fallback layout |
@@ -646,3 +656,4 @@ Carried forward, unchanged by this session: **OQ-03** (production JWT claims + I
 | v0.3.0 | 2026-08-17 | STEP-1.14 | Transport is RTK Query `baseApi` + axios interceptors; Phase 1 mocks are `axios-mock-adapter` on the same instance (**ADR-0020**). §8.4 home is `baseQueryWithAuth`. Reversed OQ-17. No wire-shape change. |
 | v0.3.1 | 2026-08-17 | STEP-1.14 | §7.2: `visibleCount` is not a wire field (OQ-37). |
 | v0.3.2 | 2026-08-17 | planning session | Closed OQ-12 / OQ-18 / OQ-28 as recorded by the planning session. |
+| v0.3.3 | 2026-08-18 | STEP-2.2 | §3.1 split: STEP-2 creates the `src/api/` tree + README pointer + `repos.yml`; STEP-3 transcribes §7. Repo exists; types still pending. No wire-shape change. |

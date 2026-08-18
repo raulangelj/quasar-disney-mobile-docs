@@ -33,6 +33,12 @@ repos:
     remote: "git@github.com:raulangelj/quasar-disney-mobile-prompts.git"
     description: "prompts/STEP-index.md roadmap plus archived STEP plans and substep prompts; the build record."
 
+  - name: "quasar-disney-mobile-app"
+    location: "Code/quasar-disney-mobile-app/"
+    type: app
+    remote: "git@github.com:raulangelj/quasar-disney-mobile-app.git"
+    description: "React Native iOS + Android client: shell, auth, storefront, shared kernel, in-process API module."
+
   # Service / app / library repos get added here as the architecture names them and they
   # are stamped from templates/repo-readme-template.md. Example:
   # - name: "quasar-disney-mobile-api"
