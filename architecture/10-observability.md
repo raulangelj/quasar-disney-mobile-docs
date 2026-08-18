@@ -1,6 +1,6 @@
 # Doc 10 — Observability
 
-**Version:** v0.1.2
+**Version:** v0.1.3
 **Status:** Draft
 **Coverage:** full for Phase 1. Metrics, tracing, health checks, dashboards, and alerting are
 **consciously declined** with named revisit triggers (§3, §4, §6) rather than left unenumerated.
@@ -170,7 +170,7 @@ roughly twenty lines and zero dependencies.
 |----------|----------|
 | **Where** | **One boundary at the app-shell root** — the shell is the composition root (doc 03 §2). Mounted *inside* the theme provider so the fallback can use theme tokens and Shared atoms |
 | **Scope** | Root only. Not per-feature, not per-screen — the failure being prevented is the white screen, and more boundaries is more surface to build and test for no POC benefit |
-| **Fallback UI** | Minimal, from doc 07's existing atoms: a short message and a single retry control. No stack trace, no error code, nothing that reads as a debug affordance on stage (**OQ-33** designs it) |
+| **Fallback UI** | Minimal, from doc 07's existing atoms: `Wordmark` + `Text` (`body`) + `Button` (`solid` / `md`, tone `onDark` in `app` mode and `onLight` in `auth` mode). i18n: `errorBoundary.message` = *Algo salió mal.* · `errorBoundary.retry` = *REINTENTAR*. No stack trace, no error code (**OQ-33** closed in STEP-2) |
 | **Retry** | Remounts the subtree via a reset key. Auth state survives — it is in the persisted slice (ADR-0003), not React state — so a retry lands the user back where they were, not at Welcome |
 | **Logging** | `console.error` the caught error and component stack. Development only, by §2.2's strip |
 | **Ships in** | **Both configurations.** Unlike the debug affordances doc 09 §6.2 keeps out of `release`, this is product behavior, not a test seam |
@@ -266,9 +266,7 @@ build, or any real user data exists.
 
 ## Open Questions
 
-| ID | Question | Owner | Feeds into |
-|----|----------|-------|------------|
-| OQ-33 | What the error-boundary fallback screen looks like — copy, which doc 07 atoms it composes, and whether it uses the `base` surface mode or the active theme | Mobile | 1.7 follow-up / the shell scaffold STEP |
+Closed by STEP-2: **OQ-33** (error-boundary fallback — active surface mode, Wordmark + Text + Button per the STEP-2 PLAN).
 
 Closed by 1.11: **OQ-22** / **OQ-23** / **OQ-26** (wire shapes — doc 11 §5–§7). **OQ-10** is now
 expressed concretely as doc 11 §14's Phase-3 checklist plus **OQ-34**; §2.4's correlation-ID
@@ -284,3 +282,4 @@ closed by this doc.
 | v0.1.0 | 2026-08-17 | STEP-1.10 | Initial draft from the observability session. Logging is bare `console.*` with a no-bodies rule; metrics, tracing, health checks, correlation IDs, dashboards, alerting, and any vendor are consciously declined with triggers. Adds one shell-root error boundary (doc 03 §4 updated). Opened OQ-33, RISK-0014. |
 | v0.1.1 | 2026-08-17 | STEP-1.11 | §2.4's correlation-ID deferral becomes item 2 on doc 11 §14's Phase-3 checklist; no header name reserved. Boundary-logging rule restated in doc 11 §10. Closed OQ-22, OQ-23, OQ-26. |
 | v0.1.2 | 2026-08-17 | planning session | Recorded OQ-28 closure (Raul Angel owns the sign-off binary). |
+| v0.1.3 | 2026-08-18 | STEP-2.6 | Closed OQ-33 — error-boundary fallback composes Wordmark + Text + Button using active surface mode; retry remounts via reset key. |
