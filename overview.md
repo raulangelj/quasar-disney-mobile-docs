@@ -1,4 +1,4 @@
-# quasar-disney-mobile — Project Overview
+# quasar-qc-plus-mobile — Project Overview
 
 <!-- PROJECT-STATUS: kickoff-complete -->
 <!-- ^ Kickoff gate (do not delete this line). `init.sh` seeds it as "not-started". The agent
@@ -28,7 +28,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 
 ## What it does (core capabilities)
 
-- **Login** — two-step in Phase 1a: Welcome → email → password, with an inline credentials error (F2). UI locked from `inputs/ui/disney-plus-reference-screens.md`.
+- **Login** — two-step in Phase 1a: Welcome → email → password, with an inline credentials error (F2). UI locked from `inputs/ui/streaming-reference-screens.md`.
 - **Storefront** — home/browse with **2 carousel variants in 1a** (continue-watching + standard portrait); live + landscape in 1b; hero chrome Phase 2 (3:4 stand-in in 1a). Card schema is `architecture/04-data-model.md`.
 - **Data layer** — Redux Toolkit store with **RTK Query `baseApi`**; axios interceptors attach JWT; mock content via `axios-mock-adapter` on the same instance until a real backend exists.
 - **Auth boundary** — hardcoded demo credentials in v1; code structured so swapping to a real API + JWT is a localized change.
@@ -76,10 +76,10 @@ Internal pre-launch demo for stakeholders — functional on iOS and Android simu
 
 - Production backend contract acceptance and JWT claims shape for the real IdP (**OQ-34**, **OQ-03**) — dummy API stands in.
 - Real streaming app migration timeline and which modules move first (**OQ-04**).
-- Who is Dev A / Dev B, the application repo name, and who owns the sign-off binary (**OQ-12**, **OQ-18**, **OQ-28**) — **closed by the planning session:** Dev A = Raul Angel, Dev B = Andres Montoya; app repo = `quasar-disney-mobile-app`; sign-off binary owner = Raul Angel (STEP-6). Two demo devices are named at the STEP-6 pre-flight.
+- Who is Dev A / Dev B, the application repo name, and who owns the sign-off binary (**OQ-12**, **OQ-18**, **OQ-28**) — **closed by the planning session:** Dev A = Raul Angel, Dev B = Andres Montoya; app repo = `quasar-qc-plus-mobile-app` (renamed STEP-6.1); sign-off binary owner = Raul Angel (STEP-6). Two demo devices are named at the STEP-6 pre-flight.
 
 ## Anything else
 
 - **Inspirations:** Disney+ (UX patterns — login, horizontal carousels, varied tile sizes).
 - **Strategic intent:** This repo is a **methodology showcase** first; production feature parity comes in later phases after the team validates the Throughstone workflow on mobile.
-- **Design inputs:** Login and storefront UI locked from `inputs/ui/disney-plus-reference-screens.md`.
+- **Design inputs:** Login and storefront UI locked from `inputs/ui/streaming-reference-screens.md`.

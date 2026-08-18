@@ -48,14 +48,14 @@
 
 | Input | Part | Status | Covered by / note |
 |-------|------|--------|-------------------|
-| `ui/disney-plus-reference-screens.md` | Screen inventory & flow order | Live | UI reference transcription (STEP-1.2); 1.3 used flow order for key flows; still feeds 1.7 design system |
-| `ui/disney-plus-reference-screens.md` | §1–4 Auth screens (welcome, email, password, error) | Live | expands doc 01's single "login screen" scope item; doc 07 captures the tokens and components, this still holds the per-screen layout detail |
-| `ui/disney-plus-reference-screens.md` | §5–6 Home screens (hero + row stack) | Live | source for the carousel-variant set; doc 07 captures tile specs and tokens, this still holds the per-screen layout detail |
-| `ui/disney-plus-reference-screens.md` | Tile/card metadata fields (title, rating, progress, episode, aspect ratios) | Superseded | `architecture/04-data-model.md` |
-| `ui/disney-plus-reference-screens.md` | Patterns to extract | Superseded | `architecture/07-ui-design-system.md` §3 (component inventory) and §5 (two surface modes → ADR-0011) |
-| `ui/disney-plus-reference-screens.md` | Trademark & asset substitution | Live | Phase-1 constraint; carry into 02-phasing-roadmap |
-| `ui/disney-plus-reference-screens.md` | §7 No-internet gate — behavior (overlay, auto-reload, Retry, restore by auth) | Superseded | `architecture/15-native-app-architecture.md`; ADR-0004 |
-| `ui/disney-plus-reference-screens.md` | §7 No-internet gate — visual (copy, dark surface, white pill) | Superseded | `architecture/07-ui-design-system.md` §3.4 (overlay state) + §2 (tokens); copy is now an i18n string |
+| `ui/streaming-reference-screens.md` | Screen inventory & flow order | Live | UI reference transcription (STEP-1.2); 1.3 used flow order for key flows; still feeds 1.7 design system |
+| `ui/streaming-reference-screens.md` | §1–4 Auth screens (welcome, email, password, error) | Live | expands doc 01's single "login screen" scope item; doc 07 captures the tokens and components, this still holds the per-screen layout detail |
+| `ui/streaming-reference-screens.md` | §5–6 Home screens (hero + row stack) | Live | source for the carousel-variant set; doc 07 captures tile specs and tokens, this still holds the per-screen layout detail |
+| `ui/streaming-reference-screens.md` | Tile/card metadata fields (title, rating, progress, episode, aspect ratios) | Superseded | `architecture/04-data-model.md` |
+| `ui/streaming-reference-screens.md` | Patterns to extract | Superseded | `architecture/07-ui-design-system.md` §3 (component inventory) and §5 (two surface modes → ADR-0011) |
+| `ui/streaming-reference-screens.md` | Trademark & asset substitution | Live | Phase-1 constraint; carry into 02-phasing-roadmap |
+| `ui/streaming-reference-screens.md` | §7 No-internet gate — behavior (overlay, auto-reload, Retry, restore by auth) | Superseded | `architecture/15-native-app-architecture.md`; ADR-0004 |
+| `ui/streaming-reference-screens.md` | §7 No-internet gate — visual (copy, dark surface, white pill) | Superseded | `architecture/07-ui-design-system.md` §3.4 (overlay state) + §2 (tokens); copy is now an i18n string |
 | `ui/*.png` (screenshots) | (whole) | Live | Most binaries not yet in repo; `07-no-internet.png` landed 2026-08-16. Password already redacted in the error capture; email still visible |
 
 <!-- Example rows — replace with your own once you add inputs:

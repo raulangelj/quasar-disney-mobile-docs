@@ -58,7 +58,7 @@ Alphabetical. The Notes column is the disambiguation: what the term is *not*.
 | **Contract of record** | Until the app repo exists: `architecture/11-interface-contracts.md`. After scaffold: the TypeScript wire types; this doc stays the consumer-facing narrative until OpenAPI is triggered. | Not OpenAPI today (ADR-0016). |
 | **Credentials** | Login request DTO `{ email, password }`. Request-lifetime only; never stored, never logged. | Not an entity. Not part of User. |
 | **DF (don’t-foreclose)** | Phase-1 constraint that must be respected even though the demo doesn’t fully exercise it yet (doc 02 §6). | Not a RISK. |
-| **Dinsey-** | Fictional placeholder brand for the internal POC. Assets in `architecture/assets/brand/`. | Not Disney. Rename before any public release (RISK-0005). |
+| **QC+** | Fictional placeholder brand for the internal POC (native display name and rebrand target). Assets in `architecture/assets/brand/` and app `src/shared/assets/brand/`. | Not a third-party trademark. Internal POC only (RISK-0005). |
 | **Emotion** | CSS-in-JS stack: `@emotion/native` (`styled`) + `@emotion/react` (`ThemeProvider`, `useTheme`). Token palette lives in `shared/theme/`. | Not `styled-components`. |
 | **Environment** | A named **build configuration** plus the config values the app is built with — `development` or `release`. Not a hosting destination. | No staging in Phase 1. CI is a runner of `release`, not a third env. |
 | **Envelope** | Page wrapper `{ data, nextCursor }`. Vertical cursor pages containers; each Container’s cursor pages its `resources`. | Not a bare JSON array. |
@@ -216,4 +216,4 @@ Carried naming leftovers (not coined here): **OQ-18** is closed — application 
 | v0.2.0 | 2026-08-17 | STEP-1.14 | Emotion + RTK Query `baseApi` terms. User/content slices → cache. 1.14 handoff for doc 03 §2 closed. |
 | v0.2.1 | 2026-08-17 | STEP-1.14 | Hero: 3:4 stand-in in 1a (OQ-24 closed). |
 | v0.2.2 | 2026-08-17 | planning session | OQ-18 closed: application repo is `quasar-disney-mobile-app`. |
-| v0.2.3 | 2026-08-18 | STEP-2.2 | App repo exists at `Code/quasar-disney-mobile-app/`. |
+| v0.2.4 | 2026-08-18 | STEP-6.1 | Placeholder brand term **QC+** replaces **Dinsey-**; app repo `quasar-qc-plus-mobile-app`. |

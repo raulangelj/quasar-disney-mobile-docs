@@ -41,7 +41,7 @@ This is the simplest shape that still makes auth and storefront extractable late
 
 Internal partition of Shared is folders, not packages: `shared/theme/`, `shared/ui/`, `shared/i18n/`, `shared/analytics/`. There is **no types module** — wire types live in the API module, feature types live with the owning feature, component props live next to the component.
 
-Code lives in a **single application repo**, **`quasar-disney-mobile-app`** at `Code/quasar-disney-mobile-app/` (OQ-18 closed; registered STEP-2.2). No backend repo is created by this project.
+Code lives in a **single application repo**, **`quasar-qc-plus-mobile-app`** at `Code/quasar-qc-plus-mobile-app/` (OQ-18 closed; registered STEP-2.2; renamed STEP-6.1). No backend repo is created by this project.
 
 ## 3. Component diagram
 
@@ -232,7 +232,7 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 |----|----------|-------|------------|
 | ~~OQ-16~~ | ~~Persist backend library: `react-native-encrypted-storage` vs a thin `react-native-keychain` adapter~~ **Resolved (1.3a):** `react-native-encrypted-storage` | — | closed |
 | ~~OQ-17~~ | ~~Mock strategy: axios-mock-adapter on the real instance vs a separate mock client behind the same functions~~ **Resolved (1.11) then reversed (1.14 / ADR-0020):** **`axios-mock-adapter` on the real instance** so interceptors run in Phase 1 | — | closed |
-| ~~OQ-18~~ | ~~Application repo name when created~~ **Resolved (planning session):** `quasar-disney-mobile-app` at `Code/quasar-disney-mobile-app/` | — | closed |
+| ~~OQ-18~~ | ~~Application repo name when created~~ **Resolved (planning session):** `quasar-qc-plus-mobile-app` at `Code/quasar-qc-plus-mobile-app/` (renamed STEP-6.1) | — | closed |
 | ~~OQ-19~~ | ~~Pagination wire format: cursor vs offset, envelope fields~~ **Resolved (1.4):** opaque `nextCursor`. JSON names → 1.11 (OQ-22) | — | closed |
 
 **OQ-12** is closed (planning session: Dev A = Raul Angel, Dev B = Andres Montoya). **OQ-02** is closed (doc 04). **OQ-10** is now expressed concretely as doc 11 §14's Phase-3 checklist plus **OQ-34**.
@@ -251,7 +251,7 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 | v0.3.5 | 2026-08-17 | STEP-1.11 | §5 boundary table points at doc 11 and names the **fifth operation** (`/containers/{id}/resources`). §8 gains the **source-layout table** (§8.1, `src/api/`) and is renamed; import rules move to §8.2. Closed OQ-17. No dependency change. |
 | v0.4.0 | 2026-08-17 | STEP-1.14 | §2 names **feature-based Clean Architecture**. I/O is **RTK Query `baseApi`** + axios interceptors; mocks are `axios-mock-adapter` (ADR-0020). Theme is **Emotion** (ADR-0019). User/content slices replaced by RTK Query cache. Reversed OQ-17. |
 | v0.4.1 | 2026-08-17 | planning session | Closed OQ-18: application repo is `quasar-disney-mobile-app`. |
-| v0.4.2 | 2026-08-18 | STEP-2.2 | Repo exists at `Code/quasar-disney-mobile-app/`. §8.1 tree is STEP-2.2; wire-type transcription is STEP-3 (doc 11 §3.1). |
+| v0.4.3 | 2026-08-18 | STEP-6.1 | Repo renamed to `quasar-qc-plus-mobile-app` at `Code/quasar-qc-plus-mobile-app/`; native module `QCPlusApp`, display **QC+**. |
 | v0.4.3 | 2026-08-18 | STEP-3.2 | §8.1 tree gains `src/api/sessionCleared.ts`; §8.2 records the **`sessionCleared` seam** — the API module declares the clear signal, the auth slice reduces it — and states explicitly that the API module never imports a feature (PLAN Q1). |
 | v0.4.4 | 2026-08-18 | STEP-3.4 | §8.1 tree gains **`src/shared/assets/placeholder-art/`** — bundled placeholder key art the demo fixtures name by filename string. Resolution of that string to a renderable asset is STEP-5's (PLAN Q4); no dependency change. |
 | v0.4.5 | 2026-08-18 | STEP-3.5 | **§8.2's shell wiring landed**: `createStore()` registers `baseApi.reducer` and `baseApi.middleware`, and the composition root calls `injectStore(store)` — the two lines STEP-2 left as stubs. `api` is in the root-state type and stays off the persist whitelist (ADR-0003, DF3). `createStore()` gains an optional `extraMiddleware` slot, appended after `baseApi.middleware`, because a `configureStore` store is sealed and the 401 reaction is dispatched from *inside* the chain where a `store.dispatch` wrapper cannot see it; the T2 suite records actions through it. §8.1 tree gains **`src/api/integration/`** (test-only). No dependency change. |
