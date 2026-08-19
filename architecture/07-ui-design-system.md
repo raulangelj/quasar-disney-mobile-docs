@@ -1,8 +1,8 @@
 # Doc 07 — UI / Design System
 
-**Version:** v0.3.1
+**Version:** v0.3.2
 **Status:** Draft
-**Last updated:** 2026-08-18 (STEP-6.2)
+**Last updated:** 2026-08-19 (STEP-6.3)
 **Audience:** Mobile developers, QA, stakeholders reviewing the 2026-08-18 demo
 
 > The visual foundations of the React Native client — tokens, components, navigation, theming, accessibility, i18n, and motion — with exact values, so Phase 1a can be built without re-deciding any of it.
@@ -116,6 +116,7 @@ Weights ship as **named files** (`Inter-Regular/-SemiBold/-Bold/-ExtraBold`), be
 | `layout.rowGap` (between row groups) | 20 |
 | metadata line gap | 6 |
 | auth sheet padding | 20 |
+| auth sheet height ratio | 0.78 |
 | field / CTA height | 48 |
 
 An 8-pt-only grid was rejected: the reference's real values include 8, 12, and 20.
@@ -179,8 +180,10 @@ features/auth/
   assets/welcome/              # PNG posters + wordmark; index.ts exports fan config
   components/
     atoms/
+      AuthFooterBrandRow.tsx
       AuthGradientBackground.tsx
       BrandStrip.tsx
+      SubBrandWordmark.tsx
     molecules/
       CredentialsForm.tsx
     organisms/
@@ -292,7 +295,7 @@ Auth is the reference implementation (STEP-6.2). Storefront has **no Redux slice
 | `HeroCard` | `features/storefront/components/organisms` | Phase 2 chrome; 1a renders the hero container as a **3:4 portrait stand-in** (OQ-24 closed) |
 | `AuthSheetLayout`, `WelcomeHero` | `features/auth/components/organisms` | 1a |
 | `CredentialsForm` | `features/auth/components/molecules` | 1a |
-| `AuthGradientBackground`, `BrandStrip` | `features/auth/components/atoms` | 1a |
+| `AuthGradientBackground`, `BrandStrip`, `SubBrandWordmark`, `AuthFooterBrandRow` | `features/auth/components/atoms` | 1a |
 
 ### 3.3 Organisms
 
@@ -582,3 +585,4 @@ const Title = styled.Text`
 | v0.2.9 | 2026-08-18 | STEP-6.2 | STEP-6.4 storefront migration checklist: mirror auth `screens/` + `helpers/` layout; `state/` tree required when a feature gains a slice. |
 | v0.3.0 | 2026-08-18 | STEP-6.2 | Feature **`components/{atoms,molecules,organisms}/`** at module root — not under `screens/`. Auth migrated; storefront + new features must follow. |
 | v0.3.1 | 2026-08-18 | STEP-6.2 | Canonical feature module template moved to **doc 03 §8.1.1** with full auth tree on disk; doc 07 cross-references it. |
+| v0.3.2 | 2026-08-19 | STEP-6.3 | Auth sheet chrome: `layout.authSheetHeightRatio` (0.78), scrollable sheet body, **MiQC+** sub-brand slot (`SubBrandWordmark`), email footer hairline + grey `AuthFooterBrandRow`. i18n: `common.subBrand` → **MiQC+**; `auth.email.*` / `auth.password.*` use **QC+** / **QC Entertainment** placeholders. |

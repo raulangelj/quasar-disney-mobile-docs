@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.4.6
+**Version:** v0.4.7
 **Status:** Draft
-**Last updated:** 2026-08-18 (STEP-6.2)
+**Last updated:** 2026-08-19 (login screen styling rule)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -172,7 +172,7 @@ Every feature under `src/features/<name>/` follows the **auth** layout below. **
 | `components/index.ts` | When `components/` is non-empty | Barrel exports. |
 | `helpers/` | If pure utilities exist | Validation, type guards, mappers — **not** under `screens/` or `components/`. |
 | `hooks/` | If feature owns data/composition hooks | e.g. storefront pagination (omit in auth 1a). |
-| `screens/<ScreenName>/` | When feature owns routes | Screen entry `<ScreenName>.tsx` only; optional screen-local layout constants beside it. **No `components/` subfolder.** |
+| `screens/<ScreenName>/` | When feature owns routes | `<ScreenName>.tsx` (logic/JSX), **`<screenName>Screen.styles.ts`** (all `@emotion/native` styled components), optional `<screenName>Layout.ts`. **No `components/` subfolder.** |
 | `screens/index.ts` | When feature owns routes | Navigator-facing screen exports. |
 | `state/slices/<slice>/` | When feature owns Redux state | Slice + co-located unit tests. Selectors live in `state/selectors/`, not on the slice file. |
 | `state/actions/` | When imperative store writers exist | e.g. `logout.ts` — dispatches slice actions + cache resets. |
@@ -209,12 +209,15 @@ features/auth/
   screens/
     WelcomeScreen/
       WelcomeScreen.tsx
+      welcomeScreen.styles.ts
       welcomeLayout.ts
     Login/
-      EmailEntryScreen.tsx
-      PasswordEntryScreen.tsx
+      LoginScreen.tsx
+      loginScreen.styles.ts
+      loginLayout.ts
     PlaceholderScreen/
       PlaceholderScreen.tsx
+      placeholderScreen.styles.ts
     index.ts
   state/
     slices/
@@ -230,6 +233,8 @@ features/auth/
 **Target — `features/storefront/` (STEP-6.4):** same tiers; `hooks/` at feature root; **no `state/`** in Phase 1a (RTK Query cache only). See `features/storefront/README.md`.
 
 Screens import feature UI from `../../components/{atoms,molecules,organisms}/…`. Shell imports screens from `features/<feature>/screens`. Selectors are read via `features/<feature>/state/selectors/`.
+
+**Styling (mandatory):** no inline styles in feature screens or components — use **`@emotion/native` `styled.*` only** (no `StyleSheet.create`). **Every screen folder** includes `<screenName>Screen.styles.ts` beside `<ScreenName>.tsx`; the screen file holds logic/JSX only. Screen-local layout numbers live in `<screenName>Layout.ts`. Colors and typography come from theme tokens inside styled callbacks, not literal hex/rgba (A2). The only exception is **animated runtime values** (e.g. press opacity) on an `Animated.*` wrapper when the value cannot be static.
 
 **`src/api/`, not `src/modules/api/`** — no `modules/` prefix appears anywhere in this
 architecture, and `features/` is already the established word. The tree is created by **STEP-2.2**.
@@ -326,3 +331,6 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 | v0.4.4 | 2026-08-18 | STEP-3.4 | §8.1 tree gains **`src/shared/assets/placeholder-art/`** — bundled placeholder key art the demo fixtures name by filename string. Resolution of that string to a renderable asset is STEP-5's (PLAN Q4); no dependency change. |
 | v0.4.5 | 2026-08-18 | STEP-3.5 | **§8.2's shell wiring landed**: `createStore()` registers `baseApi.reducer` and `baseApi.middleware`, and the composition root calls `injectStore(store)` — the two lines STEP-2 left as stubs. `api` is in the root-state type and stays off the persist whitelist (ADR-0003, DF3). `createStore()` gains an optional `extraMiddleware` slot, appended after `baseApi.middleware`, because a `configureStore` store is sealed and the 401 reaction is dispatched from *inside* the chain where a `store.dispatch` wrapper cannot see it; the T2 suite records actions through it. §8.1 tree gains **`src/api/integration/`** (test-only). No dependency change. |
 | v0.4.6 | 2026-08-18 | STEP-6.2 | **§8.1.1 Feature module template** — mandatory auth-parity layout (`screens/`, `components/{atoms,molecules,organisms}/`, `helpers/`, `state/slices|actions|selectors/`). Auth migrated on disk; storefront migrates STEP-6.4; new features copy auth from day one. |
+| v0.4.9 | 2026-08-19 | — | §8.1.1 **mandatory `<screenName>Screen.styles.ts`** per screen folder; auth Welcome + Placeholder migrated. |
+| v0.4.8 | 2026-08-19 | — | §8.1.1 **Emotion styled only** — no `StyleSheet.create` in feature modules; co-located `*Screen.styles.ts` pattern (auth `loginScreen.styles.ts`). |
+| v0.4.7 | 2026-08-19 | — | §8.1.1 **no inline styles** in feature screens/components (`styled.*` only; animated runtime merge excepted). Auth tree: combined **`LoginScreen`**. |
