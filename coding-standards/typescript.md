@@ -79,6 +79,25 @@ date. Revisit at Phase 1b. `strict: true` is not optional.
 - Follow the contract's `null`-vs-omitted rule (`api.md`): `null` for a field that always exists but
   may be empty; omitted for one that does not apply to that variant.
 
+## Feature module styling (React Native)
+Applies to everything under `src/features/**` and is recorded in doc 03 §8.1.1.
+
+- **No inline styles** — do not use `style={{ … }}` on JSX in feature screens or feature components.
+- **Use `@emotion/native` `styled.*` only** — do not use React Native `StyleSheet.create`.
+- **One styles file per screen (mandatory)** — every route screen folder includes a co-located
+  `<screenName>Screen.styles.ts` (camelCase screen name). The screen entry (`<ScreenName>.tsx`)
+  holds logic and JSX only; all styled components live in the styles file. Auth references:
+  `welcomeScreen.styles.ts`, `loginScreen.styles.ts`, `placeholderScreen.styles.ts`.
+- **Object syntax preferred** — `styled.View(({ theme }) => ({ … }))` or `styled.View({ flex: 1 })`
+  for static layout; template literals are fine when they read cleaner.
+- **Screen-local numbers** (padding, gaps, sizes not shared across screens) live in
+  `screens/<ScreenName>/<screenName>Layout.ts` beside the screen entry — not in theme tokens unless
+  promoted deliberately.
+- **Colors and typography** come from `theme.modes.*` inside styled callbacks — no literal hex or
+  rgba in feature code (A2, RISK-0017).
+- **Allowed exception:** **animated runtime values** (press opacity, animated transforms) on an
+  `Animated.*` wrapper, e.g. `<Animated.View style={{ opacity }}>`, when the value cannot be static.
+
 ## Error handling
 - `throw` `Error` (or a subclass), never strings or plain objects.
 - **At the API boundary the type is `ApiError { code, status, message }`**

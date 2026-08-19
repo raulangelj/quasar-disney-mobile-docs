@@ -38,7 +38,7 @@ Session restore from secure storage is **not** offline mode: it is a local auth 
 
 ### Connectivity gate
 
-When the device has no usable network, the **app shell** shows a full-screen overlay matching `inputs/ui/07-no-internet.png` (transcribed in `inputs/ui/disney-plus-reference-screens.md` §7):
+When the device has no usable network, the **app shell** shows a full-screen overlay matching `inputs/ui/07-no-internet.png` (transcribed in `inputs/ui/streaming-reference-screens.md` §7):
 
 - Dark near-black surface (app-theme family, not the light auth sheet).
 - Centered copy: *Es necesario revisar tu conexión a internet. Volveremos a cargar automáticamente la pantalla una vez que se establezca la conexión.*
@@ -126,7 +126,7 @@ See RISK-0007. Security session 1.6 is **Done** (abbreviated) in `architecture/0
 
 Stamp `CFBundleShortVersionString` / `versionName` so a later min-version / forced-upgrade check can live in the shell without a native rewrite. No forced-upgrade gate and no phased rollout until there is a fleet.
 
-Phase 2 still owns Bitrise + installable QA builds. **RISK-0005:** do not submit “Dinsey-” to any store.
+Phase 2 still owns Bitrise + installable QA builds. **RISK-0005:** do not submit **QC+** to any store without legal review.
 
 **Forecloses:** OTA JS patches and remotely killing old binaries on 18 Aug.
 
@@ -201,4 +201,4 @@ implied but no doc named until 1.11 (doc 11 §5).
 | v0.2.3 | 2026-08-17 | STEP-1.6a | Biometrics stay Phase 3 (doc 16); no Face ID in Phase 1. |
 | v0.2.4 | 2026-08-17 | STEP-1.8 | §2 connectivity gate keys on interface state, not reachability (ADR-0014). Closed OQ-21; opened OQ-29. §7 distribution: the release build is now the declared sign-off artifact (doc 08 §2). |
 | v0.2.5 | 2026-08-17 | STEP-1.11 | §8 envelope and page sizes locked from doc 11; `useCarouselPage`'s operation named (`GET /containers/{id}/resources`). Closed OQ-17, OQ-23. |
-| v0.2.6 | 2026-08-17 | STEP-1.14 | Pagination wraps RTK Query; OQ-17 reversed to `axios-mock-adapter` on the real instance (ADR-0020). Catalog cache is not persisted. |
+| v0.2.7 | 2026-08-18 | STEP-6.1 | Native rebrand: **`QCPlusApp`** / **`com.qcplus.app`**, display **`QC+`**, stakeholder icon pack wired (iOS AppIcon, Android mipmap, splash, `qc-plus-mark.svg`). |

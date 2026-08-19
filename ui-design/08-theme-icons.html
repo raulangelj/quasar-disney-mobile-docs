@@ -36,7 +36,7 @@
   pre .k { color:#38BDF8; } pre .s { color:#a7f3d0; } pre .c { color:#71717A; }
 
   /* ---------- two theme token sets × two surface modes ---------- */
-  .dinsey {
+  .qcplus {
     --app-base:#0E0E12; --app-raised:#17171D; --app-chrome:rgba(255,255,255,.07);
     --app-border:rgba(255,255,255,.12); --app-text:#FFFFFF; --app-text2:#A1A1AA; --app-text3:#8A8A93;
     --app-accent:#38BDF8; --app-live:#FF4D63; --app-chipFill:#3F3F46; --app-chipText:#D4D4D8;
@@ -144,7 +144,7 @@
 <span class="k">type</span> SurfaceMode = <span class="s">'app'</span> | <span class="s">'auth'</span>;   <span class="c">// role, NOT 'light' | 'dark'</span>
 
 <span class="k">interface</span> Theme {
-  name: <span class="k">string</span>;                        <span class="c">// 'dinsey' | 'ember'</span>
+  name: <span class="k">string</span>;                        <span class="c">// 'qcplus' | 'ember'</span>
   modes: Record&lt;SurfaceMode, ModeTokens&gt;;  <span class="c">// every mode, same shape</span>
   type: TypeScale;                        <span class="c">// mode-independent</span>
   space: SpaceScale;                      <span class="c">// mode-independent</span>
@@ -171,14 +171,14 @@
 <section class="sec">
   <div class="sec-head"><h2>8 · The A1 test theme, rendered</h2><span class="tag">criterion A1</span></div>
   <p class="char">
-    Left: the <code>dinsey</code> theme you selected. Right: an <code>ember</code> test theme — the same
+    Left: the <code>qcplus</code> theme you selected. Right: an <code>ember</code> test theme — the same
     four screens, the same markup, <em>only the token values swapped</em>. This is the artefact criterion
     A1 asks for, and it exists here so the foundation STEP has something concrete to build against rather
     than inventing a second palette under deadline. Every <code>ember</code> value was contrast-checked to
     the same AA floor (lowest pair: 5.0:1).
   </p>
   <div class="row">
-    <div class="dinsey"><p class="cap">theme: dinsey · mode: app</p>
+    <div class="qcplus"><p class="cap">theme: qcplus · mode: app</p>
       <div class="phone app">
         <div class="app-hd"><span class="ttl">Para ti</span><span style="display:flex;gap:12px">
           <svg class="ic" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 19h6"/></svg>
@@ -207,18 +207,18 @@
         </div>
       </div>
     </div>
-    <div class="dinsey"><p class="cap">theme: dinsey · mode: auth</p>
+    <div class="qcplus"><p class="cap">theme: qcplus · mode: auth</p>
       <div class="phone auth">
-        <div class="wm">DINSEY-</div>
+        <div class="wm">QC+</div>
         <div class="sheet">
-          <div class="brand">MiDinsey</div>
+          <div class="brand">MiQC+</div>
           <div class="hd">Escribir contraseña</div>
           <div class="bd">Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></div>
           <div class="fld"><span>••••••••</span><span style="opacity:.55">👁</span></div>
           <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta.</div>
           <div class="hint">Distingue mayúsculas y minúsculas.</div>
           <div class="cta">Iniciar sesión</div>
-          <div class="llnk">Más información sobre MiDinsey ▾</div>
+          <div class="llnk">Más información sobre MiQC+ ▾</div>
         </div>
       </div>
     </div>
@@ -253,16 +253,16 @@
     </div>
     <div class="ember"><p class="cap">theme: ember · mode: auth</p>
       <div class="phone auth">
-        <div class="wm">DINSEY-</div>
+        <div class="wm">QC+</div>
         <div class="sheet">
-          <div class="brand">MiDinsey</div>
+          <div class="brand">MiQC+</div>
           <div class="hd">Escribir contraseña</div>
           <div class="bd">Ingresa la contraseña de <b>ana@ejemplo.com</b> <span class="llnk">(editar)</span></div>
           <div class="fld"><span>••••••••</span><span style="opacity:.55">👁</span></div>
           <div class="err">No pudimos iniciar tu sesión con esa contraseña. Verifica que sea la correcta.</div>
           <div class="hint">Distingue mayúsculas y minúsculas.</div>
           <div class="cta">Iniciar sesión</div>
-          <div class="llnk">Más información sobre MiDinsey ▾</div>
+          <div class="llnk">Más información sobre MiQC+ ▾</div>
         </div>
       </div>
     </div>
@@ -337,7 +337,7 @@
     <tr><th>Option</th><th>Approach</th><th>Consequence</th></tr>
     <tr>
       <td><strong>A</strong> <span class="tag rec" style="padding:3px 6px">recommended</span></td>
-      <td>Hand-authored 13-icon set as RN components over <code>react-native-svg</code>, in <code>shared/ui/icons/</code></td>
+      <td>Hand-authored 13-icon set as RN components over <code>react-native-svg</code>, in <code>shared/components/icons/</code></td>
       <td>13 icons is small enough to author in an hour, and each one accepts <code>color</code> from theme tokens so active/inactive tab states and both surface modes come free. No native font linking. Adds nothing beyond the dependency the assets already require.</td>
     </tr>
     <tr>

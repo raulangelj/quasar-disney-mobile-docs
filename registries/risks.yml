@@ -97,16 +97,16 @@ risks:
 
   - id: RISK-0005
     status: open
-    title: "Placeholder brand \"Dinsey-\" is confusingly similar to Disney"
+    title: "Placeholder brand \"QC+\" — internal POC only"
     category: compliance
     severity: medium
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "The POC's fictional brand is one letter from Disney; confusing similarity is the core trademark-infringement test."
-    impact: "Low while the app is internal and unpublished; a trademark complaint becomes plausible the moment it is shown publicly or submitted to a store."
-    mitigation: "Internal, unpublished POC only. Sub-brands in the strip are deliberately NOT lookalikes of the real studios."
-    revisit_trigger: "Any public release, app store submission, public website, or marketing use — rename before, not after."
+    description: "The POC ships under the fictional **QC+** placeholder brand (rebranded in STEP-6.1). Still not a public trademark; generic streaming UX patterns only."
+    impact: "Low while the app is internal and unpublished; review before any public release or store submission."
+    mitigation: "Internal, unpublished POC only. Sub-brands in the strip are deliberately NOT lookalikes of real studios."
+    revisit_trigger: "Any public release, app store submission, public website, or marketing use — confirm legal clearance before, not after."
     refs:
       - "architecture/02-phasing-roadmap.md#10-placeholder-brand"
       - "architecture/assets/README.md"

@@ -140,7 +140,7 @@ the visual half stays in the smoke sequence (§6).
 
 **On the ~80% guide.** Carried as a steer, not a target. The list above is roughly what 80% of
 `src/api/`, `src/features/*/state/`, and `src/features/*/hooks/` looks like anyway — but `src/app/`
-and `src/shared/ui/` sit far below that in 1a *by design*, and chasing the aggregate would mean
+and `src/shared/components/` sit far below that in 1a *by design*, and chasing the aggregate would mean
 writing the snapshot tests §3.5 just declined.
 
 ## 4. Test data & isolation
@@ -356,7 +356,7 @@ more trustworthy.
 ### 8.1 No numeric threshold in Phase 1a
 
 Aggregate coverage will be structurally low **by decision**: doc 02 defers all UI/component tests to
-1b, so `src/shared/ui/` and most of `src/app/` are untested on purpose. A global threshold is then
+1b, so `src/shared/components/` and most of `src/app/` are untested on purpose. A global threshold is then
 one of two bad things — high enough to be meaningful and it fails the build for an architectural
 decision deliberately made, or low enough to pass and it certifies nothing.
 

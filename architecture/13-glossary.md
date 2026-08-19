@@ -1,8 +1,8 @@
 # Doc 13 — Glossary
 
-**Version:** v0.2.3
+**Version:** v0.2.6
 **Status:** Draft
-**Last updated:** 2026-08-18 (STEP-2.2)
+**Last updated:** 2026-08-19 (STEP-6.4.2)
 **Audience:** Mobile developers, backend team, QA, future agents
 
 > Precise meaning of quasar-disney-mobile's domain terms, entities, acronyms, and naming
@@ -41,7 +41,7 @@ Alphabetical. The Notes column is the disambiguation: what the term is *not*.
 | **`ApiError`** | Normalized error both transports produce: `{ code, status, message }`. Features never see a raw axios error. | `message` is developer-facing and never rendered. |
 | **App shell** | Composition root. Boots RN: navigation, store (`baseApi` + auth slice), Emotion `ThemeProvider`, persist rehydrate, cold-start loader, NetInfo overlay, root error boundary. Only module allowed to import features. | Not a feature. Not “the app” as a whole. |
 | **Artwork** | Aspect-ratio → URI map on **Card**. Bundled placeholder files, not an entity. | Keys: `'2:3'`, `'16:9'`, `'3:4'`. |
-| **Atom / molecule / organism** | Atomic-design UI layers. Lives in `shared/ui/` iff two or more of {auth, storefront, shell} render it; otherwise with its feature. | Not architecture “components” (the five modules). |
+| **Atom / molecule / organism** | Atomic-design UI layers. Shared → `shared/components/{atoms,molecules,organisms}/`; feature-only → `features/<feature>/components/{atoms,molecules,organisms}/` (never under `screens/`). Components with styles or tests use a unit subdirectory (doc 03 §8.1.1). | Not architecture “components” (the five modules). |
 | **Auth feature** | Welcome → email → password → session. Owns the auth slice; injects `login` / `getMe`. Imports `shared/` and `src/api/types/` only. | Must not import Storefront. Does not store Credentials. |
 | **Auth slice** | RTK slice holding `accessToken` + `expiresAt`. The only persisted slice. | Not the RTK Query cache. |
 | **Card** | Catalog item a tile represents. Shared across container variants. Was called **Title**. | Not the UI **tile**. Not a Container. `Card.title` is the content-name field. |
@@ -58,14 +58,14 @@ Alphabetical. The Notes column is the disambiguation: what the term is *not*.
 | **Contract of record** | Until the app repo exists: `architecture/11-interface-contracts.md`. After scaffold: the TypeScript wire types; this doc stays the consumer-facing narrative until OpenAPI is triggered. | Not OpenAPI today (ADR-0016). |
 | **Credentials** | Login request DTO `{ email, password }`. Request-lifetime only; never stored, never logged. | Not an entity. Not part of User. |
 | **DF (don’t-foreclose)** | Phase-1 constraint that must be respected even though the demo doesn’t fully exercise it yet (doc 02 §6). | Not a RISK. |
-| **Dinsey-** | Fictional placeholder brand for the internal POC. Assets in `architecture/assets/brand/`. | Not Disney. Rename before any public release (RISK-0005). |
+| **QC+** | Fictional placeholder brand for the internal POC (native display name and rebrand target). Assets in `architecture/assets/brand/` and app `src/shared/assets/brand/`. | Not a third-party trademark. Internal POC only (RISK-0005). |
 | **Emotion** | CSS-in-JS stack: `@emotion/native` (`styled`) + `@emotion/react` (`ThemeProvider`, `useTheme`). Token palette lives in `shared/theme/`. | Not `styled-components`. |
 | **Environment** | A named **build configuration** plus the config values the app is built with — `development` or `release`. Not a hosting destination. | No staging in Phase 1. CI is a runner of `release`, not a third env. |
 | **Envelope** | Page wrapper `{ data, nextCursor }`. Vertical cursor pages containers; each Container’s cursor pages its `resources`. | Not a bare JSON array. |
-| **Feature** | Extractable product surface (`auth`, `storefront`). Colocates UI, hooks, slices, feature types. May not import another feature. | Prefer the feature name in prose over “module.” |
+| **Feature** | Extractable product surface (`auth`, `storefront`). Colocates screens, components, helpers, hooks, API adapters, and (when needed) Redux under `src/features/<name>/` per doc 03 §8.1.1. May not import another feature. | Prefer the feature name in prose over “module.” |
 | **Feature-based** | Packaging rule: organize by product surface under `src/features/*`, not a repo-root layer tree (`screens/`, `redux/`, `api/` as siblings of everything). Implements Clean Architecture in this codebase. | Compatible with the five-module modular monolith. |
 | **Fixtures** | Typed demo catalog/auth data the mock adapter serves. Same fixtures in `development` and `release`. | Tests assert against **factories**, not fixtures (one fixture-invariant test excepted). |
-| **Hero** | Container `variant: "hero"`. First item on HomeFeed page 1. Phase 1a renders a **3:4 portrait stand-in**; full spotlight chrome is Phase 2 (OQ-24 closed). | Not a separate entity. |
+| **Hero** | Container `variant: "hero"`. First item on HomeFeed page 1. Phase 1a renders pack **banner chrome** (4:5 art, overlay CTAs, dots — STEP-6.4.2). Neighbor peek / title-as-artwork remain Phase 2. | Not a separate entity. |
 | **HomeFeed** | Paginated `Container[]` from `GET /home-feed`. First page: one `hero` + 15 other containers. | Not the composed home the user sees. |
 | **IdP** | Identity provider. None in Phase 1. Phase 3 **buys** a managed IdP **behind our API**, not as an RN SDK. | Not Auth0/Firebase in the app. |
 | **Inert tab** | Tab that is tappable and routes to **ComingSoon**. | Not a disabled/unresponsive tab. |
@@ -94,7 +94,7 @@ Alphabetical. The Notes column is the disambiguation: what the term is *not*.
 | **Storefront feature** | Home/browse and the config-driven carousel. Injects feed/resources endpoints; pagination wrappers, composed-home merge, silent CW reload. | Not HomeFeed. Must not import Auth. |
 | **Surface mode** | Theme axis named by **role**: `app` (dark) and `auth` (light). Same token keys in both. | **Not** `light`/`dark` and **not** `useColorScheme()`. Auth stays light because the reference sheet is light. |
 | **Test factory** | `makeCard` / `makeContainer` / `makePage` in `src/api/mocks/`. Tests-only; must not be reachable from the app entry. | Not demo fixtures. |
-| **Theme** | Brand token set. Default brand is `dinsey`; a second test theme (`ember`) exists so criterion A1 (re-skin without touching components) is verifiable. | Theme × surface mode are two axes. |
+| **Theme** | Brand token set. Default brand is `qcplus`; a second test theme (`ember`) exists so criterion A1 (re-skin without touching components) is verifiable. | Theme × surface mode are two axes. |
 | **Tile** | UI molecule that renders a Card. | Not a data entity. |
 | **Title** | Retired entity name for Card. | `Card.title` is now just the content-name field. |
 | **Token (design)** | A named theme value (color, type, space, motion). No hardcoded colors/type/spacing outside the theme. | Not a JWT. |
@@ -216,4 +216,6 @@ Carried naming leftovers (not coined here): **OQ-18** is closed — application 
 | v0.2.0 | 2026-08-17 | STEP-1.14 | Emotion + RTK Query `baseApi` terms. User/content slices → cache. 1.14 handoff for doc 03 §2 closed. |
 | v0.2.1 | 2026-08-17 | STEP-1.14 | Hero: 3:4 stand-in in 1a (OQ-24 closed). |
 | v0.2.2 | 2026-08-17 | planning session | OQ-18 closed: application repo is `quasar-disney-mobile-app`. |
-| v0.2.3 | 2026-08-18 | STEP-2.2 | App repo exists at `Code/quasar-disney-mobile-app/`. |
+| v0.2.4 | 2026-08-18 | STEP-6.1 | Placeholder brand term **QC+**; app repo `quasar-qc-plus-mobile-app`. |
+| v0.2.5 | 2026-08-18 | STEP-6.2 | **Atom/molecule/organism** and **Feature** rows updated for auth-parity module layout (doc 03 §8.1.1). |
+| v0.2.6 | 2026-08-19 | STEP-6.4.2 | Hero: pack banner chrome in 1a (OQ-24 amended). |
