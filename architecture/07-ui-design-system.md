@@ -42,7 +42,7 @@ What the principle costs, and where it is bounded:
 
 All values are React Native density-independent points (unitless in code). Every color pair listed as text has a measured WCAG 2.1 contrast ratio.
 
-### 2.1 Color — theme `dinsey`, mode `app` (dark)
+### 2.1 Color — theme `qcplus`, mode `app` (dark)
 
 | Token | Value | Contrast | Use |
 |-------|-------|----------|-----|
@@ -58,7 +58,7 @@ All values are React Native density-independent points (unitless in code). Every
 | `live` | `#FF4D63` | 5.96:1 | Live badge + live progress bar |
 | `chip.fill` / `chip.text` | `#3F3F46` / `#D4D4D8` | 7.07:1 | Rating chip |
 
-### 2.2 Color — theme `dinsey`, mode `auth` (light)
+### 2.2 Color — theme `qcplus`, mode `auth` (light)
 
 | Token | Value | Contrast | Use |
 |-------|-------|----------|-----|
@@ -105,7 +105,7 @@ Weights ship as **named files** (`Inter-Regular/-SemiBold/-Bold/-ExtraBold`), be
 
 ### 2.5 Spacing
 
-4 pt base scale: `space[1..16]` = 4, 8, 12, 16, 20, 24, 32, 40, 48, 64. Named by multiplier (`space[4] === 16`), with role aliases only where a component author must not re-derive: `layout.gutter`, `layout.tileGap`, `layout.rowGap`.
+4 pt base scale: `space.xxs` … `space.xxxxxxxxxl` (4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 72, 80, 88, 96, 104). Screen-specific layout constants stay in the feature (e.g. welcome poster fan), not in `layout.*`. Role aliases only where a component author must not re-derive: `layout.gutter`, `layout.tileGap`, `layout.rowGap`.
 
 **Density — reference-tight:**
 
@@ -159,7 +159,7 @@ Translucent chrome is `rgba(255,255,255,.07)`, **not** a backdrop blur — RN ne
 | Component | Variants / states |
 |-----------|-------------------|
 | `Text` | One per type token |
-| `Button` | `tone: onDark \| onLight` · `variant: solid \| ghost` · `size: md(48) \| sm(36)` · `loading` · `disabled` · `pressed` |
+| `Button` | `tone: onDark \| onLight` · `variant: solid \| ghost` · `cornerRadius: pill \| cta` · `size: md(48) \| sm(36)` · `loading` · `disabled` · `pressed` |
 | `IconButton` | Circular translucent; 44 pt `hitSlop`; back / overflow |
 | `Chip` | Rating copy (`7+`, `13+`, `16+`, `ATP`) |
 | `Badge` | `tone: live \| label \| provider` |
@@ -237,7 +237,7 @@ Two navigators rather than one guarded stack: an unauthenticated user has **no r
 
 ```ts
 interface Theme {
-  name: 'dinsey' | 'ember';
+  name: 'qcplus' | 'ember';
   modes: Record<'app' | 'auth', ModeTokens>;
   type; space; radius; motion;      // mode-independent
   colors: ModeTokens['colors'];      // the ACTIVE mode, injected by ModeProvider
@@ -382,13 +382,13 @@ import styled from '@emotion/native';
 const Title = styled.Text`
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: ${({ theme }) => theme.type.h2.size}px;
-  padding: ${({ theme }) => theme.space[4]}px;
+  padding: ${({ theme }) => theme.space.m}px;
 `;
 ```
 
 | Concern | Decision |
 |---------|----------|
-| Layout | `shared/theme/{tokens/, themes/dinsey.ts, themes/ember.ts, ModeProvider.tsx, types.ts, styled.d.ts}` |
+| Layout | `shared/theme/{tokens/, themes/qcplus.ts, themes/ember.ts, ModeProvider.tsx, types.ts, styled.d.ts}` |
 | Typing | Augment `@emotion/react`'s `Theme` in `emotion.d.ts` — otherwise `theme` is `any` inside every template, defeating the overview's "typed values throughout" |
 | **A2 enforcement** | An **ESLint rule, not code review**: `no-restricted-syntax` banning hex literals and `rgba(` outside `shared/theme/`, plus a rule banning `styled-components` imports. Styled primitives come from `@emotion/native`. A1/A2 are launch criteria and should fail a build, not depend on a reviewer noticing. Raw spacing numbers stay a review item — a numeric rule is too fragile to be worth it |
 | Token consumers outside Emotion styled | React Navigation's theme object, `StatusBar`, and the SVG icon `color` prop must all read from the same tokens. These three are where a hardcoded value usually survives an otherwise clean migration |
@@ -404,7 +404,7 @@ const Title = styled.Text`
 | Status bar | Follow | `light-content` in both modes — the bar is over dark pixels on every screen; translucent on Android |
 | Keyboard | Follow | `KeyboardAvoidingView` `behavior="padding"` (iOS) / `"height"` (Android). The auth sheet must keep the CTA reachable with the keyboard up |
 | Alert on card tap | Follow | Native per-OS dialog — correct, since it is a placeholder for navigation (DF7) |
-| Splash / icon | Follow | Static launch screen from `dinsey-mark`; no animated splash library |
+| Splash / icon | Follow | Static launch screen from `qc-plus-mark`; no animated splash library |
 | **Press feedback** | **Deviate** | Scale + opacity, not Material ripple — so the side-by-side matches |
 | **Typography** | **Deviate** | Bundled Inter, not SF Pro / Roboto (ADR-0012) |
 | Haptics | Skip | Nothing in Phase 1 warrants a dependency |
@@ -464,3 +464,6 @@ const Title = styled.Text`
 | v0.2.0 | 2026-08-17 | STEP-1.14 | §12: **Emotion** (`@emotion/native` + `@emotion/react` ThemeProvider) replaces styled-components (**ADR-0019**). Token model unchanged. |
 | v0.2.1 | 2026-08-17 | STEP-1.14 | Closed OQ-24 (3:4 hero stand-in). `visibleCount` is client-side (**OQ-37**). Logout in 1a is expiry-only (**OQ-38**). Those questions were mis-numbered as OQ-28/29. |
 | v0.2.2 | 2026-08-18 | STEP-2.4 | Closed **OQ-13**: brand SVG `<text>` converted to paths in `quasar-disney-mobile-app` `src/shared/assets/brand/` (runtime source); hub `architecture/assets/brand/` remains provenance. |
+| v0.2.3 | 2026-08-18 | STEP-6.2 | Default brand theme slug **`qcplus`** (was `dinsey`). Added `radius.cta` (10 pt) for welcome/offline pill CTAs. `Button` gains optional `cornerRadius: pill \| cta`. QC+ wordmark assets replace Dinsey- placeholders; welcome i18n uses **QC+** / **QC Entertainment**. |
+| v0.2.4 | 2026-08-18 | STEP-6.2 | Stakeholder welcome pack wired: poster fan + PNG wordmark, violet 3-stop gradient (`gradient.mid`), QC+ palette (`#0A0A1F → #150C2E → #050410`, `#F7F5FF` text/CTA, `#9AC4FF` links, `#FF8A3D` accent). Headline and brand strip removed from welcome layout. |
+| v0.2.5 | 2026-08-18 | STEP-6.2 | Spacing scale renamed to semantic steps `space.xxs` … `space.xxxxxxxxxl`; welcome-specific layout constants moved out of `layout.*` into the auth welcome screen module. |
