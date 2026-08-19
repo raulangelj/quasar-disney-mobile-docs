@@ -145,9 +145,9 @@ Shared's internals as `shared/theme/`, `shared/components/`, … and the import-
 referred to `features/`.
 
 ```
-src/app/                       shell — composition root, navigation, store, error boundary
+src/app/                       composition root — see §8.1.2
 src/features/auth/               ← reference module (STEP-6.2); copy this shape for new features
-src/features/storefront/         ← migrates to same shape in STEP-6.4 (legacy `ui/` until then)
+src/features/storefront/         ← auth-parity layout (STEP-6.4)
 src/shared/{theme,components,i18n,analytics}/
 src/shared/assets/placeholder-art/   bundled placeholder key art (STEP-3.4)
 src/api/
@@ -233,6 +233,33 @@ features/auth/
 **Target — `features/storefront/` (STEP-6.4):** same tiers; `hooks/` at feature root; **no `state/`** in Phase 1a (RTK Query cache only). See `features/storefront/README.md`.
 
 Screens import feature UI from `../../components/{atoms,molecules,organisms}/…`. Shell imports screens from `features/<feature>/screens`. Selectors are read via `features/<feature>/state/selectors/`.
+
+#### 8.1.2 App module template (mandatory)
+
+The **`src/app/`** module follows the same atomic-design and unit-folder rules as features, with shell-specific roles:
+
+```
+app/
+  assets/                    bundled media for app-only surfaces (e.g. loading gate)
+  components/
+    organisms/               shell UI — LoadingGate, AppHeader, AppTabBar, overlays
+    index.ts
+  helpers/                   pure shell utilities (e.g. shellTheme.ts)
+  navigation/                React Navigation navigators + route types only
+  shell/                     composition screens + session hooks — **no UI components**
+  store/                     Redux store factory + persist config
+  App.tsx · AppShell.tsx
+```
+
+| Path | Purpose |
+|------|---------|
+| `app/assets/<group>/` | App-local PNG/SVG bundles. **Never** under `shell/` or inside a component folder. Export via `index.ts`. |
+| `app/components/{atoms,molecules,organisms}/` | Shell-only UI. Same subdirectory rule as `shared/components/` when a `<Name>.styles.ts` or test exists (doc 03 §8.1.1). |
+| `app/helpers/` | Token helpers and other pure shell utilities. |
+| `app/navigation/` | Navigators, route param types — imports tab bar and screens from `components/` and `shell/`. |
+| `app/shell/` | `HomeTabScreen`, `useSessionValidation`, `PersistLoading` — composition and orchestration only. |
+
+**Assets rule:** loading gate wordmark/spinner live in `app/assets/loading/`, not in `components/organisms/LoadingGate/assets/`.
 
 #### Tested unit subdirectories (`helpers/` and `hooks/`)
 

@@ -326,7 +326,7 @@ Auth is the reference implementation (STEP-6.2). Storefront has **no Redux slice
 
 ### 3.3 Organisms
 
-`Container` (one config-driven carousel for every variant — DF6 / ADR-0007) and `HomeFeedList` in `features/storefront/components/organisms`; `AppHeader`, `TabBar`, `LoadingGate`, `NoInternetOverlay` in the shell.
+`Container` (one config-driven carousel for every variant — DF6 / ADR-0007) and `HomeFeedList` in `features/storefront/components/organisms`; `AppHeader`, `AppTabBar`, `LoadingGate`, `NoInternetOverlay` in `app/components/organisms`.
 
 ### 3.4 Screen states
 
