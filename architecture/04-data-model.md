@@ -1,8 +1,8 @@
 # Doc 04 — Data Model, Ownership & Retention
 
-**Version:** v0.2.6
+**Version:** v0.2.7
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.14)
+**Last updated:** 2026-08-19 (STEP-6.4.2)
 **Audience:** Mobile developers, backend team, QA
 
 > Entities the React Native client models, who owns each one, where it lives on device, how long it is kept, and which of it is sensitive — with no server database in this project.
@@ -244,7 +244,7 @@ Phase 3 replaces the mock adapter (including mock `exp` reminting). Client stora
 | ~~OQ-22~~ | ~~JSON names and paths for `/me`, HomeFeed, ContinueWatching, Container, Card, and the page envelope~~ **Resolved (1.11):** five operations and full payload shapes in doc 11 §5, §7. `Card.name` → **`title`** | — | closed |
 | ~~OQ-26~~ | ~~Remaining **Card** fields beyond content name, and which are `progress`-only~~ **Resolved (1.11):** §1.2's working set is the Card; §1.3's three fields are optional and `progress`-only (doc 11 §7.1) | — | closed |
 | ~~OQ-23~~ | ~~Cards per container horizontal page~~ **Resolved (1.11):** `limit` defaults — 16 on HomeFeed, 10 on Continue Watching and `resources` (doc 11 §6.3) | — | closed |
-| ~~OQ-24~~ | ~~Does Phase 1a render full hero chrome or a 3:4 stand-in?~~ **Resolved (1.14):** 1a ships a **3:4 portrait stand-in**; full spotlight chrome is Phase 2. Data composition still includes `variant: "hero"`. | — | closed |
+| ~~OQ-24~~ | ~~Does Phase 1a render full hero chrome or a 3:4 stand-in?~~ **Resolved (1.14):** 1a ships a **3:4 portrait stand-in**; full spotlight chrome is Phase 2. **Amended (STEP-6.4.2):** 1a ships pack banner chrome (4:5 overlay + CTAs + dots). Neighbor peek / title-as-artwork remain Phase 2. Data composition still includes `variant: "hero"`. | — | closed |
 | ~~OQ-25~~ | ~~Exact mock `/me` payload beyond `id` + `userName` (claims vs body)~~ **Resolved (1.6a):** mock JWT claims = `sub` + `exp` + `iat`; `/me` = `{ id, userName }`. JSON names → OQ-22 | — | closed |
 
 **OQ-02** (card schema), **OQ-19** (cursor vs offset), and HomeFeed first-page size from **OQ-20** (hero + 15; CW separate) were closed here in earlier revisions; **OQ-17**, **OQ-22**, **OQ-23**, and **OQ-26** are closed by 1.11. **OQ-24** is closed by 1.14. Carried forward: **OQ-30** (server-localized `Container.name`) and **OQ-34** (backend accepts the contract — doc 11 §14). Identity living doc is `architecture/16-identity-auth.md`; the wire contract is `architecture/11-interface-contracts.md`.
@@ -261,3 +261,4 @@ Phase 3 replaces the mock adapter (including mock `exp` reminting). Client stora
 | v0.2.4 | 2026-08-17 | STEP-1.11 | **`Card.name` → `Card.title`.** Cursor placement resolved as *both* levels; unknown-`variant` rule added; `expiresAt` is ISO on the wire; paths and envelope point at doc 11. Closed OQ-22, OQ-23, OQ-26. |
 | v0.2.5 | 2026-08-17 | STEP-1.14 | User and content slices replaced by RTK Query cache (`getMe` + feeds). Catalog mocks are `axios-mock-adapter` on the axios instance (ADR-0020). |
 | v0.2.6 | 2026-08-17 | STEP-1.14 | Closed OQ-24 (3:4 hero stand-in). `visibleCount` is client-side, not a Container field. |
+| v0.2.7 | 2026-08-19 | STEP-6.4.2 | OQ-24 amended: 1a pack hero banner chrome; neighbor peek still Phase 2. |

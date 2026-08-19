@@ -78,6 +78,13 @@ not a HomeFeed **payload** member. It **is** a Container variant (`progress`) fo
 
 ## Amendment (2026-08-17 — STEP-1.14)
 
-**OQ-24 is closed.** Phase 1a renders the hero container as a **3:4 portrait stand-in**. Full
-spotlight chrome (peeking neighbors, title art, CTA) is Phase 2. Feed contract and composition
+**OQ-24 is closed.** Phase 1a originally rendered the hero container as a **3:4 portrait stand-in**. Full
+spotlight chrome (peeking neighbors, title art, CTA) was Phase 2. Feed contract and composition
 still include `variant: "hero"` from Phase 1.
+
+## Amendment (2026-08-19 — STEP-6.4.2)
+
+**OQ-24 chrome is amended, not reopened.** Phase 1a now renders the hero container as the
+stakeholder-pack **banner**: 4:5 art, NEW MOVIE overlay, title/meta, Watch + add CTAs, and
+pagination dots. Neighbor-peek carousel and title-as-artwork remain Phase 2. The feed contract
+and composition are unchanged.

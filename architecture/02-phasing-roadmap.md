@@ -1,8 +1,8 @@
 # Doc 02 — Phasing & Roadmap
 
-**Version:** v0.4.2
+**Version:** v0.4.3
 **Status:** Draft
-**Last updated:** 2026-08-17 (planning session)
+**Last updated:** 2026-08-19 (STEP-6.4.2)
 **Audience:** Product stakeholders, mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into phases: what Phase 1 delivers by the 2026-08-18 stakeholder
@@ -103,7 +103,8 @@ remainder, no external date).
 | Item | Lands in | Why deferred |
 |------|----------|--------------|
 | Live and landscape carousel variants | 1b | Config additions to an existing component — cheap later, not on the critical path. Data model parks `'live'` (doc 04) |
-| Hero / spotlight **chrome** + filter pill rail | Phase 2 | Most expensive component in the reference. The feed already includes a `hero` container; 1a renders a **3:4 stand-in** (OQ-24 closed) |
+| Filter pill rail | Phase 2 | Needs more than one mocked content source to mean anything |
+| Neighbor-peek hero / title-as-artwork | Phase 2 | STEP-6.4.2 shipped pack banner chrome in 1a (overlay CTAs + dots). Remaining spotlight cost is peeking neighbors and title art |
 | UI/component tests | 1b | Highest cost-to-signal ratio under the deadline; logic tests carry the testability argument |
 | Formal QA smoke checklist | 1b | Distinct from the **release-build smoke** at every sync point (doc 09 §6.1), which *is* in 1a |
 
@@ -149,9 +150,8 @@ Criteria A1–A5 trace directly to doc 01 §3's *API swap readiness*, *theme swa
 
 ### Phase 2 — complete storefront (no backend required)
 - Hero / spotlight carousel — near-full-width card with neighbours peeking, badge pill, title
-  artwork, CTA line, metadata row. *The Phase-1 **feed contract** already includes a hero row
-  (doc 04 / ADR-0006); this phase is the full spotlight **chrome** if 1a shipped a stand-in
-  (OQ-24 **closed 1.14:** 1a ships a 3:4 stand-in).*
+  artwork. *STEP-6.4.2 pulled pack banner chrome into 1a (4:5 banner, NEW MOVIE overlay, Watch
+  + add, dots). Remaining Phase-2 cost is neighbor peek and title-as-artwork.*
 - Filter pill rail (logo-only and icon+label forms). *Needs more than one mocked content source to
   mean anything.*
 - **Content details screen** — metadata, description, cast, "similar to this" row; the alert-on-tap
@@ -399,3 +399,4 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | v0.4.0 | 2026-08-17 | STEP-1.14 | Cross-cutting: two-step auth in 1a; live stays 1b; hero 3:4 stand-in (OQ-24 closed); Decision 10/15 reconciled. STEP-1 sessions complete. |
 | v0.4.1 | 2026-08-17 | planning session | Closed OQ-12: Dev A = Raul Angel, Dev B = Andres Montoya. §9 assignment table named. |
 | v0.4.2 | 2026-08-18 | STEP-2.4 | Closed OQ-13: brand wordmark/strip SVG text outlined to paths in the app repo. §10 updated. |
+| v0.4.3 | 2026-08-19 | STEP-6.4.2 | Pack hero banner chrome pulled into 1a; Phase 2 keeps neighbor peek, title-as-artwork, and the filter pill rail. |

@@ -1,8 +1,8 @@
 # Doc 07 — UI / Design System
 
-**Version:** v0.3.2
+**Version:** v0.3.5
 **Status:** Draft
-**Last updated:** 2026-08-19 (STEP-6.3)
+**Last updated:** 2026-08-19 (STEP-6.4.2)
 **Audience:** Mobile developers, QA, stakeholders reviewing the 2026-08-18 demo
 
 > The visual foundations of the React Native client — tokens, components, navigation, theming, accessibility, i18n, and motion — with exact values, so Phase 1a can be built without re-deciding any of it.
@@ -57,6 +57,7 @@ All values are React Native density-independent points (unitless in code). Every
 | `accent.hover` / `accent.press` | `#7DD3FC` / `#0284C7` | — | Interaction ramp |
 | `live` | `#FF4D63` | 5.96:1 | Live badge + live progress bar |
 | `chip.fill` / `chip.text` | `#3F3F46` / `#D4D4D8` | 7.07:1 | Rating chip |
+| `badge.labelFill` | `rgba(122,45,110,0.9)` | — | Storefront "NEW MOVIE" label pill (STEP-6.4.2 pack) |
 
 ### 2.2 Color — theme `qcplus`, mode `auth` (light)
 
@@ -226,6 +227,7 @@ features/storefront/
       ProgressTile.tsx
     organisms/
       CarouselRow.tsx
+      HeroBanner/
       HomeFeedList.tsx
     index.ts
   helpers/
@@ -319,14 +321,14 @@ Auth is the reference implementation (STEP-6.2). Storefront has **no Redux slice
 | `PortraitTile` (2:3, art only) | `features/storefront/components/molecules` | 1a |
 | `ProgressTile` (16:9 + play + bar + meta block) | `features/storefront/components/molecules` | 1a |
 | `LiveTile`, `LandscapeTile` | `features/storefront/components/molecules` | 1b |
-| `HeroCard` | `features/storefront/components/organisms` | Phase 2 chrome; 1a renders the hero container as a **3:4 portrait stand-in** (OQ-24 closed) |
+| `HeroCard` / `HeroBanner` | `features/storefront/components/organisms/HeroBanner` | **1a** (STEP-6.4.2): pack 4:5 banner, NEW MOVIE overlay, Watch + add, pagination dots. Neighbor-peek / title-as-artwork remain Phase 2 |
 | `AuthSheetLayout`, `WelcomeHero` | `features/auth/components/organisms` | 1a |
 | `CredentialsForm` | `features/auth/components/molecules` | 1a |
 | `AuthGradientBackground`, `BrandStrip`, `SubBrandWordmark`, `AuthFooterBrandRow` | `features/auth/components/atoms` | 1a |
 
 ### 3.3 Organisms
 
-`Container` (one config-driven carousel for every variant — DF6 / ADR-0007) and `HomeFeedList` in `features/storefront/components/organisms`; `AppHeader`, `AppTabBar`, `LoadingGate`, `NoInternetOverlay` in `app/components/organisms`.
+`HeroBanner` (pack spotlight), config-driven `CarouselRow` (DF6 / ADR-0007), and `HomeFeedList` in `features/storefront/components/organisms`; `AppHeader`, `AppTabBar`, `LoadingGate`, `NoInternetOverlay` in `app/components/organisms`.
 
 ### 3.4 Screen states
 
@@ -592,7 +594,7 @@ const Title = styled.Text`
 | ~~OQ-38~~ | ~~No Phase-1a screen exposes logout — add a hidden affordance, or expiry-only?~~ **Resolved (1.14):** logout in 1a is **expiry-only** (Perfil is ComingSoon; no hidden logout). **Not OQ-29** (that ID is the reachability probe). | — | closed |
 | OQ-30 | Confirm the real API returns row `name` localized to the request's locale (and how locale is conveyed) | Backend team | Phase 3 / OQ-34 |
 
-**OQ-24** is closed (1.14): 1a ships a 3:4 hero stand-in. **OQ-22** is closed (1.11) — wire names are in `architecture/11-interface-contracts.md` §7; note that **`Card.name` is now `Card.title`**, and that doc 11 §7.3 records why `Container.name` is rendered verbatim while `error.message` never is.
+**OQ-24** was closed (1.14) as a 3:4 hero stand-in. **Amended STEP-6.4.2:** 1a now ships pack spotlight chrome (4:5 banner, overlay CTAs, dots). Neighbor peek, title-as-artwork, and the filter pill rail remain Phase 2. **OQ-22** is closed (1.11) — wire names are in `architecture/11-interface-contracts.md` §7; note that **`Card.name` is now `Card.title`**, and that doc 11 §7.3 records why `Container.name` is rendered verbatim while `error.message` never is.
 
 ## Version Log
 
@@ -613,5 +615,6 @@ const Title = styled.Text`
 | v0.3.0 | 2026-08-18 | STEP-6.2 | Feature **`components/{atoms,molecules,organisms}/`** at module root — not under `screens/`. Auth migrated; storefront + new features must follow. |
 | v0.3.1 | 2026-08-18 | STEP-6.2 | Canonical feature module template moved to **doc 03 §8.1.1** with full auth tree on disk; doc 07 cross-references it. |
 | v0.3.2 | 2026-08-19 | STEP-6.3 | Auth sheet chrome: `layout.authSheetHeightRatio` (0.78), scrollable sheet body, **MiQC+** sub-brand slot (`SubBrandWordmark`), email footer hairline + grey `AuthFooterBrandRow`. i18n: `common.subBrand` → **MiQC+**; `auth.email.*` / `auth.password.*` use **QC+** / **QC Entertainment** placeholders. |
-| v0.3.4 | 2026-08-19 | — | **Tested unit subdirectories** for `helpers/` and `hooks/` documented; storefront tree updated (doc 03 §8.1.1). |
 | v0.3.3 | 2026-08-19 | STEP-6.4 | Storefront migrated to auth-parity layout (`screens/`, `components/`, `helpers/`). Home chrome polish: header icon tertiary, tab inactive tertiary, section headers gutter-aligned, hero tile hairline border, `layout.rowGap` vertical rhythm. Grep gate pass on living artifacts. |
+| v0.3.4 | 2026-08-19 | — | **Tested unit subdirectories** for `helpers/` and `hooks/` documented; storefront tree updated (doc 03 §8.1.1). |
+| v0.3.5 | 2026-08-19 | STEP-6.4.2 | Hero spotlight chrome pulled into 1a: `HeroBanner` organism (pack 4:5 banner, NEW MOVIE overlay, Watch + add, pagination dots). Token `badge.labelFill`. Neighbor peek / title-as-artwork / filter rail still Phase 2. |

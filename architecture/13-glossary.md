@@ -1,8 +1,8 @@
 # Doc 13 — Glossary
 
-**Version:** v0.2.5
+**Version:** v0.2.6
 **Status:** Draft
-**Last updated:** 2026-08-18 (STEP-6.2)
+**Last updated:** 2026-08-19 (STEP-6.4.2)
 **Audience:** Mobile developers, backend team, QA, future agents
 
 > Precise meaning of quasar-disney-mobile's domain terms, entities, acronyms, and naming
@@ -65,7 +65,7 @@ Alphabetical. The Notes column is the disambiguation: what the term is *not*.
 | **Feature** | Extractable product surface (`auth`, `storefront`). Colocates screens, components, helpers, hooks, API adapters, and (when needed) Redux under `src/features/<name>/` per doc 03 §8.1.1. May not import another feature. | Prefer the feature name in prose over “module.” |
 | **Feature-based** | Packaging rule: organize by product surface under `src/features/*`, not a repo-root layer tree (`screens/`, `redux/`, `api/` as siblings of everything). Implements Clean Architecture in this codebase. | Compatible with the five-module modular monolith. |
 | **Fixtures** | Typed demo catalog/auth data the mock adapter serves. Same fixtures in `development` and `release`. | Tests assert against **factories**, not fixtures (one fixture-invariant test excepted). |
-| **Hero** | Container `variant: "hero"`. First item on HomeFeed page 1. Phase 1a renders a **3:4 portrait stand-in**; full spotlight chrome is Phase 2 (OQ-24 closed). | Not a separate entity. |
+| **Hero** | Container `variant: "hero"`. First item on HomeFeed page 1. Phase 1a renders pack **banner chrome** (4:5 art, overlay CTAs, dots — STEP-6.4.2). Neighbor peek / title-as-artwork remain Phase 2. | Not a separate entity. |
 | **HomeFeed** | Paginated `Container[]` from `GET /home-feed`. First page: one `hero` + 15 other containers. | Not the composed home the user sees. |
 | **IdP** | Identity provider. None in Phase 1. Phase 3 **buys** a managed IdP **behind our API**, not as an RN SDK. | Not Auth0/Firebase in the app. |
 | **Inert tab** | Tab that is tappable and routes to **ComingSoon**. | Not a disabled/unresponsive tab. |
@@ -218,3 +218,4 @@ Carried naming leftovers (not coined here): **OQ-18** is closed — application 
 | v0.2.2 | 2026-08-17 | planning session | OQ-18 closed: application repo is `quasar-disney-mobile-app`. |
 | v0.2.4 | 2026-08-18 | STEP-6.1 | Placeholder brand term **QC+**; app repo `quasar-qc-plus-mobile-app`. |
 | v0.2.5 | 2026-08-18 | STEP-6.2 | **Atom/molecule/organism** and **Feature** rows updated for auth-parity module layout (doc 03 §8.1.1). |
+| v0.2.6 | 2026-08-19 | STEP-6.4.2 | Hero: pack banner chrome in 1a (OQ-24 amended). |

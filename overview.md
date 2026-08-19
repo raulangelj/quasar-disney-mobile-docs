@@ -29,7 +29,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 ## What it does (core capabilities)
 
 - **Login** — two-step in Phase 1a: Welcome → email → password, with an inline credentials error (F2). UI locked from `inputs/ui/streaming-reference-screens.md`.
-- **Storefront** — home/browse with **2 carousel variants in 1a** (continue-watching + standard portrait); live + landscape in 1b; hero chrome Phase 2 (3:4 stand-in in 1a). Card schema is `architecture/04-data-model.md`.
+- **Storefront** — home/browse with **2 carousel variants in 1a** (continue-watching + standard portrait) plus pack **hero banner chrome**; live + landscape in 1b; neighbor-peek spotlight and filter rail remain Phase 2. Card schema is `architecture/04-data-model.md`.
 - **Data layer** — Redux Toolkit store with **RTK Query `baseApi`**; axios interceptors attach JWT; mock content via `axios-mock-adapter` on the same instance until a real backend exists.
 - **Auth boundary** — hardcoded demo credentials in v1; code structured so swapping to a real API + JWT is a localized change.
 
