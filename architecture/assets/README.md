@@ -3,39 +3,35 @@
 Design assets produced by the method and owned by the architecture docs. Session **1.7 (UI /
 Design System)** formally adopts them and defines how the theme references them.
 
-## `brand/` — the Dinsey- placeholder brand
+## `brand/` — the QC+ placeholder brand
 
-quasar-disney-mobile is a POC modelled on Disney+ reference screens
-(`../../inputs/ui/disney-plus-reference-screens.md`). **No Disney mark or artwork may appear in the
-codebase or in any build.** These files are the substitution, decided 2026-08-14 (STEP-1.2).
+quasar-qc-plus-mobile is a POC modelled on streaming reference screens
+(`../../inputs/ui/streaming-reference-screens.md`). **No third-party trademark mark or artwork may appear in the
+codebase or in any build.** These files are the substitution, decided 2026-08-14 (STEP-1.2) and
+rebranded to **QC+** in STEP-6.
 
 | File | Use |
 |------|-----|
-| `dinsey-wordmark-light.svg` | Wordmark, white — dark surfaces (welcome screen, app chrome) |
-| `dinsey-wordmark-dark.svg` | Wordmark, near-black — the light auth sheet |
-| `dinsey-mark.svg` | Compact mark, 1:1 with its own gradient plate — app icon, tab bar, small surfaces |
+| `qc-plus-wordmark-light.svg` | Wordmark, white — dark surfaces (welcome screen, app chrome) |
+| `qc-plus-wordmark-dark.svg` | Wordmark, near-black — the light auth sheet |
+| `qc-plus-mark.svg` | Compact mark, 1:1 with its own gradient plate — app icon, tab bar, small surfaces |
 | `brand-strip.svg` | The welcome screen's sub-brand row |
 
 **Sub-brands** in the strip — PIXL, NOVA, ORBIT, WILDLENS, STREAMLY, SPORTX — are invented names,
-deliberately *not* lookalikes of the real studios in the reference. Only the parent brand is a
-lookalike, and that was an explicit project decision.
-
-> **⚠️ "Dinsey-" is one letter from "Disney".** Confusing similarity is exactly what trademark law
-> targets. Accepted for an internal, unpublished POC (see `RISK-0005` in
-> `../../registries/risks.yml`). **Rename before any public release, app store submission, public
-> site, or marketing material.**
+deliberately *not* lookalikes of real studios in the reference. The parent brand is the fictional
+**QC+** / **MiQC+** pair (see `RISK-0005`).
 
 ### Outlined wordmarks (runtime)
 
 **Resolved in STEP-2.4 (OQ-13 / RISK-0006).** The shipped app reads outlined copies from
-`Code/quasar-disney-mobile-app/src/shared/assets/brand/` — every former `<text>` node is path
+`Code/quasar-qc-plus-mobile-app/src/shared/assets/brand/` — every former `<text>` node is path
 data so iOS and Android render identical letterforms. Regenerate with
-`npm run outline-brand` in the app repo after editing the hub originals below.
+`npm run outline-brand` in the app repo after editing hub originals below.
 
 ### Hub originals (provenance)
 
-These files in `brand/` are the design source. They still use SVG `<text>` for editability;
-the app repo copies are the runtime source after outlining.
+Runtime source of truth is the app repo after STEP-6.2/6.3 (`qc-plus-wordmark-*`, `qc-plus-mark`,
+`brand-strip.svg`). Hub `brand/` may hold provenance copies when authored here first.
 
 ## `placeholder-art/` — mock content artwork
 

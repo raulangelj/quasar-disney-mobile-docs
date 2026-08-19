@@ -38,7 +38,7 @@ job is to prove the architecture and the visual result to an internal audience.
 
 **What changed from the System Overview.** Doc 01 §4 listed *"Login screen (email/password)"* as one
 scope item and §5 estimated *3–4 days*. Stakeholder reference screenshots supplied during this
-session (`inputs/ui/disney-plus-reference-screens.md`) show the auth flow is **three screens plus a
+session (`inputs/ui/streaming-reference-screens.md`) show the auth flow is **three screens plus a
 distinct error state**, that the app carries **two surface themes** (dark app / light auth), and
 that the home screen has **two layouts across five carousel variants**. Visual fidelity was also
 raised from implicit to an explicit goal. **This document's schedule supersedes doc 01 §5's 3–4 day
@@ -325,20 +325,18 @@ trunk and push before branching, per `runbooks/collaboration.md`.
 
 ## 10. Placeholder brand
 
-The demo ships a fictional brand, **"Dinsey-"**, decided 2026-08-14 — resolving OQ-08. Assets live in
-`architecture/assets/brand/` (wordmarks light and dark, compact mark, sub-brand strip) and mock
-artwork in `architecture/assets/placeholder-art/` at 2:3, 16:9, and 3:4 — resolving OQ-09. See
-`architecture/assets/README.md`.
+The demo ships a fictional brand, **QC+** / **MiQC+**, decided 2026-08-14 (OQ-08) and rebranded in
+STEP-6. Assets live in `architecture/assets/brand/` (wordmarks light and dark, compact mark,
+sub-brand strip) and mock artwork in `architecture/assets/placeholder-art/` at 2:3, 16:9, and 3:4 —
+resolving OQ-09. See `architecture/assets/README.md`.
 
 Two things carried forward:
 
-- **Trademark exposure.** "Dinsey-" is one letter from "Disney"; confusing similarity is precisely
-  what trademark law targets. Accepted for an internal, unpublished POC — **rename before any public
-  release, store submission, public site, or marketing material** (RISK-0005).
+- **Trademark exposure.** Generic fictional marks only (DF10); no third-party trademark art in shipped UI (RISK-0005).
 - **Wordmarks outlined (OQ-13 closed, STEP-2.4).** Runtime copies in
-  `quasar-disney-mobile-app` `src/shared/assets/brand/` have `<text>` converted to paths so
+  `quasar-qc-plus-mobile-app` `src/shared/assets/brand/` have `<text>` converted to paths so
   letterforms match on iOS and Android. Hub originals in `architecture/assets/brand/` remain
-  provenance.
+  provenance when present.
 
 ## Decision Summary
 
@@ -359,7 +357,7 @@ Two things carried forward:
 | 13 | Team | **Two senior devs**, 15–18 Aug | Confirmed after the split was drafted for one | Foundation is still serial — a second dev does not halve the critical path |
 | 14 | Parallelization seam | Four disjoint STEPs: foundation / contract+mocks / auth / storefront | DF5 (no cross-feature imports) already makes auth and storefront disjoint; the contract layer has no RN dependency so it parallelizes the scaffold window | Two hard sync points (Sat EOD, Tue AM); shared atoms need an owner rule |
 | 15 | Scope recovered with the second dev | **Two-step auth in 1a**; live carousel **stays 1b**; **UI tests stay in 1b** | Two-step matches docs 03/16; `'live'` is out of the Phase-1 data model (doc 04) | Live badge on 18 Aug |
-| 16 | Placeholder brand | Fictional **"Dinsey-"** brand + abstract placeholder key art, authored in-repo | Unblocks the build without Disney assets; resolves OQ-08 and OQ-09 | Name is confusingly similar to Disney — internal use only (RISK-0005) |
+| 16 | Placeholder brand | Fictional **QC+** brand + abstract placeholder key art, authored in-repo | Unblocks the build without third-party assets; resolves OQ-08 and OQ-09 | Internal POC placeholder only (RISK-0005) |
 | 17 | Connectivity | Online-only + shell NetInfo gate (doc 15) | Matches the no-internet reference; no offline cache in a mock demo | Offline browse; per-feature offline screens |
 | 18 | Storefront pagination | Feature hooks + paginated mocks from day one | Organized loadMore; contract can page later | One-shot full-catalog fixture |
 
@@ -368,7 +366,7 @@ Two things carried forward:
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
 | ~~OQ-07~~ | ~~Is a second senior dev available for 15–18 Aug?~~ **Resolved 2026-08-14: yes, two seniors.** See §9 | — | closed |
-| ~~OQ-08~~ | ~~Placeholder branding — existing wordmark, or create one?~~ **Resolved 2026-08-14:** fictional "Dinsey-" brand authored in `assets/brand/` | — | closed |
+| ~~OQ-08~~ | ~~Placeholder branding — existing wordmark, or create one?~~ **Resolved 2026-08-14:** fictional **QC+** brand authored in `assets/brand/` (rebranded STEP-6) | — | closed |
 | ~~OQ-09~~ | ~~Source of placeholder key art at 2:3, 16:9, 3:4~~ **Resolved 2026-08-14:** SVG art in `assets/placeholder-art/` | — | closed |
 | ~~OQ-10~~ | ~~Does the backend team accept a contract they did not draft, and who reviews it?~~ **Superseded (1.11):** the contract now exists (`architecture/11-interface-contracts.md`); the question becomes **OQ-34**, and doc 11 §14 lists the eight items to settle with them | — | closed |
 | OQ-11 | Who attends the 18 Aug sign-off, and what constitutes "passed"? | Stakeholders | P1 launch criterion |
@@ -378,7 +376,7 @@ Two things carried forward:
 
 Carried forward from doc 01 and still open: OQ-03 (production JWT claims / IdP vendor →
 1.11 / Phase 3; mock claims closed in 1.6a), OQ-05 (Bitrise setup → Phase 2), OQ-06 (budget). **OQ-01** (final login/storefront UI) is
-now **resolved** by `inputs/ui/disney-plus-reference-screens.md`. **OQ-04** (real streaming app
+now **resolved** by `inputs/ui/streaming-reference-screens.md`. **OQ-04** (real streaming app
 migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is **resolved** by
 1.3a: `react-native-encrypted-storage`. **OQ-02** (card schema) is **resolved** by 1.4.
 
@@ -387,7 +385,7 @@ migration timeline) is unchanged and unblocking. **OQ-16** (persist library) is 
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-14 | STEP-1.2 | Initial draft from architecture session |
-| v0.2.0 | 2026-08-14 | STEP-1.2 | Second senior dev confirmed → added §9 two-developer split (four disjoint STEPs, two sync points, collision mitigations) and recovered two 1b items into 1a. Added §10 placeholder brand ("Dinsey-" + placeholder art). Closed OQ-07/08/09; opened OQ-12/13. Schedule table updated for parallel work. |
+| v0.2.0 | 2026-08-14 | STEP-1.2 | Second senior dev confirmed → added §9 two-developer split (four disjoint STEPs, two sync points, collision mitigations) and recovered two 1b items into 1a. Added §10 placeholder brand (**QC+** + placeholder art). Closed OQ-07/08/09; opened OQ-12/13. Schedule table updated for parallel work. |
 | v0.2.1 | 2026-08-16 | STEP-1.3 | DF1: axios (not fetch) inside the API module only. DF3: Keychain/Keystore persist of the auth slice from day one. DF5: shell is the composition root. |
 | v0.3.0 | 2026-08-16 | STEP-1.3a | DF3 names `react-native-encrypted-storage`. Added DF11 (connectivity gate) and DF12 (storefront pagination). |
 | v0.3.1 | 2026-08-16 | STEP-1.4 | DF12: opaque `nextCursor` (doc 04). Hero is in the Phase-1 feed contract/composition (ADR-0006); full chrome still OQ-24. Closed OQ-19. |

@@ -15,7 +15,7 @@ The default and cheapest choice in React Native is the system font stack: **SF P
 
 It also renders **two different typefaces** — different letterforms, widths, and vertical metrics. Doc 01 states the demo is shown with "both platforms side by side", and doc 02 §1 raises visual fidelity from implicit to an explicit sign-off goal. Under those two facts, a system stack means the two devices on the table do not match, in every string on every screen.
 
-This project already has one instance of exactly this failure: doc 02 §10 records that the `Dinsey-` wordmark SVGs use `<text>` with an `Avenir Next` font stack that resolves on iOS and falls back on Android, and calls it "a real defect" on a demo whose subject is visual fidelity. Choosing a system stack would generalize that defect from one asset to the whole UI.
+This project already has one instance of exactly this failure: doc 02 §10 records that early placeholder wordmark SVGs used `<text>` with an `Avenir Next` font stack that resolves on iOS and falls back on Android, and calls it "a real defect" on a demo whose subject is visual fidelity. Choosing a system stack would generalize that defect from one asset to the whole UI.
 
 The reference material is an iOS app using a custom brand font, so matching it with a *platform* font was never going to be exact on either device.
 

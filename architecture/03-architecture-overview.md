@@ -39,7 +39,7 @@ Inner layers (feature hooks, slices, models) do not depend on outer ones (axios,
 
 This is the simplest shape that still makes auth and storefront extractable later (doc 02 DF5). It **forecloses** splitting into services, a separate mock HTTP server process, or extracting npm packages in Phase 1.
 
-Internal partition of Shared is folders, not packages: `shared/theme/`, `shared/ui/`, `shared/i18n/`, `shared/analytics/`. There is **no types module** — wire types live in the API module, feature types live with the owning feature, component props live next to the component.
+Internal partition of Shared is folders, not packages: `shared/theme/`, `shared/components/`, `shared/i18n/`, `shared/analytics/`. There is **no types module** — wire types live in the API module, feature types live with the owning feature, component props live next to the component.
 
 Code lives in a **single application repo**, **`quasar-qc-plus-mobile-app`** at `Code/quasar-qc-plus-mobile-app/` (OQ-18 closed; registered STEP-2.2; renamed STEP-6.1). No backend repo is created by this project.
 
@@ -141,14 +141,14 @@ The four additions were surfaced in STEP-1.7: the assets decided in 1.2 are SVG,
 
 The five components of §4 map onto directories. This was implicit until 1.11 needed a stable path
 for the wire types (doc 11 §3) — the layout below is the one already latent in this doc: §2 names
-Shared's internals as `shared/theme/`, `shared/ui/`, … and the import-rule table below has always
+Shared's internals as `shared/theme/`, `shared/components/`, … and the import-rule table below has always
 referred to `features/`.
 
 ```
 src/app/                       shell — composition root, navigation, store, error boundary
 src/features/auth/               ← reference module (STEP-6.2); copy this shape for new features
 src/features/storefront/         ← migrates to same shape in STEP-6.4 (legacy `ui/` until then)
-src/shared/{theme,ui,i18n,analytics}/
+src/shared/{theme,components,i18n,analytics}/
 src/shared/assets/placeholder-art/   bundled placeholder key art (STEP-3.4)
 src/api/
   ├── baseApi.ts               createApi (empty endpoints); reducerPath `api`
@@ -170,8 +170,8 @@ Every feature under `src/features/<name>/` follows the **auth** layout below. **
 | `components/molecules/` | If composed feature UI exists | e.g. `CredentialsForm`, `PortraitTile`. |
 | `components/organisms/` | If large feature sections exist | e.g. `WelcomeHero`, `HomeFeedList`. |
 | `components/index.ts` | When `components/` is non-empty | Barrel exports. |
-| `helpers/` | If pure utilities exist | Validation, type guards, mappers — **not** under `screens/` or `components/`. |
-| `hooks/` | If feature owns data/composition hooks | e.g. storefront pagination (omit in auth 1a). |
+| `helpers/` | If pure utilities exist | Validation, type guards, mappers — **not** under `screens/` or `components/`. **Tested** helpers use a **unit subdirectory** (see below). |
+| `hooks/` | If feature owns data/composition hooks | e.g. storefront pagination (omit in auth 1a). **Tested** hooks use a **unit subdirectory** (see below). |
 | `screens/<ScreenName>/` | When feature owns routes | `<ScreenName>.tsx` (logic/JSX), **`<screenName>Screen.styles.ts`** (all `@emotion/native` styled components), optional `<screenName>Layout.ts`. **No `components/` subfolder.** |
 | `screens/index.ts` | When feature owns routes | Navigator-facing screen exports. |
 | `state/slices/<slice>/` | When feature owns Redux state | Slice + co-located unit tests. Selectors live in `state/selectors/`, not on the slice file. |
@@ -233,6 +233,61 @@ features/auth/
 **Target — `features/storefront/` (STEP-6.4):** same tiers; `hooks/` at feature root; **no `state/`** in Phase 1a (RTK Query cache only). See `features/storefront/README.md`.
 
 Screens import feature UI from `../../components/{atoms,molecules,organisms}/…`. Shell imports screens from `features/<feature>/screens`. Selectors are read via `features/<feature>/state/selectors/`.
+
+#### Tested unit subdirectories (`helpers/` and `hooks/`)
+
+When a helper, hook, or pure utility is **non-trivial enough to warrant a unit test**, it lives in its **own subdirectory** under `helpers/` or `hooks/` — same pattern as `screens/<ScreenName>/` and `state/slices/<slice>/`:
+
+```
+helpers/placeholderArt/
+  placeholderArt.ts
+  placeholderArt.test.ts
+  index.ts              # re-exports the public API
+hooks/usePaginatedContainers/
+  usePaginatedContainers.ts
+  usePaginatedContainers.test.ts
+  index.ts
+```
+
+| Rule | Detail |
+|------|--------|
+| **When** | The module has (or needs) a co-located `*.test.ts` — T1 logic, mappers, pagination, i18n formatters, etc. |
+| **When not** | One-liner guards, trivial validators, or glue with no dedicated test stay as a **single flat file** (e.g. `helpers/isApiError.ts`). |
+| **Entry file** | `<unitName>.ts` beside `<unitName>.test.ts` — not `index.ts` as the implementation. |
+| **Barrel** | Optional `index.ts` re-exports the public surface so callers import `helpers/placeholderArt`, not the inner path. |
+| **Shared types** | Cross-hook types may stay at `hooks/types.ts` when several hooks share them. |
+| **Integration tests** | Stay at feature root (e.g. `api.integration.test.ts`) — not inside a unit folder. |
+| **Redux slices** | Already use `state/slices/<slice>/` + co-located test; same principle. |
+
+**Auth (Phase 1a):** `helpers/emailValidation.ts` and `helpers/isApiError.ts` remain flat — simple, untested. Add a subdirectory when a test file is introduced.
+
+**Storefront:** all tested helpers and hooks follow this layout (post STEP-6.4).
+
+#### Unit subdirectories (`shared/components/`)
+
+Shared UI follows the **same subdirectory rule** as `helpers/` and `hooks/`. When a component in `shared/components/{atoms,molecules,organisms}/` has a co-located **`<ComponentName>.styles.ts`** or **`*.test.ts`**, it lives in **`shared/components/<tier>/<ComponentName>/`**:
+
+```
+shared/components/molecules/TabBarItem/
+  TabBarItem.tsx
+  TabBarItem.styles.ts
+  index.ts
+shared/components/molecules/SectionHeader/
+  SectionHeader.tsx
+  SectionHeader.test.ts
+  index.ts
+```
+
+| Rule | Detail |
+|------|--------|
+| **When** | The component has (or needs) a co-located styles file or unit test. |
+| **When not** | Simple atoms/icons with inline styled definitions and no test stay as a **single flat file** (e.g. `atoms/Button.tsx`, `icons/CastIcon.tsx`). |
+| **Entry file** | `<ComponentName>.tsx` beside `<ComponentName>.styles.ts` / `<ComponentName>.test.ts` — not `index.ts` as the implementation. |
+| **Styles file** | `<ComponentName>.styles.ts` — all `@emotion/native` `styled.*` for that component (object callback form). The `.tsx` file holds logic/JSX only. |
+| **Barrel** | `index.ts` re-exports the public surface so callers import `shared/components/molecules/TabBarItem`, not the inner path. |
+| **Icons** | Stay under `shared/components/icons/` as flat files unless an icon gains a styles file or test. |
+
+Feature-local components under `features/*/components/` follow the same rule when they gain a styles file or test.
 
 **Styling (mandatory):** no inline styles in feature screens or components — use **`@emotion/native` `styled.*` only** (no `StyleSheet.create`). **Every screen folder** includes `<screenName>Screen.styles.ts` beside `<ScreenName>.tsx`; the screen file holds logic/JSX only. Screen-local layout numbers live in `<screenName>Layout.ts`. Colors and typography come from theme tokens inside styled callbacks, not literal hex/rgba (A2). The only exception is **animated runtime values** (e.g. press opacity) on an `Animated.*` wrapper when the value cannot be static.
 
@@ -331,6 +386,7 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 | v0.4.4 | 2026-08-18 | STEP-3.4 | §8.1 tree gains **`src/shared/assets/placeholder-art/`** — bundled placeholder key art the demo fixtures name by filename string. Resolution of that string to a renderable asset is STEP-5's (PLAN Q4); no dependency change. |
 | v0.4.5 | 2026-08-18 | STEP-3.5 | **§8.2's shell wiring landed**: `createStore()` registers `baseApi.reducer` and `baseApi.middleware`, and the composition root calls `injectStore(store)` — the two lines STEP-2 left as stubs. `api` is in the root-state type and stays off the persist whitelist (ADR-0003, DF3). `createStore()` gains an optional `extraMiddleware` slot, appended after `baseApi.middleware`, because a `configureStore` store is sealed and the 401 reaction is dispatched from *inside* the chain where a `store.dispatch` wrapper cannot see it; the T2 suite records actions through it. §8.1 tree gains **`src/api/integration/`** (test-only). No dependency change. |
 | v0.4.6 | 2026-08-18 | STEP-6.2 | **§8.1.1 Feature module template** — mandatory auth-parity layout (`screens/`, `components/{atoms,molecules,organisms}/`, `helpers/`, `state/slices|actions|selectors/`). Auth migrated on disk; storefront migrates STEP-6.4; new features copy auth from day one. |
+| v0.4.10 | 2026-08-19 | — | §8.1.1 **Tested unit subdirectories** — helpers/hooks with co-located `*.test.ts` live under `helpers/<name>/` or `hooks/<name>/`; simple untested utilities stay flat. Storefront migrated; auth helpers unchanged. |
 | v0.4.9 | 2026-08-19 | — | §8.1.1 **mandatory `<screenName>Screen.styles.ts`** per screen folder; auth Welcome + Placeholder migrated. |
 | v0.4.8 | 2026-08-19 | — | §8.1.1 **Emotion styled only** — no `StyleSheet.create` in feature modules; co-located `*Screen.styles.ts` pattern (auth `loginScreen.styles.ts`). |
 | v0.4.7 | 2026-08-19 | — | §8.1.1 **no inline styles** in feature screens/components (`styled.*` only; animated runtime merge excepted). Auth tree: combined **`LoginScreen`**. |

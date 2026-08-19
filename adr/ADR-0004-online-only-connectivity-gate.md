@@ -7,7 +7,7 @@
 - `architecture/15-native-app-architecture.md`
 - `architecture/03-architecture-overview.md`
 - `architecture/02-phasing-roadmap.md`
-- `inputs/ui/disney-plus-reference-screens.md` (§7)
+- `inputs/ui/streaming-reference-screens.md` (§7)
 - ADR-0003 (auth persist is not an offline cache)
 
 ## Context

@@ -11,7 +11,7 @@
 
 ## Context
 
-The reference screens carry **two distinct surfaces**: a near-black app theme for everything after login, and a light white-sheet-on-gradient theme for the whole MyDisney auth flow (`inputs/ui/disney-plus-reference-screens.md`). Doc 02 decision 9 already committed to carrying both inside one token structure rather than one palette with per-screen exceptions.
+The reference screens carry **two distinct surfaces**: a near-black app theme for everything after login, and a light white-sheet-on-gradient theme for the whole MyDisney auth flow (`inputs/ui/streaming-reference-screens.md`). Doc 02 decision 9 already committed to carrying both inside one token structure rather than one palette with per-screen exceptions.
 
 Two launch criteria depend on how that structure is shaped:
 
@@ -22,7 +22,7 @@ The obvious naming for two surfaces is `light` and `dark`. That naming is a trap
 
 ## Decision
 
-1. **The theme has two axes:** a *theme* (brand token values — `dinsey`, plus the `ember` test theme) and a *surface mode* (`app` | `auth`). Modes live **inside** the theme: `Theme.modes: Record<SurfaceMode, ModeTokens>`. Every mode exposes an identical set of token keys.
+1. **The theme has two axes:** a *theme* (brand token values — `qcplus`, plus the `ember` test theme) and a *surface mode* (`app` | `auth`). Modes live **inside** the theme: `Theme.modes: Record<SurfaceMode, ModeTokens>`. Every mode exposes an identical set of token keys.
 
    **Rationale.** A1 requires swapping a theme to re-skin both modes at once. If modes sat beside themes rather than inside them, a theme swap would only reach one surface.
    **Reversibility.** Low cost to extend (a third mode is a key); high cost to invert (every consumer changes).
@@ -41,7 +41,7 @@ The obvious naming for two surfaces is `light` and `dark`. That naming is a trap
 
 5. **Components read `theme.colors.*` and never know which mode they are on.** A component that branches on mode is a defect, not a pattern.
 
-6. **The A1 test theme is specified in the design system, not invented later:** `ember`, with every value contrast-checked to the same WCAG AA floor as `dinsey`.
+6. **The A1 test theme is specified in the design system, not invented later:** `ember`, with every value contrast-checked to the same WCAG AA floor as `qcplus`.
 
 ## Consequences
 

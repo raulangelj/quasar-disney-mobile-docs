@@ -38,7 +38,7 @@ Session restore from secure storage is **not** offline mode: it is a local auth 
 
 ### Connectivity gate
 
-When the device has no usable network, the **app shell** shows a full-screen overlay matching `inputs/ui/07-no-internet.png` (transcribed in `inputs/ui/disney-plus-reference-screens.md` §7):
+When the device has no usable network, the **app shell** shows a full-screen overlay matching `inputs/ui/07-no-internet.png` (transcribed in `inputs/ui/streaming-reference-screens.md` §7):
 
 - Dark near-black surface (app-theme family, not the light auth sheet).
 - Centered copy: *Es necesario revisar tu conexión a internet. Volveremos a cargar automáticamente la pantalla una vez que se establezca la conexión.*

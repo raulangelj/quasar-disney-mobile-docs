@@ -117,7 +117,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 
 | ID | Question | Owner | Feeds into |
 |----|----------|-------|------------|
-| ~~OQ-01~~ | ~~Final login and storefront UI from stakeholder reference images~~ **Resolved (1.2):** `inputs/ui/disney-plus-reference-screens.md` | — | closed |
+| ~~OQ-01~~ | ~~Final login and storefront UI from stakeholder reference images~~ **Resolved (1.2):** `inputs/ui/streaming-reference-screens.md` | — | closed |
 | ~~OQ-02~~ | ~~Exact carousel card metadata schema~~ **Resolved (1.4):** Title fields + artwork map + CW progress fields in `architecture/04-data-model.md`. JSON names → 1.11 | — | closed |
 | OQ-03 | Production backend contract and JWT claims shape | Backend team | 1.11 Interface Contracts; Phase 3 |
 | OQ-04 | Real streaming app migration timeline and which modules move first | Product / eng leadership | 1.2 Phasing & Roadmap |
@@ -129,7 +129,7 @@ The team needs a credible, functional reference app that shows stakeholders how 
 | Version | Date | STEP | Change |
 |---------|------|------|--------|
 | v0.1.0 | 2026-08-14 | STEP-1.1 | Initial draft from architecture session |
-| v0.1.1 | 2026-08-14 | STEP-1.2 | §5 timeline and work-split constraints superseded by doc 02 (fixed 2026-08-18 sign-off; Phase 1 split into 1a/1b). OQ-01 resolved by `inputs/ui/disney-plus-reference-screens.md`. |
+| v0.1.1 | 2026-08-14 | STEP-1.2 | §5 timeline and work-split constraints superseded by doc 02 (fixed 2026-08-18 sign-off; Phase 1 split into 1a/1b). OQ-01 resolved by `inputs/ui/streaming-reference-screens.md`. |
 | v0.1.2 | 2026-08-16 | STEP-1.3a | Storefront scope: paginated feed/carousels via feature hooks (doc 15 / ADR-0005). |
 | v0.1.3 | 2026-08-16 | STEP-1.4 | Closed OQ-02 (Title / CW / artwork schema in doc 04). |
 | v0.1.4 | 2026-08-17 | STEP-1.6a | Assumption 5 confirmed (demo credentials). OQ-03 now 1.11 / Phase 3; mock claims closed in doc 16. |

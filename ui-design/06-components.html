@@ -146,7 +146,7 @@
 
 <div class="hold">
   <strong>Ownership rule (the collision mitigation).</strong> A component lives in
-  <code>shared/ui/</code> if <em>two or more</em> of {auth, storefront, shell} render it. Otherwise it
+  <code>shared/components/</code> if <em>two or more</em> of {auth, storefront, shell} render it. Otherwise it
   lives with its feature. That makes the foundation STEP's deliverable a closed list rather than a
   judgement call, and it means neither dev is ever blocked waiting for the other to publish an atom.
   <br><br>
@@ -159,7 +159,7 @@
 <section class="sec">
   <div class="sec-head">
     <h2>Atoms</h2>
-    <span class="tag own">shared/ui/atoms · foundation STEP · Dev A</span>
+    <span class="tag own">shared/components/atoms · foundation STEP · Dev A</span>
   </div>
   <p class="char">
     14 atoms. Every one is used by at least two of the three consumers, so all of them are shared —
@@ -280,7 +280,7 @@
         <div class="lbl">Artwork ratio="2:3" · scrim baked in</div>
       </div>
       <div class="item"><div class="skel" style="width:88px;height:132px"></div><div class="lbl">Artwork · missing/loading fallback</div></div>
-      <div class="item"><div style="color:#fff;font-weight:800;letter-spacing:.06em;font-size:16px">DINSEY-</div><div class="lbl">Wordmark tone="light" (asset, not text — see doc 02 §10 / OQ-13)</div></div>
+      <div class="item"><div style="color:#fff;font-weight:800;letter-spacing:.06em;font-size:16px">QC+</div><div class="lbl">Wordmark tone="light" (asset, not text — see doc 02 §10 / OQ-13)</div></div>
     </div>
   </div>
 </section>
@@ -289,7 +289,7 @@
 <section class="sec">
   <div class="sec-head">
     <h2>Molecules</h2>
-    <span class="tag own">split: shared/ui vs feature</span>
+    <span class="tag own">split: shared/components vs feature</span>
   </div>
   <p class="char">
     The tiles are <em>storefront-only</em> and belong to Dev B; the auth composites are Dev A's. Only
@@ -364,7 +364,7 @@
   <div class="grid" style="margin-top:16px">
     <div class="item">
       <p class="cap">Cold-start gate (shell)</p>
-      <div class="phone"><div class="ov"><div style="color:#fff;font-weight:800;letter-spacing:.06em">DINSEY-</div><div class="spinner"></div></div></div>
+      <div class="phone"><div class="ov"><div style="color:#fff;font-weight:800;letter-spacing:.06em">QC+</div><div class="spinner"></div></div></div>
       <div class="lbl">Blocks until <code>/me</code> + HomeFeed + CW resolve (doc 04 §6)</div>
     </div>
     <div class="item">
@@ -418,15 +418,15 @@
   <div class="sec-head"><h2>Ownership map</h2><span class="tag">what the foundation STEP owes, and to whom</span></div>
   <table style="margin-top:14px">
     <tr><th>Component</th><th>Lives in</th><th>Consumers</th><th>Phase</th></tr>
-    <tr><td class="mono">Text · Button · IconButton · Chip · Badge · ProgressBar · TextField · PasswordField · Link · Divider · Spinner · Skeleton · Artwork · Wordmark</td><td class="mono">shared/ui/atoms</td><td>auth · storefront · shell</td><td>1a foundation</td></tr>
-    <tr><td class="mono">SectionHeader · TabBarItem</td><td class="mono">shared/ui/molecules</td><td>storefront · shell</td><td>1a foundation</td></tr>
-    <tr><td class="mono">FilterPill</td><td class="mono">shared/ui/atoms</td><td>storefront (Ph2)</td><td>atom now, used later</td></tr>
+    <tr><td class="mono">Text · Button · IconButton · Chip · Badge · ProgressBar · TextField · PasswordField · Link · Divider · Spinner · Skeleton · Artwork · Wordmark</td><td class="mono">shared/components/atoms</td><td>auth · storefront · shell</td><td>1a foundation</td></tr>
+    <tr><td class="mono">SectionHeader · TabBarItem</td><td class="mono">shared/components/molecules</td><td>storefront · shell</td><td>1a foundation</td></tr>
+    <tr><td class="mono">FilterPill</td><td class="mono">shared/components/atoms</td><td>storefront (Ph2)</td><td>atom now, used later</td></tr>
     <tr><td class="mono">PortraitTile · ProgressTile · LandscapeTile · LiveTile · HeroCard · MetaRow</td><td class="mono">features/storefront/components/{molecules,organisms}</td><td>storefront only</td><td>1a (portrait, progress) · 1b (live, landscape) · Ph2 (hero chrome)</td></tr>
     <tr><td class="mono">Container (config-driven carousel) · HomeFeedList</td><td class="mono">features/storefront/components/organisms</td><td>storefront only</td><td>1a · one component, all variants (DF6 / ADR-0007)</td></tr>
     <tr><td class="mono">AuthGradientBackground · BrandStrip</td><td class="mono">features/auth/components/atoms</td><td>auth only</td><td>1a</td></tr>
     <tr><td class="mono">AuthSheetLayout · WelcomeHero · CredentialsForm</td><td class="mono">features/auth/components/{molecules,organisms}</td><td>auth only</td><td>1a</td></tr>
     <tr><td class="mono">AppHeader · TabBar · LoadingGate · NoInternetOverlay</td><td class="mono">app/shell/ui</td><td>shell only</td><td>1a</td></tr>
-    <tr><td class="mono">ErrorState · EmptyState</td><td class="mono">shared/ui/molecules</td><td>storefront · auth</td><td>1a foundation</td></tr>
+    <tr><td class="mono">ErrorState · EmptyState</td><td class="mono">shared/components/molecules</td><td>storefront · auth</td><td>1a foundation</td></tr>
   </table>
   <p class="char" style="margin-top:14px">
     <strong>Not built:</strong> modal/dialog (the card tap is a native <code>Alert</code> in 1a — DF7),

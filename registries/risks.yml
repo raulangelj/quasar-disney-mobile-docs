@@ -103,7 +103,7 @@ risks:
     owner: "TBD"
     opened: "2026-08-14"
     source: "architecture/02-phasing-roadmap.md"
-    description: "The POC ships under the fictional **QC+** placeholder brand (renamed from Dinsey- in STEP-6.1). Still not a public trademark; generic streaming UX patterns only."
+    description: "The POC ships under the fictional **QC+** placeholder brand (rebranded in STEP-6.1). Still not a public trademark; generic streaming UX patterns only."
     impact: "Low while the app is internal and unpublished; review before any public release or store submission."
     mitigation: "Internal, unpublished POC only. Sub-brands in the strip are deliberately NOT lookalikes of real studios."
     revisit_trigger: "Any public release, app store submission, public website, or marketing use — confirm legal clearance before, not after."

@@ -29,7 +29,7 @@
 
 **Cinematic · immersive · art-forward.**
 
-Artwork dominates; chrome recedes. Near-black surfaces lifted slightly off pure black, translucent chrome, a single accent, and a tight row rhythm so several carousels stack in one viewport. This is the direction the reference screens actually embody (`inputs/ui/disney-plus-reference-screens.md`), and visual fidelity is an explicit Phase-1 goal (doc 02 §1), not a nice-to-have.
+Artwork dominates; chrome recedes. Near-black surfaces lifted slightly off pure black, translucent chrome, a single accent, and a tight row rhythm so several carousels stack in one viewport. This is the direction the reference screens actually embody (`inputs/ui/streaming-reference-screens.md`), and visual fidelity is an explicit Phase-1 goal (doc 02 §1), not a nice-to-have.
 
 What the principle costs, and where it is bounded:
 
@@ -153,7 +153,7 @@ Translucent chrome is `rgba(255,255,255,.07)`, **not** a backdrop blur — RN ne
 
 ## 3. Components
 
-**Ownership rule:** a component lives in `shared/ui/` if **two or more** of {auth, storefront, shell} render it; otherwise it lives with its feature. This makes the foundation STEP's deliverable a closed list and resolves doc 02 §9's "shared atom nobody owns" collision hazard.
+**Ownership rule:** a component lives in `shared/components/` if **two or more** of {auth, storefront, shell} render it; otherwise it lives with its feature. This makes the foundation STEP's deliverable a closed list and resolves doc 02 §9's "shared atom nobody owns" collision hazard.
 
 **Feature module layout (all features):** **`architecture/03-architecture-overview.md` §8.1.1** is the canonical template (auth on disk). Doc 07 §3 covers component ownership. **Storefront migrates in STEP-6.4**; **new features copy auth from day one**. Do **not** add files under `features/*/ui/` or `screens/*/components/`.
 
@@ -161,15 +161,16 @@ Translucent chrome is `rgba(255,255,255,.07)`, **not** a backdrop blur — RN ne
 |------|---------|
 | `features/<feature>/api.ts` | RTK `injectEndpoints` when the feature owns API operations. |
 | `features/<feature>/screens/<ScreenName>/` | One directory per route or screen flow; entry file `<ScreenName>.tsx`. Screen-local layout constants may sit beside the entry (e.g. `welcomeLayout.ts`). **No `components/` subfolder under screens.** |
-| `features/<feature>/components/atoms/` | Feature-only atoms — not in `shared/ui/` because only this feature renders them. |
+| `features/<feature>/components/atoms/` | Feature-only atoms — not in `shared/components/` because only this feature renders them. |
 | `features/<feature>/components/molecules/` | Composed feature UI (e.g. `CredentialsForm`, `PortraitTile`). |
 | `features/<feature>/components/organisms/` | Larger feature sections (e.g. `WelcomeHero`, `AuthSheetLayout`, `HomeFeedList`). |
 | `features/<feature>/components/index.ts` | Barrel exports for feature components. |
-| `features/<feature>/helpers/` | Pure utilities — not under `screens/` or `components/`. |
-| `features/<feature>/hooks/` | Data / pagination / composition hooks (storefront; omit if unused). |
+| `features/<feature>/helpers/` | Pure utilities — not under `screens/` or `components/`. **Tested** units use `helpers/<name>/` (doc 03 §8.1.1). |
+| `features/<feature>/hooks/` | Data / pagination / composition hooks (storefront; omit if unused). **Tested** units use `hooks/<name>/`. |
 | `features/<feature>/screens/index.ts` | Navigator-facing screen exports only. |
 | `features/<feature>/assets/` | Optional feature-local static media. |
 | `features/<feature>/README.md` | Feature tree documented; keep aligned with disk. |
+| `shared/components/{atoms,molecules,organisms}/` | Cross-feature UI. Components with co-located `<ComponentName>.styles.ts` or `*.test.ts` use **`shared/components/<tier>/<ComponentName>/`** (doc 03 §8.1.1). Simple atoms/icons stay flat files. |
 
 Example (auth — **actual on disk**, STEP-6.2):
 
@@ -228,9 +229,18 @@ features/storefront/
       HomeFeedList.tsx
     index.ts
   helpers/
-    variantConfig.ts
-    placeholderArt.ts
-    progressTileLabel.ts
+    placeholderArt/
+      placeholderArt.ts
+      placeholderArt.test.ts
+      index.ts
+    variantConfig/
+      variantConfig.ts
+      variantConfig.test.ts
+      index.ts
+    progressTileLabel/
+      progressTileLabel.ts
+      progressTileLabel.test.ts
+      index.ts
   screens/
     HomeScreen/
       HomeScreen.tsx
@@ -238,11 +248,28 @@ features/storefront/
       ComingSoonScreen.tsx
     index.ts
   hooks/
-    useComposedHome.ts
-    …
+    types.ts
+    index.ts
+    composeHomeContainers/
+      composeHomeContainers.ts
+      composeHomeContainers.test.ts
+      index.ts
+    usePaginatedContainers/
+      usePaginatedContainers.ts
+      usePaginatedContainers.test.ts
+      index.ts
+    useCarouselPage/
+      useCarouselPage.ts
+      useCarouselPage.test.ts
+      index.ts
+    useComposedHome/
+      useComposedHome.ts
+      silentReload.test.ts
+      index.ts
+    useSilentContinueWatchingReload.ts
 ```
 
-Screens import from `../../components/{atoms,molecules,organisms}/…` — never colocate feature components under a screen directory.
+Tested helpers and hooks use a **unit subdirectory** (`<name>/<name>.ts` + `<name>.test.ts` + optional `index.ts`). Simple untested utilities stay flat — see doc 03 §8.1.1.
 
 **Redux state (features with slices):** when a feature owns Redux state, everything lives under `state/` — not beside it.
 
@@ -264,7 +291,7 @@ Auth is the reference implementation (STEP-6.2). Storefront has **no Redux slice
 6. Update `features/storefront/README.md` to the post-migration tree.
 7. **State:** omit `state/` until a slice exists; then use auth's `state/slices|actions|selectors` tree.
 
-### 3.1 Atoms — `shared/ui/atoms` (foundation STEP)
+### 3.1 Atoms — `shared/components/atoms` (foundation STEP)
 
 | Component | Variants / states |
 |-----------|-------------------|
@@ -288,7 +315,7 @@ Auth is the reference implementation (STEP-6.2). Storefront has **no Redux slice
 
 | Component | Lives in | Phase |
 |-----------|----------|-------|
-| `SectionHeader`, `TabBarItem`, `ErrorState`, `EmptyState` | `shared/ui/molecules` | 1a |
+| `SectionHeader`, `TabBarItem`, `ErrorState`, `EmptyState` | `shared/components/molecules` | 1a |
 | `PortraitTile` (2:3, art only) | `features/storefront/components/molecules` | 1a |
 | `ProgressTile` (16:9 + play + bar + meta block) | `features/storefront/components/molecules` | 1a |
 | `LiveTile`, `LandscapeTile` | `features/storefront/components/molecules` | 1b |
@@ -368,7 +395,7 @@ Artwork is **not** themed: it is content, and real key art will not be themed ei
 
 ## 6. Iconography
 
-**13 hand-authored SVG icons** as RN components over `react-native-svg`, in `shared/ui/icons/`: cast, download, home (filled + outline), bolt, search, profile, chevron-left, chevron-down, eye, eye-off, overflow, play. 24 pt grid, 1.7 stroke, `color` from theme tokens so active/inactive and both modes come free.
+**13 hand-authored SVG icons** as RN components over `react-native-svg`, in `shared/components/icons/`: cast, download, home (filled + outline), bolt, search, profile, chevron-left, chevron-down, eye, eye-off, overflow, play. 24 pt grid, 1.7 stroke, `color` from theme tokens so active/inactive and both modes come free.
 
 `react-native-vector-icons` was rejected: per-platform native font linking, a whole icon font for 13 glyphs, and none of its sets match the reference's specific glyphs. PNG icons were rejected: per-state and per-theme tinting would require file variants, breaking A1.
 
@@ -535,7 +562,7 @@ const Title = styled.Text`
 | 6 | Touch targets | 44 pt via `hitSlop`, independent of visual density | Reference glyphs are ~20 pt; AA floor is non-negotiable | Enlarging glyphs to reach the minimum |
 | 7 | Shape | Reference radii (tile 10 / sheet 24 / field 8 / chip 4 / full) | Deliberate contrast: large sheet, small content, full actions | Uniformly soft or uniformly crisp systems |
 | 8 | Elevation | Surface lift + hairline border, both modes; no shadows (one sheet exception) | Shadows are invisible on near-black; RN shadow APIs diverge across platforms | Material elevation; shadow-based cards |
-| 9 | Components | 14 atoms / 9 molecules / 8 organisms; `shared/ui` iff ≥2 consumers | Closes doc 02 §9's shared-atom collision hazard | Per-feature duplicate atoms |
+| 9 | Components | 14 atoms / 9 molecules / 8 organisms; `shared/components` iff ≥2 consumers | Closes doc 02 §9's shared-atom collision hazard | Per-feature duplicate atoms |
 | 10 | Button API | One `Button` with explicit `tone` | Tone cannot be derived from mode — Welcome breaks that assumption | Separate Primary/Secondary/Ghost components |
 | 11 | Press feedback | Tiles scale 0.965; everything else opacity 0.7 | Opacity is a weak signal on dark artwork | Material ripple; uniform opacity |
 | 12 | Loading | Gate spinner · row skeletons at true geometry · in-button spinner | Each matches what is being awaited; no layout jump (doc 04 §6) | One-size spinner or skeletons everywhere |
@@ -576,7 +603,7 @@ const Title = styled.Text`
 | v0.2.0 | 2026-08-17 | STEP-1.14 | §12: **Emotion** (`@emotion/native` + `@emotion/react` ThemeProvider) replaces styled-components (**ADR-0019**). Token model unchanged. |
 | v0.2.1 | 2026-08-17 | STEP-1.14 | Closed OQ-24 (3:4 hero stand-in). `visibleCount` is client-side (**OQ-37**). Logout in 1a is expiry-only (**OQ-38**). Those questions were mis-numbered as OQ-28/29. |
 | v0.2.2 | 2026-08-18 | STEP-2.4 | Closed **OQ-13**: brand SVG `<text>` converted to paths in `quasar-disney-mobile-app` `src/shared/assets/brand/` (runtime source); hub `architecture/assets/brand/` remains provenance. |
-| v0.2.3 | 2026-08-18 | STEP-6.2 | Default brand theme slug **`qcplus`** (was `dinsey`). Added `radius.cta` (10 pt) for welcome/offline pill CTAs. `Button` gains optional `cornerRadius: pill \| cta`. QC+ wordmark assets replace Dinsey- placeholders; welcome i18n uses **QC+** / **QC Entertainment**. |
+| v0.2.3 | 2026-08-18 | STEP-6.2 | Default brand theme slug **`qcplus`** (legacy placeholder slug retired). Added `radius.cta` (10 pt) for welcome/offline pill CTAs. `Button` gains optional `cornerRadius: pill \| cta`. QC+ wordmark assets replace legacy placeholders; welcome i18n uses **QC+** / **QC Entertainment**. |
 | v0.2.4 | 2026-08-18 | STEP-6.2 | Stakeholder welcome pack wired: poster fan + PNG wordmark, violet 3-stop gradient (`gradient.mid`), QC+ palette (`#0A0A1F → #150C2E → #050410`, `#F7F5FF` text/CTA, `#9AC4FF` links, `#FF8A3D` accent). Headline and brand strip removed from welcome layout. |
 | v0.2.5 | 2026-08-18 | STEP-6.2 | Spacing scale renamed to semantic steps `space.xxs` … `space.xxxxxxxxxl`; welcome-specific layout constants moved out of `layout.*` into the auth welcome screen module. |
 | v0.2.6 | 2026-08-18 | STEP-6.2 | Auth feature UI reorganized: `features/auth/ui/` → `features/auth/screens/` with per-screen directories (`WelcomeScreen/`, `Login/`), module `components/`, and feature-level `helpers/`. |
@@ -586,3 +613,5 @@ const Title = styled.Text`
 | v0.3.0 | 2026-08-18 | STEP-6.2 | Feature **`components/{atoms,molecules,organisms}/`** at module root — not under `screens/`. Auth migrated; storefront + new features must follow. |
 | v0.3.1 | 2026-08-18 | STEP-6.2 | Canonical feature module template moved to **doc 03 §8.1.1** with full auth tree on disk; doc 07 cross-references it. |
 | v0.3.2 | 2026-08-19 | STEP-6.3 | Auth sheet chrome: `layout.authSheetHeightRatio` (0.78), scrollable sheet body, **MiQC+** sub-brand slot (`SubBrandWordmark`), email footer hairline + grey `AuthFooterBrandRow`. i18n: `common.subBrand` → **MiQC+**; `auth.email.*` / `auth.password.*` use **QC+** / **QC Entertainment** placeholders. |
+| v0.3.4 | 2026-08-19 | — | **Tested unit subdirectories** for `helpers/` and `hooks/` documented; storefront tree updated (doc 03 §8.1.1). |
+| v0.3.3 | 2026-08-19 | STEP-6.4 | Storefront migrated to auth-parity layout (`screens/`, `components/`, `helpers/`). Home chrome polish: header icon tertiary, tab inactive tertiary, section headers gutter-aligned, hero tile hairline border, `layout.rowGap` vertical rhythm. Grep gate pass on living artifacts. |
