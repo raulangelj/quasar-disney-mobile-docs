@@ -63,7 +63,7 @@ Internal pre-launch demo for stakeholders — functional on iOS and Android simu
 - **Emotion** — `@emotion/native` styled components + `@emotion/react` `ThemeProvider` with a token palette (color, type, space).
 - **TypeScript** — interfaces, enums, and typed values throughout.
 - **Atomic design** — atoms → molecules → organisms for reusable UI.
-- **Modular file system** — feature modules colocate related code (UI, state, types, API adapters) and stay organized for potential extraction into separate repositories.
+- **Modular file system** — feature modules colocate related code (screens, components, helpers, state, API adapters) under `src/features/<name>/` using the auth reference layout ([`architecture/03-architecture-overview.md`](architecture/03-architecture-overview.md) §8.1.1); organized for potential extraction into separate repositories.
 - **No real backend in v1** — dummy API + mocked responses; naming and boundaries must anticipate production endpoints.
 
 ## Sensitive data & risk

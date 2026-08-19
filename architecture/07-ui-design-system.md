@@ -1,8 +1,8 @@
 # Doc 07 — UI / Design System
 
-**Version:** v0.2.2
+**Version:** v0.3.1
 **Status:** Draft
-**Last updated:** 2026-08-17 (STEP-1.14)
+**Last updated:** 2026-08-18 (STEP-6.2)
 **Audience:** Mobile developers, QA, stakeholders reviewing the 2026-08-18 demo
 
 > The visual foundations of the React Native client — tokens, components, navigation, theming, accessibility, i18n, and motion — with exact values, so Phase 1a can be built without re-deciding any of it.
@@ -154,6 +154,113 @@ Translucent chrome is `rgba(255,255,255,.07)`, **not** a backdrop blur — RN ne
 
 **Ownership rule:** a component lives in `shared/ui/` if **two or more** of {auth, storefront, shell} render it; otherwise it lives with its feature. This makes the foundation STEP's deliverable a closed list and resolves doc 02 §9's "shared atom nobody owns" collision hazard.
 
+**Feature module layout (all features):** **`architecture/03-architecture-overview.md` §8.1.1** is the canonical template (auth on disk). Doc 07 §3 covers component ownership. **Storefront migrates in STEP-6.4**; **new features copy auth from day one**. Do **not** add files under `features/*/ui/` or `screens/*/components/`.
+
+| Path | Purpose |
+|------|---------|
+| `features/<feature>/api.ts` | RTK `injectEndpoints` when the feature owns API operations. |
+| `features/<feature>/screens/<ScreenName>/` | One directory per route or screen flow; entry file `<ScreenName>.tsx`. Screen-local layout constants may sit beside the entry (e.g. `welcomeLayout.ts`). **No `components/` subfolder under screens.** |
+| `features/<feature>/components/atoms/` | Feature-only atoms — not in `shared/ui/` because only this feature renders them. |
+| `features/<feature>/components/molecules/` | Composed feature UI (e.g. `CredentialsForm`, `PortraitTile`). |
+| `features/<feature>/components/organisms/` | Larger feature sections (e.g. `WelcomeHero`, `AuthSheetLayout`, `HomeFeedList`). |
+| `features/<feature>/components/index.ts` | Barrel exports for feature components. |
+| `features/<feature>/helpers/` | Pure utilities — not under `screens/` or `components/`. |
+| `features/<feature>/hooks/` | Data / pagination / composition hooks (storefront; omit if unused). |
+| `features/<feature>/screens/index.ts` | Navigator-facing screen exports only. |
+| `features/<feature>/assets/` | Optional feature-local static media. |
+| `features/<feature>/README.md` | Feature tree documented; keep aligned with disk. |
+
+Example (auth — **actual on disk**, STEP-6.2):
+
+```
+features/auth/
+  README.md
+  api.ts
+  assets/welcome/              # PNG posters + wordmark; index.ts exports fan config
+  components/
+    atoms/
+      AuthGradientBackground.tsx
+      BrandStrip.tsx
+    molecules/
+      CredentialsForm.tsx
+    organisms/
+      AuthSheetLayout.tsx
+      WelcomeHero.tsx
+    index.ts
+  helpers/
+    emailValidation.ts
+    isApiError.ts
+  screens/
+    WelcomeScreen/
+      WelcomeScreen.tsx
+      welcomeLayout.ts
+    Login/
+      EmailEntryScreen.tsx
+      PasswordEntryScreen.tsx
+    PlaceholderScreen/
+      PlaceholderScreen.tsx
+    index.ts
+  state/
+    slices/auth/
+      authSlice.ts
+      authSlice.test.ts
+    actions/
+      logout.ts
+    selectors/
+      auth.ts
+```
+
+Example (storefront — **target** STEP-6.4):
+
+```
+features/storefront/
+  README.md
+  api.ts
+  components/
+    molecules/
+      PortraitTile.tsx
+      ProgressTile.tsx
+    organisms/
+      CarouselRow.tsx
+      HomeFeedList.tsx
+    index.ts
+  helpers/
+    variantConfig.ts
+    placeholderArt.ts
+    progressTileLabel.ts
+  screens/
+    HomeScreen/
+      HomeScreen.tsx
+    ComingSoonScreen/
+      ComingSoonScreen.tsx
+    index.ts
+  hooks/
+    useComposedHome.ts
+    …
+```
+
+Screens import from `../../components/{atoms,molecules,organisms}/…` — never colocate feature components under a screen directory.
+
+**Redux state (features with slices):** when a feature owns Redux state, everything lives under `state/` — not beside it.
+
+| Path | Purpose |
+|------|---------|
+| `features/<feature>/state/slices/<slice>/` | Slice definition + unit tests for that slice. |
+| `features/<feature>/state/actions/` | Imperative store writers that dispatch slice actions (e.g. auth `logout`). |
+| `features/<feature>/state/selectors/` | One file per slice — all selectors for reading that slice from the store. |
+
+Auth is the reference implementation (STEP-6.2). Storefront has **no Redux slice in Phase 1a** (feeds live in RTK Query cache + `hooks/`). When storefront — or any future feature — adds a slice, **use the same `state/` tree as auth**; do not colocate selectors on the slice file or actions at the feature root.
+
+**STEP-6.4 storefront migration checklist** — before UI polish, align folder layout with auth (doc 03 §8.1):
+
+1. `ui/` → `screens/<ScreenName>/` (screen entry files only).
+2. Feature UI → `components/{atoms,molecules,organisms}/` at feature root (classify per atomic design — **not** under screen dirs).
+3. Move pure utilities from `ui/` → `helpers/`.
+4. Add `components/index.ts` and `screens/index.ts`; update shell/tab imports.
+5. Delete empty `ui/`. **No new files under `features/*/ui/`** after 6.4.
+6. Update `features/storefront/README.md` to the post-migration tree.
+7. **State:** omit `state/` until a slice exists; then use auth's `state/slices|actions|selectors` tree.
+
 ### 3.1 Atoms — `shared/ui/atoms` (foundation STEP)
 
 | Component | Variants / states |
@@ -179,15 +286,17 @@ Translucent chrome is `rgba(255,255,255,.07)`, **not** a backdrop blur — RN ne
 | Component | Lives in | Phase |
 |-----------|----------|-------|
 | `SectionHeader`, `TabBarItem`, `ErrorState`, `EmptyState` | `shared/ui/molecules` | 1a |
-| `PortraitTile` (2:3, art only) | `features/storefront/ui` | 1a |
-| `ProgressTile` (16:9 + play + bar + meta block) | `features/storefront/ui` | 1a |
-| `LiveTile`, `LandscapeTile` | `features/storefront/ui` | 1b |
-| `HeroCard` | `features/storefront/ui` | Phase 2 chrome; 1a renders the hero container as a **3:4 portrait stand-in** (OQ-24 closed) |
-| `AuthSheetLayout`, `WelcomeHero`, `CredentialsForm` | `features/auth/ui` | 1a |
+| `PortraitTile` (2:3, art only) | `features/storefront/components/molecules` | 1a |
+| `ProgressTile` (16:9 + play + bar + meta block) | `features/storefront/components/molecules` | 1a |
+| `LiveTile`, `LandscapeTile` | `features/storefront/components/molecules` | 1b |
+| `HeroCard` | `features/storefront/components/organisms` | Phase 2 chrome; 1a renders the hero container as a **3:4 portrait stand-in** (OQ-24 closed) |
+| `AuthSheetLayout`, `WelcomeHero` | `features/auth/components/organisms` | 1a |
+| `CredentialsForm` | `features/auth/components/molecules` | 1a |
+| `AuthGradientBackground`, `BrandStrip` | `features/auth/components/atoms` | 1a |
 
 ### 3.3 Organisms
 
-`Container` (one config-driven carousel for every variant — DF6 / ADR-0007) and `HomeFeedList` in `features/storefront/ui`; `AppHeader`, `TabBar`, `LoadingGate`, `NoInternetOverlay` in the shell.
+`Container` (one config-driven carousel for every variant — DF6 / ADR-0007) and `HomeFeedList` in `features/storefront/components/organisms`; `AppHeader`, `TabBar`, `LoadingGate`, `NoInternetOverlay` in the shell.
 
 ### 3.4 Screen states
 
@@ -467,3 +576,9 @@ const Title = styled.Text`
 | v0.2.3 | 2026-08-18 | STEP-6.2 | Default brand theme slug **`qcplus`** (was `dinsey`). Added `radius.cta` (10 pt) for welcome/offline pill CTAs. `Button` gains optional `cornerRadius: pill \| cta`. QC+ wordmark assets replace Dinsey- placeholders; welcome i18n uses **QC+** / **QC Entertainment**. |
 | v0.2.4 | 2026-08-18 | STEP-6.2 | Stakeholder welcome pack wired: poster fan + PNG wordmark, violet 3-stop gradient (`gradient.mid`), QC+ palette (`#0A0A1F → #150C2E → #050410`, `#F7F5FF` text/CTA, `#9AC4FF` links, `#FF8A3D` accent). Headline and brand strip removed from welcome layout. |
 | v0.2.5 | 2026-08-18 | STEP-6.2 | Spacing scale renamed to semantic steps `space.xxs` … `space.xxxxxxxxxl`; welcome-specific layout constants moved out of `layout.*` into the auth welcome screen module. |
+| v0.2.6 | 2026-08-18 | STEP-6.2 | Auth feature UI reorganized: `features/auth/ui/` → `features/auth/screens/` with per-screen directories (`WelcomeScreen/`, `Login/`), module `components/`, and feature-level `helpers/`. |
+| v0.2.7 | 2026-08-18 | STEP-6.2 | **Feature screen layout** documented as mandatory for all features (`screens/<ScreenName>/` entries only; `helpers/` at feature root). Storefront `ui/` is legacy — migrate in STEP-6.4. Superseded by v0.3.0 (no `screens/*/components/`). |
+| v0.2.8 | 2026-08-18 | STEP-6.2 | **Feature Redux layout** (auth reference): `state/slices/<slice>/`, `state/actions/`, `state/selectors/` — mandatory for future feature slices. |
+| v0.2.9 | 2026-08-18 | STEP-6.2 | STEP-6.4 storefront migration checklist: mirror auth `screens/` + `helpers/` layout; `state/` tree required when a feature gains a slice. |
+| v0.3.0 | 2026-08-18 | STEP-6.2 | Feature **`components/{atoms,molecules,organisms}/`** at module root — not under `screens/`. Auth migrated; storefront + new features must follow. |
+| v0.3.1 | 2026-08-18 | STEP-6.2 | Canonical feature module template moved to **doc 03 §8.1.1** with full auth tree on disk; doc 07 cross-references it. |

@@ -1,8 +1,8 @@
 # Doc 03 — Architecture Overview & Component Boundaries
 
-**Version:** v0.4.5
+**Version:** v0.4.6
 **Status:** Draft
-**Last updated:** 2026-08-18 (STEP-3.5)
+**Last updated:** 2026-08-18 (STEP-6.2)
 **Audience:** Mobile developers, backend team, QA
 
 > How quasar-disney-mobile is cut into components, how those pieces talk, and which boundary is the only one that needs a formal contract.
@@ -146,10 +146,8 @@ referred to `features/`.
 
 ```
 src/app/                       shell — composition root, navigation, store, error boundary
-src/features/auth/
-  └── api.ts                   injectEndpoints: login, getMe
-src/features/storefront/
-  └── api.ts                   injectEndpoints: getHomeFeed, getContinueWatching, getContainerResources
+src/features/auth/               ← reference module (STEP-6.2); copy this shape for new features
+src/features/storefront/         ← migrates to same shape in STEP-6.4 (legacy `ui/` until then)
 src/shared/{theme,ui,i18n,analytics}/
 src/shared/assets/placeholder-art/   bundled placeholder key art (STEP-3.4)
 src/api/
@@ -160,6 +158,78 @@ src/api/
   ├── client/                  axios instance, interceptors, axiosBaseQuery, baseQueryWithAuth
   └── integration/             T2 suites + the wired-world factory (doc 12 §2; STEP-3.5)
 ```
+
+#### 8.1.1 Feature module template (mandatory)
+
+Every feature under `src/features/<name>/` follows the **auth** layout below. **Storefront** must match after STEP-6.4. **New features use this from day one.** Do not create `features/*/ui/` or `screens/*/components/`.
+
+| Path | Required | Purpose |
+|------|----------|---------|
+| `api.ts` | When feature injects RTK endpoints | `injectEndpoints` on `baseApi`; hooks exported here. |
+| `components/atoms/` | If feature-only atoms exist | Single-purpose UI not shared across features. |
+| `components/molecules/` | If composed feature UI exists | e.g. `CredentialsForm`, `PortraitTile`. |
+| `components/organisms/` | If large feature sections exist | e.g. `WelcomeHero`, `HomeFeedList`. |
+| `components/index.ts` | When `components/` is non-empty | Barrel exports. |
+| `helpers/` | If pure utilities exist | Validation, type guards, mappers — **not** under `screens/` or `components/`. |
+| `hooks/` | If feature owns data/composition hooks | e.g. storefront pagination (omit in auth 1a). |
+| `screens/<ScreenName>/` | When feature owns routes | Screen entry `<ScreenName>.tsx` only; optional screen-local layout constants beside it. **No `components/` subfolder.** |
+| `screens/index.ts` | When feature owns routes | Navigator-facing screen exports. |
+| `state/slices/<slice>/` | When feature owns Redux state | Slice + co-located unit tests. Selectors live in `state/selectors/`, not on the slice file. |
+| `state/actions/` | When imperative store writers exist | e.g. `logout.ts` — dispatches slice actions + cache resets. |
+| `state/selectors/` | When feature owns Redux state | One file per slice (e.g. `auth.ts`). |
+| `assets/` | Optional | Feature-local static media (e.g. welcome posters). |
+| `README.md` | Yes | Documents this feature's tree; keep in sync with disk. |
+
+**Reference — `features/auth/` (actual, STEP-6.2):**
+
+```
+features/auth/
+  README.md
+  api.ts
+  api.integration.test.ts
+  sessionRestore.integration.test.ts
+  assets/
+    welcome/
+      index.ts
+      poster_*.png
+      qc_wordmark.png
+  components/
+    atoms/
+      AuthGradientBackground.tsx
+      BrandStrip.tsx
+    molecules/
+      CredentialsForm.tsx
+    organisms/
+      AuthSheetLayout.tsx
+      WelcomeHero.tsx
+    index.ts
+  helpers/
+    emailValidation.ts
+    isApiError.ts
+  screens/
+    WelcomeScreen/
+      WelcomeScreen.tsx
+      welcomeLayout.ts
+    Login/
+      EmailEntryScreen.tsx
+      PasswordEntryScreen.tsx
+    PlaceholderScreen/
+      PlaceholderScreen.tsx
+    index.ts
+  state/
+    slices/
+      auth/
+        authSlice.ts
+        authSlice.test.ts
+    actions/
+      logout.ts
+    selectors/
+      auth.ts
+```
+
+**Target — `features/storefront/` (STEP-6.4):** same tiers; `hooks/` at feature root; **no `state/`** in Phase 1a (RTK Query cache only). See `features/storefront/README.md`.
+
+Screens import feature UI from `../../components/{atoms,molecules,organisms}/…`. Shell imports screens from `features/<feature>/screens`. Selectors are read via `features/<feature>/state/selectors/`.
 
 **`src/api/`, not `src/modules/api/`** — no `modules/` prefix appears anywhere in this
 architecture, and `features/` is already the established word. The tree is created by **STEP-2.2**.
@@ -255,3 +325,4 @@ Redux: **Redux Toolkit** slices (auth only, besides `baseApi`) plus **RTK Query*
 | v0.4.3 | 2026-08-18 | STEP-3.2 | §8.1 tree gains `src/api/sessionCleared.ts`; §8.2 records the **`sessionCleared` seam** — the API module declares the clear signal, the auth slice reduces it — and states explicitly that the API module never imports a feature (PLAN Q1). |
 | v0.4.4 | 2026-08-18 | STEP-3.4 | §8.1 tree gains **`src/shared/assets/placeholder-art/`** — bundled placeholder key art the demo fixtures name by filename string. Resolution of that string to a renderable asset is STEP-5's (PLAN Q4); no dependency change. |
 | v0.4.5 | 2026-08-18 | STEP-3.5 | **§8.2's shell wiring landed**: `createStore()` registers `baseApi.reducer` and `baseApi.middleware`, and the composition root calls `injectStore(store)` — the two lines STEP-2 left as stubs. `api` is in the root-state type and stays off the persist whitelist (ADR-0003, DF3). `createStore()` gains an optional `extraMiddleware` slot, appended after `baseApi.middleware`, because a `configureStore` store is sealed and the 401 reaction is dispatched from *inside* the chain where a `store.dispatch` wrapper cannot see it; the T2 suite records actions through it. §8.1 tree gains **`src/api/integration/`** (test-only). No dependency change. |
+| v0.4.6 | 2026-08-18 | STEP-6.2 | **§8.1.1 Feature module template** — mandatory auth-parity layout (`screens/`, `components/{atoms,molecules,organisms}/`, `helpers/`, `state/slices|actions|selectors/`). Auth migrated on disk; storefront migrates STEP-6.4; new features copy auth from day one. |
